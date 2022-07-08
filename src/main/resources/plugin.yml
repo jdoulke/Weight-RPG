@@ -1,0 +1,4 @@
+name: Testweight
+version: '${project.version}'
+main: ted_2001.testweight.Testweight
+api-version: 1.18
