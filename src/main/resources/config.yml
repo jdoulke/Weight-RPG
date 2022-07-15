@@ -1,0 +1,14 @@
+#####################################################################
+#                                                                   #
+#                                                                   #
+#                 Weight RPG Plugin Configuration                   #
+#                      Author Ted_2001                              #
+#           https://www.spigotmc.org/members/ted_2001.66700/        #
+#                                                                   #
+#####################################################################
+
+
+#Here write your wanted value for your server
+weight-level-1: 200
+weight-level-2: 350
+weight-level-3: 500

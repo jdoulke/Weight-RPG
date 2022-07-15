@@ -2,3 +2,10 @@ name: Testweight
 version: '${project.version}'
 main: ted_2001.testweight.Testweight
 api-version: 1.18
+authors: [ Ted_2001 ]
+commands:
+  weight:
+    description: List of all commands for Weight RPG Plugin.
+    permission: weight.use
+
+
