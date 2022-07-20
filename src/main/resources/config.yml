@@ -5,21 +5,37 @@
 #                      Author Ted_2001                              #
 #           https://www.spigotmc.org/members/ted_2001.66700/        #
 #                                                                   #
+#                                                                   #
 #####################################################################
 
 
-#Here write your wanted weight value for your server
+#Here set up options for weight levels. The effects will be used when the players has more weight than your types value.
+#Messages can support placeholders. List of placeholders
+# %playername% for player's name.
+# %displayname% for player's display name.
+# %weight% for player's weight.
+# %maxweight% for global max weight. (if you have enabled level 3 then level 3 is the maximum if you have disable level 3 but enable level 2 then level 2 is max.
+# %world% for player's world.
+
 weight-level-1:
+  #when this level will take effect.
   value: 300
-  message: "&6Test &ctest"
+  #normal speed is 0.2, accept values 0 between 1.
+  speed: 0.15
+  #The message that will send to the player when he will be over your typed value.
+  message: "%displayname%: &eI am carrying too much items."
 weight-level-2:
+  enabled: true
   value: 450
-  message: "&6"
+  speed: 0.1
+  message: "%displayname%: &6I am carrying too much items."
 weight-level-3:
+  enabled: true
   value: 550
-  message: "&6"
+  speed: 0.05
+  message: "%displayname%: &cI am carrying too much items."
 
-
+#disable plugin on this world(s). Can be empty.
 disabled-worlds:
   - world_nether
   #- world_the_end

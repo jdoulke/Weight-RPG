@@ -17,25 +17,27 @@ public class CalculateWeight {
 
     private List<String> disabledworlds;
 
+    float weight;
+    boolean Weight2 = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
+    boolean Weight3 = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
     public void calculateWeight(Player p){
         String PlayerGamemode = p.getGameMode().toString();
         disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
         if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
-            p.removePotionEffect(PotionEffectType.SLOW);
+            p.setWalkSpeed((float) 0.2);
             return;
         }
         for (String disabledworld : disabledworlds) {
             if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.removePotionEffect(PotionEffectType.SLOW);
+                p.setWalkSpeed((float) 0.2);
                 return;
             }
         }
-        PotionEffect sloweffect;
         PlayerInventory inv = p.getInventory();
         ItemStack[] items = inv.getStorageContents();
         ItemStack[] armor = inv.getArmorContents();
         p.sendMessage(ChatColor.RED+ "Items:");
-        int weight = 0;
+        weight = 0;
         for (ItemStack item : items) {
             if (item != null) {
                 p.sendMessage(String.valueOf((item.getType())));
@@ -55,27 +57,45 @@ public class CalculateWeight {
         double weight1 = getPlugin().getConfig().getDouble("weight-level-1.value");
         double weight2 = getPlugin().getConfig().getDouble("weight-level-2.value");
         double weight3 = getPlugin().getConfig().getDouble("weight-level-3.value");
+        String message;
         if(weight >= weight1 && weight < weight2){
-            p.removePotionEffect(PotionEffectType.SLOW);
-            sloweffect = new PotionEffect(PotionEffectType.SLOW, 2000000,0,false, false);
-            p.addPotionEffect(sloweffect);
+            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-1.speed"));
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, 1,1);
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-1.message"))));
-        }else if(weight >= weight2 && weight < weight3) {
-            p.removePotionEffect(PotionEffectType.SLOW);
-            sloweffect = new PotionEffect(PotionEffectType.SLOW, 2000000, 1, false, false);
-            p.addPotionEffect(sloweffect);
+            message = getPlugin().getConfig().getString("weight-level-1.message");
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
+        }else if(weight >= weight2 && weight < weight3 && Weight2) {
+            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-2.speed"));
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, 1, 1);
-            p.sendMessage(p.getDisplayName() + ChatColor.GOLD + ": I am Carrying too much items.");
-        }else if(weight >= weight3) {
-            p.removePotionEffect(PotionEffectType.SLOW);
-            sloweffect = new PotionEffect(PotionEffectType.SLOW, 2000000, 2, false, false);
-            p.addPotionEffect(sloweffect);
+            message = getPlugin().getConfig().getString("weight-level-2.message");
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
+        }else if(weight >= weight3 && Weight3) {
+            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-3.speed"));
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, 1, 1);
-            p.sendMessage(p.getDisplayName() + ChatColor.RED + "" +ChatColor.BOLD+": I am Carrying too much items.");
+            message = getPlugin().getConfig().getString("weight-level-3.message");
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
         }else {
-            p.removePotionEffect(PotionEffectType.SLOW);
+            p.setWalkSpeed((float) 0.2);
+        }
+    }
 
+
+    private String messageSender(String message, Player p){
+        message = message.replaceAll("%playername%", p.getName());
+        message = message.replaceAll("%displayname%", p.getDisplayName());
+        message = message.replaceAll("%weight%", String.valueOf(weight));
+        message = message.replaceAll("%world%", p.getWorld().getName());
+        if(Weight3) {
+            float maxweight = (float) getPlugin().getConfig().getDouble("weight-level-3.value");
+            message = message.replaceAll("%maxweight%", String.valueOf(maxweight));
+            return message;
+        }else if(Weight2){
+            float maxweight = (float) getPlugin().getConfig().getDouble("weight-level-2.value");
+            message = message.replaceAll("%maxweight%", String.valueOf(maxweight));
+            return message;
+        }else {
+            float maxweight = (float) getPlugin().getConfig().getDouble("weight-level-1.value");
+            message = message.replaceAll("%maxweight%", String.valueOf(maxweight));
+            return message;
         }
     }
 }
