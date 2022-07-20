@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ted_2001</groupId>
-    <artifactId>Testweight</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>Weight-RPG</artifactId>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>Testweight</name>
+    <name>Weight-RPG</name>
 
     <properties>
         <java.version>1.8</java.version>

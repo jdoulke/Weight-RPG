@@ -1,14 +1,17 @@
-package ted_2001.testweight;
+package ted_2001.WeightRPG;
 
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
-import ted_2001.testweight.Commands.Tabcompleter;
-import ted_2001.testweight.Commands.WeightCommand;
-import ted_2001.testweight.Listeners.WeightCalculateListeners;
+import ted_2001.WeightRPG.Commands.Tabcompleter;
+import ted_2001.WeightRPG.Commands.WeightCommand;
+import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
 
-public final class Testweight extends JavaPlugin {
+import java.util.List;
 
-     private static Testweight plugin;
+public final class WeightRPG extends JavaPlugin {
+
+     private static WeightRPG plugin;
+     public List<String> disabledworlds;
 
 
     @Override
@@ -29,7 +32,7 @@ public final class Testweight extends JavaPlugin {
         saveDefaultConfig();
     }
 
-    public static Testweight getPlugin(){
+    public static WeightRPG getPlugin(){
         return plugin;
     }
 

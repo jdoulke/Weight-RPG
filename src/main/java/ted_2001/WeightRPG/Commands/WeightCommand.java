@@ -1,17 +1,14 @@
-package ted_2001.testweight.Commands;
+package ted_2001.WeightRPG.Commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import java.io.File;
+import java.util.List;
 
-import static org.bukkit.Bukkit.getServer;
-import static ted_2001.testweight.Testweight.getPlugin;
+import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
 public class WeightCommand implements CommandExecutor {
@@ -26,7 +23,7 @@ public class WeightCommand implements CommandExecutor {
                 }
                 if(args.length == 1){
                     String arg0 = args[0];
-                    if(arg0.equalsIgnoreCase("reloadconfig")){
+                    if(arg0.equalsIgnoreCase("reload")){
                         getPlugin().reloadConfig();
                         p.sendMessage(ChatColor.GREEN + "You successfully reload config file.");
                     }

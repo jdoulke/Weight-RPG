@@ -8,7 +8,20 @@
 #####################################################################
 
 
-#Here write your wanted value for your server
-weight-level-1: 200
-weight-level-2: 350
-weight-level-3: 500
+#Here write your wanted weight value for your server
+weight-level-1:
+  value: 300
+  message: "&6Test &ctest"
+weight-level-2:
+  value: 450
+  message: "&6"
+weight-level-3:
+  value: 550
+  message: "&6"
+
+
+disabled-worlds:
+  - world_nether
+  #- world_the_end
+  #- world2
+  #- world_3

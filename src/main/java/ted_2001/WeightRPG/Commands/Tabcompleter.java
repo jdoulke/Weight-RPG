@@ -1,4 +1,4 @@
-package ted_2001.testweight.Commands;
+package ted_2001.WeightRPG.Commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -17,7 +17,7 @@ public class Tabcompleter implements TabCompleter {
         if(args.length ==1){
             if(command.getLabel().equalsIgnoreCase("weight")){
 
-                results.add("reloadconfig");
+                results.add("reload");
             }
         }
         return sortedResults(args[0]);

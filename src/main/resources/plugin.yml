@@ -1,6 +1,6 @@
-name: Testweight
+name: Weight-RPG
 version: '${project.version}'
-main: ted_2001.testweight.Testweight
+main: ted_2001.WeightRPG.WeightRPG
 api-version: 1.18
 authors: [ Ted_2001 ]
 commands:
