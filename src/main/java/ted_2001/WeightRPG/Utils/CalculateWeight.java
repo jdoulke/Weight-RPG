@@ -5,11 +5,10 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
+import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
@@ -20,6 +19,9 @@ public class CalculateWeight {
     float weight;
     boolean Weight2 = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
     boolean Weight3 = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
+
+
+
     public void calculateWeight(Player p){
         String PlayerGamemode = p.getGameMode().toString();
         disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
@@ -36,12 +38,30 @@ public class CalculateWeight {
         PlayerInventory inv = p.getInventory();
         ItemStack[] items = inv.getStorageContents();
         ItemStack[] armor = inv.getArmorContents();
+        ItemMeta itemsmeta;
+        boolean loreflag = false;
         p.sendMessage(ChatColor.RED+ "Items:");
         weight = 0;
         for (ItemStack item : items) {
             if (item != null) {
                 p.sendMessage(String.valueOf((item.getType())));
                 p.sendMessage(String.valueOf(item.getAmount()));
+                /*itemsmeta = item.getItemMeta();
+                if(itemsmeta != null) {
+                    if (itemsmeta.hasLore()) {
+                        List<String> lore = itemsmeta.getLore();
+                        for(int i = 0;i < lore.size();i++){
+                            if(lore.get(i).contains("Weight")){
+                                lore.set(i, "Weight " + getWeight(item));
+                                loreflag = true;
+                            }
+                        }if(!loreflag){
+                            lore.add("Weight " + getWeight(item));
+                        }
+                    }
+                }//stone,5 dirt,5 oak_wooden_planks 10
+                loreflag = false;*/
+
                 weight += item.getAmount();
             }
         }
@@ -60,6 +80,7 @@ public class CalculateWeight {
         String message;
         if(weight >= weight1 && weight < weight2){
             p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-1.speed"));
+            Sound s = getPlugin().getConfig().getObject("weight-level-1.sound", Sound.class);
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT, 1,1);
             message = getPlugin().getConfig().getString("weight-level-1.message");
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
