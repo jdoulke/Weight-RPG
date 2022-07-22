@@ -1,7 +1,6 @@
 package ted_2001.WeightRPG.Utils;
 
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
@@ -9,14 +8,20 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 
+
 import java.io.*;
-import java.util.Scanner;
+import java.util.HashMap;
+import java.util.UUID;
 
 
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
+
 public class JsonFile {
 
+
+    public static HashMap<UUID,Float> weighthashmap;
+    public static HashMap<ItemStack, Float> globalitemsweight;
     public void saveJsonFile(){
         JSONObject ItemsWeight = new JSONObject();
         JSONObject ArmorAndWeaponsWeight = new JSONObject();
@@ -247,30 +252,30 @@ public class JsonFile {
                 BlocksWeight.put("Blocks Weight", blocks);
                 BlocksWeight.put("Working Tables and Furnaces Weight", work);
                 BlocksWeight.put("Boats Weight", boat);
-                ItemsWeight.put("Food Items Weight", food);
-                BlocksWeight.put("Logs, Planks and Saplings Weight", wood);
-                BlocksWeight.put("Concretes Weight", concrete);
-                BlocksWeight.put("Carpets Weight", carpet);
-                ItemsWeight.put("Candles Weight", candle);
-                ItemsWeight.put("Heads Weight", head);
-                ItemsWeight.put("Banners Weight", banner);
                 BlocksWeight.put("Glasses Weight", glass);
                 BlocksWeight.put("Beds Weight", bed);
                 BlocksWeight.put("Terracottas Weight", terracotta);
                 BlocksWeight.put("Wools Weight", wools);
-                ItemsWeight.put("Records Weight", records);
-                ItemsWeight.put("Misc Items Weight", items);
+                BlocksWeight.put("Logs, Planks and Saplings Weight", wood);
+                BlocksWeight.put("Concretes Weight", concrete);
+                BlocksWeight.put("Carpets Weight", carpet);
                 BlocksWeight.put("Leaves Weight", leaves);
                 BlocksWeight.put("Shulker Boxes Weight", shulker);
-                ItemsWeight.put("Ingots and Ores Weight", ingots);
                 BlocksWeight.put("Plates Weight", plate);
-                ItemsWeight.put("Redstone Items Weight", redstone);
                 BlocksWeight.put("Buttons Weight", button);
                 BlocksWeight.put("Doors Weight", door);
                 BlocksWeight.put("Fences Weight", fence);
+                BlocksWeight.put("Signs Weight", sign);
+                ItemsWeight.put("Candles Weight", candle);
+                ItemsWeight.put("Heads Weight", head);
+                ItemsWeight.put("Banners Weight", banner);
+                ItemsWeight.put("Food Items Weight", food);
+                ItemsWeight.put("Records Weight", records);
+                ItemsWeight.put("Misc Items Weight", items);
+                ItemsWeight.put("Ingots and Ores Weight", ingots);
+                ItemsWeight.put("Redstone Items Weight", redstone);
                 ItemsWeight.put("Eggs Weight", egg);
                 ItemsWeight.put("Dyes Weight", dyes);
-                BlocksWeight.put("Signs Weight", sign);
                 ItemsWeight.put("Flowers Weight", flowers);
                 try (PrintWriter out = new PrintWriter(new FileWriter(blocksweight))) {
                     out.write(BlocksWeight.toString(2));
@@ -290,25 +295,65 @@ public class JsonFile {
     }
 
     public void readJsonFile(){
-        File itemweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
-        String resourceName = getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json";
-        InputStream is = JsonFile.class.getResourceAsStream(resourceName);
-        if (is == null){
-            throw new NullPointerException("Cannot find resource file " + resourceName);
-        }
-        JSONTokener tokener = new JSONTokener(is);
-        JSONObject object = new JSONObject(tokener);
-        /*try {
-            Scanner reader = new Scanner(itemweight);
-            while(reader.hasNextLine()){
-                String line = reader.nextLine();
-                String[] getter = line.split("=");
-                Material material = Material.getMaterial(getter[0]);
-                ItemStack item = new ItemStack(material);
-            }
+        InputStream is;
+        try {
+            is = new FileInputStream(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
-        }*/
+        }
+        JSONTokener tokener = new JSONTokener(is);
+        JSONObject  blocksweight = new JSONObject(tokener);
+        JSONArray  blocks = blocksweight.getJSONArray("Blocks Weight");
+        JSONArray  doors = blocksweight.getJSONArray("Doors Weight");
+        JSONArray  signs = blocksweight.getJSONArray("Signs Weight");
+        JSONArray  wools = blocksweight.getJSONArray("Wools Weight");
+        JSONArray  leaves = blocksweight.getJSONArray("Leaves Weight");
+        JSONArray  glasses = blocksweight.getJSONArray("Glasses Weight");
+        JSONArray  boats = blocksweight.getJSONArray("Boats Weight");
+        JSONArray  fence = blocksweight.getJSONArray("Fences Weight");
+        JSONArray  plates = blocksweight.getJSONArray("Plates Weight");
+        JSONArray  carpets = blocksweight.getJSONArray("Carpets Weight");
+        JSONArray  terracotta = blocksweight.getJSONArray("Terracottas Weight");
+        JSONArray  beds = blocksweight.getJSONArray("Beds Weight");
+        JSONArray  shulker = blocksweight.getJSONArray("Shulker Boxes Weight");
+        JSONArray  button = blocksweight.getJSONArray("Buttons Weight");
+        JSONArray  concretes = blocksweight.getJSONArray("Concretes Weight");
+        JSONArray  table = blocksweight.getJSONArray("Working Tables and Furnaces Weight");
+        JSONArray  wood = blocksweight.getJSONArray("Logs, Planks and Saplings Weight");
+        addGlobalItemsWeight(blocks);
+        addGlobalItemsWeight(doors);
+        addGlobalItemsWeight(signs);
+        addGlobalItemsWeight(leaves);
+        addGlobalItemsWeight(glasses);
+        addGlobalItemsWeight(wools);
+        addGlobalItemsWeight(boats);
+        addGlobalItemsWeight(fence);
+        addGlobalItemsWeight(carpets);
+        addGlobalItemsWeight(terracotta);
+        addGlobalItemsWeight(plates);
+        addGlobalItemsWeight(beds);
+        addGlobalItemsWeight(shulker);
+        addGlobalItemsWeight(button);
+        addGlobalItemsWeight(concretes);
+        addGlobalItemsWeight(table);
+        addGlobalItemsWeight(wood);
 
     }
+
+    private void addGlobalItemsWeight(JSONArray array) {
+        for(int i = 0; i < array.length(); i++){
+            String item = array.get(i).toString();
+            String[] item_weight = item.split("=");
+            item = item_weight[0];
+            Material material = Material.getMaterial(item);
+            ItemStack itemStack = new ItemStack(material);
+            Float weight = Float.valueOf(item_weight[1]);
+            globalitemsweight.put(itemStack,weight);
+        }
+    }
+    public static float getItemWeight(ItemStack item) {
+        return globalitemsweight.get(item);
+    }
+
+
 }

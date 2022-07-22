@@ -26,8 +26,7 @@ public final class WeightRPG extends JavaPlugin {
 
      private static WeightRPG plugin;
 
-    public HashMap<UUID,Float> weighthashmap;
-    public HashMap<ItemStack, Float> itemweight;
+
 
 
 
@@ -49,12 +48,16 @@ public final class WeightRPG extends JavaPlugin {
             Weight.mkdir();
         js.saveJsonFile();
         getServer().getLogger().info("[Weight-RPG] Done.");
+        js.readJsonFile();
     }
 
     @Override
     public void onDisable() {
         saveDefaultConfig();
     }
+
+
+
 
     public static WeightRPG getPlugin(){
         return plugin;
