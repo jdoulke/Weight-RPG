@@ -1,13 +1,16 @@
 package ted_2001.WeightRPG.Utils;
 
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+
+import java.io.*;
+import java.util.Scanner;
 
 
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
@@ -17,6 +20,7 @@ public class JsonFile {
     public void saveJsonFile(){
         JSONObject ItemsWeight = new JSONObject();
         JSONObject ArmorAndWeaponsWeight = new JSONObject();
+        JSONObject BlocksWeight = new JSONObject();
         JSONArray blocks = new JSONArray();
         JSONArray items = new JSONArray();
         JSONArray records = new JSONArray();
@@ -39,12 +43,26 @@ public class JsonFile {
         JSONArray ingots = new JSONArray();
         JSONArray plate = new JSONArray();
         JSONArray button = new JSONArray();
+        JSONArray door = new JSONArray();
+        JSONArray fence = new JSONArray();
+        JSONArray egg = new JSONArray();
+        JSONArray dyes = new JSONArray();
+        JSONArray sign = new JSONArray();
+        JSONArray horse = new JSONArray();
+        JSONArray redstone = new JSONArray();
+        JSONArray boat = new JSONArray();
+        JSONArray work = new JSONArray();
+        JSONArray food = new JSONArray();
         int bcount = 0, icount = 0, rcount = 0, armorcount = 0, tcount = 0, arrowcount = 0 ,woolscount = 0, terracottacount = 0, glasscount = 0, concretecount = 0;
         int flowerscount = 0, carpetcount = 0, candlecount = 0, headcount = 0, bannercount = 0, bedcount = 0, woodcount = 0 , leavescount = 0, shulkercount = 0;
-        int ingotscount = 0, buttoncount = 0, platecount = 0;
-        File weights = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Items Weight.json");
+        int ingotscount = 0, buttoncount = 0, platecount = 0, doorcount = 0, fencecount = 0, eggcount = 0, dyescount = 0, signcount = 0, horsecount = 0, redstonecount = 0;
+        int boatcount = 0, workcount = 0, foodcount = 0;
+        File blocksweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
+        File toolsweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Tools And Weapons Weight.json");
+        File miscweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
         if(getPlugin().getDataFolder().exists()) {
-            if (!weights.exists()) {
+            if (!blocksweight.exists() || !toolsweight.exists() || !miscweight.exists()) {
+                getPlugin().getServer().getLogger().info("[Weight-RPG] Weights files don't exist. Creating them.");
                 Material[] allitems = Material.values();
                 for(int i =1;i < allitems.length;i++){
                     String tempitem = allitems[i].toString();
@@ -81,39 +99,80 @@ public class JsonFile {
                     }else if(tempitem.contains("BUTTON")) {
                         button.put(buttoncount, tempitem + "=0.1");
                         buttoncount++;
-                    }else if(tempitem.contains("PLATE")) {
+                    }else if(tempitem.contains("BOAT")) {
+                        boat.put(boatcount, tempitem + "=15");
+                        boatcount++;
+                    }else if(tempitem.contains("PLATE") && !tempitem.contains("CHESTPLATE")) {
                         plate.put(platecount, tempitem + "=0.3");
                         platecount++;
-                    }else if(tempitem.contains("BANNER") && !tempitem.contains("WALL") && !tempitem.contains("PATTERN")) {
+                    }else if(tempitem.contains("BANNER") && !tempitem.contains("WALL")) {
                         banner.put(bannercount, tempitem + "=1.5");
                         bannercount++;
                     }else if(tempitem.contains("SHULKER_BOX")) {
-                        shulker.put(shulkercount, tempitem + "=1.5");
+                        shulker.put(shulkercount, tempitem + "=8");
                         shulkercount++;
+                    }else if(tempitem.contains("DOOR")) {
+                        if(tempitem.contains("TRAP"))
+                            door.put(doorcount, tempitem + "=4");
+                        else
+                            door.put(doorcount, tempitem + "=8");
+                        doorcount++;
+                    }else if(tempitem.contains("EGG") && !tempitem.contains("LEGGINGS")) {
+                        egg.put(eggcount, tempitem + "=0.1");
+                        eggcount++;
+                    }else if(tempitem.contains("DYE")) {
+                        dyes.put(dyescount, tempitem + "=0.01");
+                        dyescount++;
+                    }else if(tempitem.contains("FENCE")) {
+                        fence.put(fencecount, tempitem + "=1");
+                        fencecount++;
+                    }else if(tempitem.contains("HORSE_ARMOR")) {
+                        horse.put(horsecount, tempitem + "=30");
+                        horsecount++;
                     }else if(tempitem.contains("CANDLE") && !tempitem.contains("CAKE")) {
                         candle.put(candlecount, tempitem + "=0.2");
                         candlecount++;
+                    }else if(tempitem.contains("SIGN") && !tempitem.contains("WALL")) {
+                        sign.put(signcount, tempitem + "=4");
+                        signcount++;
                     }else if(tempitem.contains("HEAD") || tempitem.contains("SKULL")) {
                         head.put(headcount, tempitem + "=7");
                         headcount++;
-                    }else if((tempitem.contains("CORAL") && !tempitem.contains("BLOCK")) || tempitem.contains("POTTED")) {
-                        flowers.put(flowerscount, tempitem + "=0.05");
-                        flowerscount++;
-                    }else if(tempitem.contains("CHESTPLATE") || tempitem.contains("LEGGINGS") || tempitem.contains("HELMET") || tempitem.contains("BOOTS")) {
-                        if (tempitem.contains("IRON") || tempitem.contains("CHAINMAIL"))
-                            armor.put(armorcount, tempitem + "=10");
-                        else if (tempitem.contains("NETHERITE"))
-                            armor.put(armorcount, tempitem + "=25");
-                        else if (tempitem.contains("GOLDEN"))
-                            armor.put(armorcount, tempitem + "=14");
-                        else if (tempitem.contains("DIAMOND"))
+                    }else if(tempitem.contains("BOOTS") || tempitem.contains("LEGGINGS") || tempitem.contains("CHESTPLATE") || tempitem.contains("HELMET")) {
+                        if(tempitem.contains("DIAMOND"))
                             armor.put(armorcount, tempitem + "=20");
+                        else if(tempitem.contains("GOLD"))
+                            armor.put(armorcount, tempitem + "=18");
+                        else if(tempitem.contains("NETHERITE"))
+                            armor.put(armorcount, tempitem + "=25");
+                        else if(tempitem.contains("IRON") || tempitem.contains("CHAINMAIL"))
+                            armor.put(armorcount, tempitem + "=15");
                         else
                             armor.put(armorcount, tempitem + "=5");
                         armorcount++;
+                    }else if((tempitem.contains("REDSTONE") || tempitem.contains("RAIL") || tempitem.contains("PISTON") || tempitem.contains("DETECTOR") || tempitem.contains("DROPPER") ||
+                                tempitem.contains("DISPENSER") || tempitem.contains("OBSERVER") || tempitem.contains("HOPPER") || tempitem.contains("MINECART") || tempitem.contains("REPEATER")||
+                                tempitem.contains("COMPARATOR")|| tempitem.contains("TARGET") || tempitem.contains("HOOK"))&& !tempitem.contains("WALL") && !tempitem.contains("MOVING") &&
+                                !tempitem.contains("ORE")) {
+                            redstone.put(redstonecount, tempitem + "=1");
+                            redstonecount++;
+                    }else if((tempitem.contains("TABLE") && !tempitem.contains("BOOK")) || tempitem.contains("FURNACE") || tempitem.contains("SMOKER") || tempitem.contains("ANVIL") ||
+                            (tempitem.contains("CHEST") && !tempitem.contains("PLATE")) || tempitem.contains("JUKEBOX") || tempitem.contains("LOOM") ||
+                            tempitem.contains("COMPOSTER") || tempitem.contains("BARREL") || tempitem.contains("GRIDSTONE") || tempitem.contains("STONECUTTER") ||
+                            tempitem.contains("STAND") ||tempitem.equalsIgnoreCase("CAULDRON")) {
+                        work.put(workcount, tempitem + "=12");
+                        workcount++;
+                    }else if(tempitem.contains("COOK") ||tempitem.contains("APPLE") || (tempitem.contains("CARROT") && !tempitem.contains("STICK")  )|| tempitem.contains("BERRIES") ||
+                            tempitem.contains("STEW") || tempitem.contains("BEETROOT") || tempitem.contains("MUTTON") || tempitem.contains("POTATO") || tempitem.contains("CHICKEN") ||
+                            tempitem.contains("BEEF") || tempitem.contains("MELON") || (tempitem.contains("CAKE") && !tempitem.contains("CANDLE"))  || tempitem.equalsIgnoreCase("TROPICAL_FISH") || tempitem.equalsIgnoreCase("PUFFERFISH") ||
+                            tempitem.equalsIgnoreCase("SALMON") || tempitem.equalsIgnoreCase("COD") || tempitem.contains("BREAD") || tempitem.contains("PORKCHOP") ||
+                            tempitem.equalsIgnoreCase("RABBIT")) {
+                        food.put(foodcount, tempitem + "=0.5");
+                        foodcount++;
                     }else if((!tempitem.contains("COPPER") && tempitem.contains("AXE") )|| tempitem.contains("SWORD") || tempitem.contains("SHOVEL") || tempitem.contains("HOE") || tempitem.contains("SPYGLASS") ||
                             tempitem.contains("FISHING") || tempitem.contains("COMPASS") || tempitem.contains("FLINT_AND_STEEL") || tempitem.equalsIgnoreCase("BOW") || tempitem.contains("NAME_TAG")
-                            || tempitem.contains("CROSSBOW")) {
+                            || tempitem.contains("CROSSBOW") || tempitem.contains("CLOCK") || (tempitem.contains("BOOK") && !tempitem.contains("SHELF"))|| tempitem.contains("PAPER") || tempitem.contains("BUCKET") ||
+                            tempitem.contains("SHIELD") || tempitem.contains("TRIDENT") || tempitem.contains("SHEARS") || tempitem.contains("LEAD") || tempitem.contains("MAP")) {
                         if(tempitem.contains("DIAMOND"))
                             tools.put(tcount, tempitem + "=8");
                         else if (tempitem.contains("WOODEN"))
@@ -128,6 +187,10 @@ public class JsonFile {
                             tools.put(tcount, tempitem + "=7");
                         else if (tempitem.contains("BOW"))
                             tools.put(tcount, tempitem + "=12");
+                        else if (tempitem.contains("PAPER") || tempitem.contains("MAP"))
+                            tools.put(tcount, tempitem + "=0.2");
+                        else if (tempitem.contains("BOOK"))
+                            tools.put(tcount, tempitem + "=1");
                         else
                             tools.put(tcount, tempitem + "=5");
                         tcount++;
@@ -139,55 +202,113 @@ public class JsonFile {
                         else
                             wood.put(woodcount, tempitem + "=0.2");
                         woodcount++;
+                    }else if((tempitem.contains("CORAL") && !tempitem.contains("BLOCK")) || tempitem.contains("POTTED") || tempitem.contains("KELP") || tempitem.contains("VINES") ||
+                            tempitem.contains("ROOTS") || tempitem.contains("TULIP") || tempitem.contains("DAISY") || tempitem.contains("FUNGUS") || (tempitem.contains("MUSHROOM") && !tempitem.contains("BLOCK"))||
+                            tempitem.contains("BLUET") || tempitem.contains("ORCHID") || tempitem.contains("POPPY") || tempitem.contains("SEAGRASS") || tempitem.contains("AZALEA") ||
+                            (tempitem.contains("GRASS") && !tempitem.contains("BLOCK")) || tempitem.contains("BUSH") || tempitem.contains("FERN") || tempitem.contains("ALLIUM") || tempitem.contains("DANDELION") ||
+                            tempitem.contains("CORNFLOWER") || tempitem.contains("LILY") || tempitem.contains("ROSE") || tempitem.equalsIgnoreCase("SUGAR_CANE") || tempitem.contains("SPROUTS") || tempitem.contains("DRIPLEAF") ||
+                            tempitem.contains("BAMBOO") ||tempitem.equalsIgnoreCase("GLOW_LICHEN") ||tempitem.contains("PEONY")  ||tempitem.contains("SEEDS") || tempitem.contains("PLANT") || tempitem.contains("FLOWER") ||tempitem.contains("VINE") || tempitem.contains("LILAC"))  {
+                        flowers.put(flowerscount, tempitem + "=0.05");
+                        flowerscount++;
                     }else if(tempitem.contains("BLOCK") || tempitem.contains("GRANITE") ||tempitem.contains("DIORITE") ||tempitem.contains("ANDESITE") ||
                             tempitem.contains("DEEPSLATE") || tempitem.contains("STONE") || tempitem.contains("SLAB") || tempitem.contains("BRICK") ||
-                            tempitem.contains("STAIRS") || tempitem.contains("WAXED")) {
+                            tempitem.contains("STAIRS") || tempitem.contains("WAXED") || tempitem.contains("DIRT") || tempitem.contains("SAND") ||
+                            (tempitem.contains("COPPER") && !tempitem.contains("INGOT")) || tempitem.contains("ORE") || tempitem.contains("PODZOL") ||
+                            tempitem.contains("NYLIUM") || tempitem.contains("GRAVEL") || tempitem.contains("SPONGE") || tempitem.contains("HYPHAE") ||
+                            tempitem.contains("OBSIDIAN") || tempitem.contains("BEEHIVE") || tempitem.contains("BEE_NEST") || tempitem.contains("BUD") ||
+                            tempitem.contains("PILLAR") || tempitem.contains("FARMLAND") || tempitem.contains("CACTUS") || tempitem.contains("PUMPKIN") ||
+                            tempitem.contains("BASALT") || tempitem.contains("JACK_O") || tempitem.contains("NETHERRACK") || tempitem.contains("SOUL_SOIL") ||
+                            (tempitem.contains("PRISMARINE") && tempitem.contains("SHARD") && tempitem.contains("CRYSTALS")) || tempitem.contains("ICE") ||
+                            tempitem.contains("SEA_LANTERN") || tempitem.contains("SCAFFOLDING") || (tempitem.contains("STEM") && !tempitem.contains("MELON")) ||  tempitem.contains("ANCHOR") ||
+                            tempitem.contains("CAMPFIRE") || tempitem.contains("SHROOMLIGHT") || tempitem.equalsIgnoreCase("MYCELIUM") ||tempitem.contains("BOOKSHELF") ||
+                            tempitem.contains("CALCITE") || tempitem.contains("TUFF") || tempitem.contains("ANCIENT") || tempitem.contains("QUARTZ") ||
+                            (tempitem.contains("CLAY") && !tempitem.contains("BALL")) || tempitem.contains("MUD") || tempitem.contains("SCULK") || tempitem.contains("FROGLIGHT") ){
                         blocks.put(bcount, tempitem + "=2");
                         bcount++;
-                    }else if(tempitem.contains("INGOT") || tempitem.contains("DIAMOND") || tempitem.contains("EMERALD") ||
+                    }else if(tempitem.contains("INGOT") || tempitem.equalsIgnoreCase("DIAMOND") || tempitem.equalsIgnoreCase("EMERALD") ||
                             tempitem.contains("COAL") || tempitem.contains("LAPIS_LAZULI") || tempitem.contains("RAW_IRON") ||
-                            tempitem.contains("RAW_GOLD") || tempitem.contains("RAW_COPPER") || tempitem.contains("NETHERITE_SCRAP")) {
+                            tempitem.contains("RAW_GOLD") || tempitem.contains("RAW_COPPER") || tempitem.contains("NETHERITE_SCRAP") ) {
                         ingots.put(ingotscount, tempitem + "=1.5");
                         ingotscount++;
                     }else{
-                        //if(allitems[i].isSolid()) {
+                        if(!tempitem.contains("AIR") && !tempitem.contains("WALL") && !tempitem.equalsIgnoreCase("FIRE") && !tempitem.equalsIgnoreCase("SOUL_FIRE")
+                            && !tempitem.equalsIgnoreCase("LAVA") && !tempitem.equalsIgnoreCase("WATER")  && !tempitem.contains("POWDER_SNOW") && !tempitem.contains("CAKE") &&
+                            !tempitem.contains("COLUMN")  && !tempitem.contains("GATEWAY")  && !tempitem.contains("PORTAL")  && !tempitem.contains("STEM") && !tempitem.contains("LIGHT") && !tempitem.contains("VOID") &&
+                            !tempitem.contains("BUNDLE") && !tempitem.contains("CAULDRON") && !tempitem.contains("MANGROVE_PROPAGULE") ) {
                             items.put(icount, tempitem + "=1");
                             icount++;
-                        //}
+                        }
                     }
                 }
                 ArmorAndWeaponsWeight.put("Armor Weight", armor);
                 ArmorAndWeaponsWeight.put("Tools Weight", tools);
                 ArmorAndWeaponsWeight.put("Arrows Weight", arrow);
-                ItemsWeight.put("Blocks Weight", blocks);
-                ItemsWeight.put("Logs, Planks and Saplings Weight", wood);
-                ItemsWeight.put("Concretes Weight", concrete);
-                ItemsWeight.put("Carpets Weight", carpet);
+                ArmorAndWeaponsWeight.put("Horse Armor Weight", horse);
+                BlocksWeight.put("Blocks Weight", blocks);
+                BlocksWeight.put("Working Tables and Furnaces Weight", work);
+                BlocksWeight.put("Boats Weight", boat);
+                ItemsWeight.put("Food Items Weight", food);
+                BlocksWeight.put("Logs, Planks and Saplings Weight", wood);
+                BlocksWeight.put("Concretes Weight", concrete);
+                BlocksWeight.put("Carpets Weight", carpet);
                 ItemsWeight.put("Candles Weight", candle);
                 ItemsWeight.put("Heads Weight", head);
                 ItemsWeight.put("Banners Weight", banner);
-                ItemsWeight.put("Glasses Weight", glass);
-                ItemsWeight.put("Beds Weight", bed);
-                ItemsWeight.put("Terracottas Weight", terracotta);
-                ItemsWeight.put("Wools Weight", wools);
+                BlocksWeight.put("Glasses Weight", glass);
+                BlocksWeight.put("Beds Weight", bed);
+                BlocksWeight.put("Terracottas Weight", terracotta);
+                BlocksWeight.put("Wools Weight", wools);
                 ItemsWeight.put("Records Weight", records);
                 ItemsWeight.put("Misc Items Weight", items);
-                ItemsWeight.put("Leaves Weight", leaves);
-                ItemsWeight.put("Shulker Boxes Weight", shulker);
+                BlocksWeight.put("Leaves Weight", leaves);
+                BlocksWeight.put("Shulker Boxes Weight", shulker);
                 ItemsWeight.put("Ingots and Ores Weight", ingots);
-                ItemsWeight.put("Plates Weight", plate);
-                ItemsWeight.put("Buttons Weight", button);
-                try (PrintWriter out = new PrintWriter(new FileWriter(weights))) {
-                    out.write(ItemsWeight.toString(2));
+                BlocksWeight.put("Plates Weight", plate);
+                ItemsWeight.put("Redstone Items Weight", redstone);
+                BlocksWeight.put("Buttons Weight", button);
+                BlocksWeight.put("Doors Weight", door);
+                BlocksWeight.put("Fences Weight", fence);
+                ItemsWeight.put("Eggs Weight", egg);
+                ItemsWeight.put("Dyes Weight", dyes);
+                BlocksWeight.put("Signs Weight", sign);
+                ItemsWeight.put("Flowers Weight", flowers);
+                try (PrintWriter out = new PrintWriter(new FileWriter(blocksweight))) {
+                    out.write(BlocksWeight.toString(2));
                 }catch (Exception e){
                     e.printStackTrace();
-                }
-                try (PrintWriter out2 = new PrintWriter(new FileWriter(getPlugin().getDataFolder().getAbsolutePath() +"\\Tools and Weapons Weight.json"))) {
-                    out2.write(ArmorAndWeaponsWeight.toString(2));
+                }try (PrintWriter out = new PrintWriter(new FileWriter(toolsweight))) {
+                    out.write(ArmorAndWeaponsWeight.toString(2));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }try (PrintWriter out = new PrintWriter(new FileWriter(miscweight))) {
+                    out.write(ItemsWeight.toString(2));
                 }catch (Exception e){
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    public void readJsonFile(){
+        File itemweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
+        String resourceName = getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json";
+        InputStream is = JsonFile.class.getResourceAsStream(resourceName);
+        if (is == null){
+            throw new NullPointerException("Cannot find resource file " + resourceName);
+        }
+        JSONTokener tokener = new JSONTokener(is);
+        JSONObject object = new JSONObject(tokener);
+        /*try {
+            Scanner reader = new Scanner(itemweight);
+            while(reader.hasNextLine()){
+                String line = reader.nextLine();
+                String[] getter = line.split("=");
+                Material material = Material.getMaterial(getter[0]);
+                ItemStack item = new ItemStack(material);
+            }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }*/
+
     }
 }

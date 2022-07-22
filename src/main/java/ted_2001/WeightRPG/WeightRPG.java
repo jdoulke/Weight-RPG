@@ -43,6 +43,10 @@ public final class WeightRPG extends JavaPlugin {
         getServer().getLogger().info("[Weight-RPG] Getting ready config and items weight files.");
         getConfig().options().copyDefaults();
         saveDefaultConfig();
+        String path = this.getDataFolder().getAbsolutePath();
+        File Weight = new File(path + "\\Weights");
+        if(!Weight.exists())
+            Weight.mkdir();
         js.saveJsonFile();
         getServer().getLogger().info("[Weight-RPG] Done.");
     }
