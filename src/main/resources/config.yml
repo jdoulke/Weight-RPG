@@ -9,33 +9,64 @@
 #####################################################################
 
 
-#Here set up options for weight levels. The effects will be used when the players has more weight than your types value.
+#Here set up options for weight levels. The effects will be used when the players have more weight than your type's value.
 #Messages can support placeholders. List of placeholders
 # %playername% for player's name.
 # %displayname% for player's display name.
 # %weight% for player's weight.
-# %maxweight% for global max weight. (if you have enabled level 3 then level 3 is the maximum if you have disable level 3 but enable level 2 then level 2 is max.
+# %maxweight% for global max weight. (if you have enabled level 3 then level 3 is the maximum if you have disabled level 3 but enabled level 2 then level 2 is the max.
 # %world% for player's world.
+# %level1% for weight level 1 value %level2% for level 2 and %level3% for level 3.
+# %percentage% for weight percentage (weight * 100 / maxweight)
+# %percentageweight% for percentage animation.
 
 weight-level-1:
   #when this level will take effect.
-  value: 300
+  value: 900
   #normal speed is 0.2, accept values 0 between 1.
   speed: 0.15
+  #Disable jump for players in this level when they are carrying too many items. (default false)
+  disable-jump: false
+  #the sound that will play when this level takes effect. Write none for no sound. List of sounds https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+  sound: none
   #The message that will send to the player when he will be over your typed value.
-  message: "%displayname%: &eI am carrying too much items."
+  message: "%displayname%: &eI am carrying too many items. &e%weight% &a/ &c%level1%"
 weight-level-2:
   enabled: true
-  value: 450
+  value: 1300
   speed: 0.1
-  message: "%displayname%: &6I am carrying too much items."
+  disable-jump: false
+  sound: ENTITY_PLAYER_HURT
+  message: "%displayname%: &6I am carrying too many items. &e%weight% &a/ &c%level2%"
 weight-level-3:
   enabled: true
-  value: 550
+  value: 1800
   speed: 0.05
-  message: "%displayname%: &cI am carrying too much items."
+  disable-jump: true
+  sound: ENTITY_PLAYER_HURT
+  message: "%displayname%: &cI am carrying too many items. &e%weight% &a/ &c%level3%"
 
-#disable plugin on this world(s). Can be empty.
+#Should messages send as actionbar messages? (if false send messages on chat, default true)
+actionbar-messages: true
+
+#Couldown in seconds before the next message send to the player. (default 10)
+messages-cooldown: 10
+
+#The message that will send to the player when he is carrying too many items to jump.
+disable-jump-message: "%displayname%: &cI am carrying too many items to &2jump."
+
+#Message of /weight command. Support all placeholders.
+weight-command-message:
+  - "%displayname% &eyour weight is &e%weight% &a/ &c%maxweight%."
+  - "&cPercentage %percentage%%"
+  - "%percentageweight%"
+  - "&eLevel 1 &avalue is &c%level1%."
+  - "&6Level 2 &avalue is &c%level2%."
+  - "&cLevel 3 &avalue is &c%level3%."
+  #- ""
+
+
+#disable the plugin on this world(s). It can be empty.
 disabled-worlds:
   - world_nether
   #- world_the_end
