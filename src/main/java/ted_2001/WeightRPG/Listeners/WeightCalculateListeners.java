@@ -5,7 +5,6 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,15 +12,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
-import ted_2001.WeightRPG.Utils.ItemsWeightLore;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static ted_2001.WeightRPG.Utils.CalculateWeight.playerweight;
@@ -34,22 +30,26 @@ public class WeightCalculateListeners implements Listener {
 
     CalculateWeight w= new CalculateWeight();
     public final HashMap<UUID, Long> jumpmessage = new HashMap<>();
+    public final HashMap<UUID, Long> pickordropmessage = new HashMap<>();
     private List<String> disabledworlds;
     @EventHandler (priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent e){
         Player p = (Player) e.getPlayer();
-        w.calculateWeight(p);
+        if(!p.hasPermission("weight.bypass"))
+            w.calculateWeight(p);
     }
     @EventHandler (priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e){
         Player p = e.getPlayer();
-        w.calculateWeight(p);
+        if(!p.hasPermission("weight.bypass"))
+            w.calculateWeight(p);
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerRespawn(PlayerRespawnEvent e){
         Player p = e.getPlayer();
-        w.calculateWeight(p);
+        if(!p.hasPermission("weight.bypass"))
+            w.calculateWeight(p);
     }
 
     @EventHandler (priority = EventPriority.LOWEST)
@@ -64,14 +64,19 @@ public class WeightCalculateListeners implements Listener {
     public void onItemPickUp(EntityPickupItemEvent e){
         if(e.getEntity() instanceof Player){
             Player p = ((Player) e.getEntity()).getPlayer();
-            if(playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null){
-                w.calculateWeight(p);
-            }else {
-                Material item = e.getItem().getItemStack().getType();
-                int amount = e.getItem().getItemStack().getAmount();
-                String s = "pick";
-                putWeightValue(p, item, amount, s);
-                w.getWeightsEffect(p);
+            Material item = e.getItem().getItemStack().getType();
+            int amount = e.getItem().getItemStack().getAmount();
+            float weight = globalitemsweight.get(item);
+            if(!p.hasPermission("weight.bypass")) {
+                if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
+                    w.calculateWeight(p);
+                    message(p,"gain",item,weight);
+                }else{
+                    String s = "pick";
+                    putWeightValue(p, item, amount, s);
+                    message(p,"gain",item,weight);
+                    w.getWeightsEffect(p);
+                }
             }
         }
     }
@@ -81,27 +86,37 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.HIGH)
     public void onItemDrop(PlayerDropItemEvent e){
         Player p = e.getPlayer();
-        if(playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null){
-            w.calculateWeight(p);
-        }else {
-            Material item = e.getItemDrop().getItemStack().getType();
-            int amount = e.getItemDrop().getItemStack().getAmount();
-            String s = "place";
-            putWeightValue(p, item, amount, s);
-            w.getWeightsEffect(p);
+        Material item = e.getItemDrop().getItemStack().getType();
+        int amount = e.getItemDrop().getItemStack().getAmount();
+        float weight = globalitemsweight.get(item);
+        if(!p.hasPermission("weight.bypass")) {
+            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
+                w.calculateWeight(p);
+                message(p,"lose",item,weight);
+            } else {
+                String s = "place";
+                putWeightValue(p, item, amount, s);
+                message(p,"lose",item,weight);
+                w.getWeightsEffect(p);
+            }
         }
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerBlockPlace(BlockPlaceEvent e){
         Player p = e.getPlayer();
-        if(playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null){
-            w.calculateWeight(p);
-        }else {
-            Material block = e.getBlock().getType();
-            String s = "place";
-            putWeightValue(p, block, 1, s);
-            w.getWeightsEffect(p);
+        Material block = e.getBlock().getType();
+        float weight = globalitemsweight.get(block);
+        if(!p.hasPermission("weight.bypass")) {
+            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
+                w.calculateWeight(p);
+                message(p,"lose",item,weight);
+            }else{
+                String s = "place";
+                putWeightValue(p, block, 1, s);
+                message(p,"lose",item,weight);
+                w.getWeightsEffect(p);
+            }
         }
     }
 
@@ -157,31 +172,22 @@ public class WeightCalculateListeners implements Listener {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGH)
-    public void onInventoryOpen(InventoryOpenEvent e){
-        Player p = (Player) e.getPlayer();
-        p.sendMessage(String.valueOf(e.getInventory()));
-        ItemsWeightLore item = new ItemsWeightLore();
-        item.onInventoryOpen(p);
-    }
 
     private boolean checkblocks(Location loc) {
-        loc.setX(loc.getBlockX() +1);
+        loc.setX(loc.getBlockX() +0.5);
         if(loc.getBlock().getType().toString().contains("STAIRS") || loc.getBlock().getType().toString().contains("SLAB"))
             return true;
-        loc.setX(loc.getBlockX() -2);
+        loc.setX(loc.getBlockX() -1);
         if(loc.getBlock().getType().toString().contains("STAIRS") || loc.getBlock().getType().toString().contains("SLAB"))
             return true;
-        loc.setX(loc.getBlockX() +1);
-        loc.setZ(loc.getBlockZ() +1);
+        loc.setX(loc.getBlockX() +0.5);
+        loc.setZ(loc.getBlockZ() +0.5);
         if(loc.getBlock().getType().toString().contains("STAIRS") || loc.getBlock().getType().toString().contains("SLAB"))
             return true;
-        loc.setZ(loc.getBlockZ() -2);
+        loc.setZ(loc.getBlockZ() -1);
         return loc.getBlock().getType().toString().contains("STAIRS") || loc.getBlock().getType().toString().contains("SLAB");
     }
 
-    //@EventHandler
-    //public void test(Inven)
     private void putWeightValue(Player p, Material item, int amount,String s) {
         String PlayerGamemode = p.getGameMode().toString();
         disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
@@ -207,6 +213,32 @@ public class WeightCalculateListeners implements Listener {
         playerweight.put(p.getUniqueId(), weight);
 
     }
+
+    private void message(Player p, String action){
+        String message = null;
+        if (action.equalsIgnoreCase("gain"))
+            message = getPlugin().getConfig().getString("gain-message");
+        else if(action.equalsIgnoreCase("lose"))
+            message = getPlugin().getConfig().getString("lose-message");
+        if(!pickordropmessage.containsKey(p.getUniqueId())) {
+            pickordropmessage.put(p.getUniqueId(), System.currentTimeMillis());
+            if(getPlugin().getConfig().getBoolean("actionbar-messages"))
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message, p))));
+            else
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message, p)));
+        }else{
+            long timeElapsed = System.currentTimeMillis() - pickordropmessage.get(p.getUniqueId());
+            if(timeElapsed >= getPlugin().getConfig().getDouble("messages-cooldown") * 1000){
+                pickordropmessage.put(p.getUniqueId(), System.currentTimeMillis());
+                if(getPlugin().getConfig().getBoolean("actionbar-messages"))
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message, p))));
+                else
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
+            }
+        }
+    }
+
+
 
 
 

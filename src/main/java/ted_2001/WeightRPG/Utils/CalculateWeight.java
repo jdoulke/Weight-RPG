@@ -80,7 +80,10 @@ public class CalculateWeight {
         String message;
         if(playerweight.get(id) == null)
             return;
-        if(playerweight.get(id) >= weight1 && playerweight.get(id) < weight2){
+        if(playerweight.get(id) <= weight1){
+            message = getPlugin().getConfig().getString("message-before-level1");
+            messageChooser(message,p, null);
+        } else if(playerweight.get(id) >= weight1 && playerweight.get(id) < weight2){
             p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-1.speed"));
             message = getPlugin().getConfig().getString("weight-level-1.message");
             Sound s = null;
@@ -141,6 +144,7 @@ public class CalculateWeight {
         message = message.replaceAll("%level3%", Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-3.value")));
         message = message.replaceAll("%percentageweight%", percentageGetter(p));
         message = message.replaceAll("%percentage%", String.valueOf(percentagegetter(p)));
+        p.getb
         if(Weight3) {
             float maxweight = (float) getPlugin().getConfig().getDouble("weight-level-3.value");
             message = message.replaceAll("%maxweight%", String.valueOf(maxweight));

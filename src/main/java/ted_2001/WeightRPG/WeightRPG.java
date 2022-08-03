@@ -46,13 +46,19 @@ public final class WeightRPG extends JavaPlugin {
         for (Player plist : players)
             w.calculateWeight(plist);
         BukkitScheduler scheduler = this.getServer().getScheduler();
-        int timer = 1;
+        int timer;
+        if(this.getConfig().getDouble("check-weight") <= 0) {
+            timer = 2;
+        }else {
+            timer = (int) this.getConfig().getDouble("check-weight");
+        }
         scheduler.scheduleSyncRepeatingTask(this, new Runnable() {
             public void run() {
                 List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
                 CalculateWeight w= new CalculateWeight();
                 for (Player plist : players)
-                    w.calculateWeight(plist);
+                    if(!plist.hasPermission("weight.bypass"))
+                        w.calculateWeight(plist);
             }
         }, 0,timer * 20);
     }
