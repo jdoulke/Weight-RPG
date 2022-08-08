@@ -20,7 +20,7 @@
 # %percentage% for weight percentage (weight * 100 / maxweight)
 # %percentageweight% for percentage animation.
 
-#The message that will send to the player before level 1 value.
+#The message that will send to the player before reach level 1 value.
 message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1%"
 
 weight-level-1:
@@ -58,8 +58,15 @@ messages-cooldown: 10
 #The message that will send to the player when he is carrying too many items to jump.
 disable-jump-message: "%displayname%: &cI am carrying too many items to &2jump."
 
+#The message that wil send to the player when he will pick up or receive any item(s).
+#you can use all placeholders and %item% for item's name, %itemweight% for item's weight and %totalweight% for total items weight
+receive-item-message: "%displayname% &aYou receive &e%item% &awhich weight's &8%totalweight% &a."
+
+#The message that wil send to the player when he will drop,place or lose any item(s).
+lost-item-message: "%displayname% &aYou lost &e%item% &awhich weight's &8%totalweight% &a."
+
 #Check everyone's inventory in seconds. Only integers value.
-check-weight: 5
+check-weight: 3
 
 #Message of /weight command. Support all placeholders.
 weight-command-message:

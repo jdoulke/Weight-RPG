@@ -70,11 +70,11 @@ public class WeightCalculateListeners implements Listener {
             if(!p.hasPermission("weight.bypass")) {
                 if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
                     w.calculateWeight(p);
-                    message(p,"gain",item,weight);
+                    message(p,"receive",item,weight, amount);
                 }else{
                     String s = "pick";
                     putWeightValue(p, item, amount, s);
-                    message(p,"gain",item,weight);
+                    message(p,"receive",item,weight, amount);
                     w.getWeightsEffect(p);
                 }
             }
@@ -92,11 +92,11 @@ public class WeightCalculateListeners implements Listener {
         if(!p.hasPermission("weight.bypass")) {
             if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
                 w.calculateWeight(p);
-                message(p,"lose",item,weight);
+                message(p,"lose",item,weight, amount);
             } else {
                 String s = "place";
                 putWeightValue(p, item, amount, s);
-                message(p,"lose",item,weight);
+                message(p,"lose",item,weight, amount);
                 w.getWeightsEffect(p);
             }
         }
@@ -110,11 +110,11 @@ public class WeightCalculateListeners implements Listener {
         if(!p.hasPermission("weight.bypass")) {
             if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
                 w.calculateWeight(p);
-                message(p,"lose",item,weight);
+                message(p,"lose",block,weight, 1);
             }else{
                 String s = "place";
                 putWeightValue(p, block, 1, s);
-                message(p,"lose",item,weight);
+                message(p,"lose",block,weight, 1);
                 w.getWeightsEffect(p);
             }
         }
@@ -214,29 +214,44 @@ public class WeightCalculateListeners implements Listener {
 
     }
 
-    private void message(Player p, String action){
+    private void message(Player p, String action, Material item, float weight, int amount){
         String message = null;
-        if (action.equalsIgnoreCase("gain"))
-            message = getPlugin().getConfig().getString("gain-message");
+        if (action.equalsIgnoreCase("receive"))
+            message = getPlugin().getConfig().getString("receive-item-message");
         else if(action.equalsIgnoreCase("lose"))
             message = getPlugin().getConfig().getString("lose-message");
         if(!pickordropmessage.containsKey(p.getUniqueId())) {
             pickordropmessage.put(p.getUniqueId(), System.currentTimeMillis());
-            if(getPlugin().getConfig().getBoolean("actionbar-messages"))
-                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message, p))));
-            else
-                p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message, p)));
+            if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
+                message.replaceAll("%block%", String.valueOf(item));
+                message.replaceAll("%itemweight%", String.valueOf(weight));
+                message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
+            }else {
+                message.replaceAll("%block%", String.valueOf(item));
+                message.replaceAll("%itemweight%", String.valueOf(weight));
+                message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
+            }
         }else{
             long timeElapsed = System.currentTimeMillis() - pickordropmessage.get(p.getUniqueId());
             if(timeElapsed >= getPlugin().getConfig().getDouble("messages-cooldown") * 1000){
                 pickordropmessage.put(p.getUniqueId(), System.currentTimeMillis());
-                if(getPlugin().getConfig().getBoolean("actionbar-messages"))
-                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message, p))));
-                else
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
+                if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
+                    message.replaceAll("%block%", String.valueOf(item));
+                    message.replaceAll("%itemweight%", String.valueOf(weight));
+                    message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
+                }else {
+                    message.replaceAll("%block%", String.valueOf(item));
+                    message.replaceAll("%itemweight%", String.valueOf(weight));
+                    message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
+                }
             }
         }
     }
+
 
 
 
