@@ -25,7 +25,7 @@ public class CalculateWeight {
 
     float weight;
     public static HashMap<UUID,Float> playerweight = new HashMap<>();
-    public final HashMap<UUID, Long> cooldown = new HashMap<>();
+    public static HashMap<UUID, Long> cooldown = new HashMap<>();
     boolean Weight2 = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
     boolean Weight3 = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
 
@@ -81,29 +81,37 @@ public class CalculateWeight {
         if(playerweight.get(id) == null)
             return;
         if(playerweight.get(id) <= weight1){
-            message = getPlugin().getConfig().getString("message-before-level1");
-            messageChooser(message,p, null);
+            if(getPlugin().getConfig().getBoolean("message-before-level1-enabled")) {
+                message = getPlugin().getConfig().getString("message-before-level1");
+                messageChooser(message, p, null);
+            }
         } else if(playerweight.get(id) >= weight1 && playerweight.get(id) < weight2){
-            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-1.speed"));
-            message = getPlugin().getConfig().getString("weight-level-1.message");
-            Sound s = null;
-            if(!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-1.sound")).equalsIgnoreCase("none"))
-                s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
-            messageChooser(message,p,s);
+            if(getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
+                p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-1.speed"));
+                message = getPlugin().getConfig().getString("weight-level-1.message");
+                Sound s = null;
+                if (!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-1.sound")).equalsIgnoreCase("none"))
+                    s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
+                messageChooser(message, p, s);
+            }
         }else if(playerweight.get(id) >= weight2 && playerweight.get(id) < weight3 && Weight2) {
-            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-2.speed"));
-            message = getPlugin().getConfig().getString("weight-level-2.message");
-            Sound s = null;
-            if(!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-2.sound")).equalsIgnoreCase("none"))
-                s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
-            messageChooser(message,p,s);
+            if(getPlugin().getConfig().getBoolean("weight-level-2.message-enabled")) {
+                p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-2.speed"));
+                message = getPlugin().getConfig().getString("weight-level-2.message");
+                Sound s = null;
+                if (!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-2.sound")).equalsIgnoreCase("none"))
+                    s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
+                messageChooser(message, p, s);
+            }
         }else if(playerweight.get(id) >= weight3 && Weight3) {
-            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-3.speed"));
-            message = getPlugin().getConfig().getString("weight-level-3.message");
-            Sound s = null;
-            if(!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-3.sound")).equalsIgnoreCase("none"))
-                s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
-            messageChooser(message,p,s);
+            if(getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
+                p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-3.speed"));
+                message = getPlugin().getConfig().getString("weight-level-3.message");
+                Sound s = null;
+                if (!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-3.sound")).equalsIgnoreCase("none"))
+                    s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
+                messageChooser(message, p, s);
+            }
         }else {
             p.setWalkSpeed((float) 0.2);
         }
@@ -111,26 +119,23 @@ public class CalculateWeight {
 
     private void messageChooser(String message, Player p,Sound s) {
         if(!cooldown.containsKey(p.getUniqueId())) {
-            cooldown.put(p.getUniqueId(), System.currentTimeMillis());
-            if(getPlugin().getConfig().getBoolean("actionbar-messages"))
-                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message,p))));
-            else
-                p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
-            if(s != null)
-                p.playSound(p.getLocation(),s,1,1);
+            cooldownMessager(p,s,message);
         }else{
             long timeElapsed = System.currentTimeMillis() - cooldown.get(p.getUniqueId());
             if(timeElapsed >= getPlugin().getConfig().getDouble("messages-cooldown") * 1000){
-                cooldown.put(p.getUniqueId(), System.currentTimeMillis());
-                if(getPlugin().getConfig().getBoolean("actionbar-messages"))
-                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message,p))));
-                else
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
-                if(s != null)
-                    p.playSound(p.getLocation(),s,1,1);
+                cooldownMessager(p,s,message);
             }
         }
+    }
 
+    private void cooldownMessager(Player p, Sound s, String message) {
+        cooldown.put(p.getUniqueId(), System.currentTimeMillis());
+        if(getPlugin().getConfig().getBoolean("actionbar-messages"))
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message,p))));
+        else
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
+        if(s != null)
+            p.playSound(p.getLocation(),s,1,1);
     }
 
 
@@ -144,7 +149,6 @@ public class CalculateWeight {
         message = message.replaceAll("%level3%", Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-3.value")));
         message = message.replaceAll("%percentageweight%", percentageGetter(p));
         message = message.replaceAll("%percentage%", String.valueOf(percentagegetter(p)));
-        p.getb
         if(Weight3) {
             float maxweight = (float) getPlugin().getConfig().getDouble("weight-level-3.value");
             message = message.replaceAll("%maxweight%", String.valueOf(maxweight));
@@ -160,6 +164,8 @@ public class CalculateWeight {
         }
     }
     public float percentagegetter(Player p){
+        if(playerweight.get(p.getUniqueId()) == null)
+            return 0;
         float weight = playerweight.get(p.getUniqueId());
         float maxweight;
         if(Weight3) {

@@ -7,9 +7,6 @@ commands:
   weight:
     description: List of all commands for Weight RPG Plugin.
     permission: weight.use
-permissions:
-  weight.use:
-  weight.bypass:
-  weight.bypass.jump:
+
 
 

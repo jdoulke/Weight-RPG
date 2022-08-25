@@ -14,6 +14,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
+import ted_2001.WeightRPG.Utils.Messages;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +31,9 @@ public class WeightCalculateListeners implements Listener {
 
     CalculateWeight w= new CalculateWeight();
     public final HashMap<UUID, Long> jumpmessage = new HashMap<>();
-    public final HashMap<UUID, Long> pickordropmessage = new HashMap<>();
+    public final HashMap<UUID, Long> pickmessage = new HashMap<>();
+    public final HashMap<UUID, Long> placemessage = new HashMap<>();
+    public final HashMap<UUID, Long> dropmessage = new HashMap<>();
     private List<String> disabledworlds;
     @EventHandler (priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent e){
@@ -110,11 +113,11 @@ public class WeightCalculateListeners implements Listener {
         if(!p.hasPermission("weight.bypass")) {
             if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
                 w.calculateWeight(p);
-                message(p,"lose",block,weight, 1);
+                message(p,"place",block,weight, 1);
             }else{
                 String s = "place";
                 putWeightValue(p, block, 1, s);
-                message(p,"lose",block,weight, 1);
+                message(p,"place",block,weight, 1);
                 w.getWeightsEffect(p);
             }
         }
@@ -151,25 +154,24 @@ public class WeightCalculateListeners implements Listener {
             if(disablejump) {
                 e.getTo().setY(e.getFrom().getY());
                 if(!jumpmessage.containsKey(p.getUniqueId())) {
-                    jumpmessage.put(p.getUniqueId(), System.currentTimeMillis());
-                    String message = getPlugin().getConfig().getString("disable-jump-message");
-                    if(getPlugin().getConfig().getBoolean("actionbar-messages"))
-                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p))));
-                    else
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p)));
+                    jumpmessager(p);
                 }else{
                     long timeElapsed = System.currentTimeMillis() - jumpmessage.get(p.getUniqueId());
-                    if(timeElapsed >= 4 * 1000){
-                        jumpmessage.put(p.getUniqueId(), System.currentTimeMillis());
-                        String message = getPlugin().getConfig().getString("disable-jump-message");
-                        if(getPlugin().getConfig().getBoolean("actionbar-messages"))
-                            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p))));
-                        else
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p)));
+                    if(timeElapsed >= Messages.getMessages().getInt("disable-jump-message-cooldown") * 1000L){
+                        jumpmessager(p);
                     }
                 }
             }
         }
+    }
+
+    private void jumpmessager(Player p) {
+        jumpmessage.put(p.getUniqueId(), System.currentTimeMillis());
+        String message = Messages.getMessages().getString("disable-jump-message");
+        if(getPlugin().getConfig().getBoolean("actionbar-messages"))
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p))));
+        else
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p)));
     }
 
 
@@ -215,40 +217,57 @@ public class WeightCalculateListeners implements Listener {
     }
 
     private void message(Player p, String action, Material item, float weight, int amount){
-        String message = null;
+        String message = "";
         if (action.equalsIgnoreCase("receive"))
-            message = getPlugin().getConfig().getString("receive-item-message");
+            message = Messages.getMessages().getString("receive-item-message");
         else if(action.equalsIgnoreCase("lose"))
-            message = getPlugin().getConfig().getString("lose-message");
-        if(!pickordropmessage.containsKey(p.getUniqueId())) {
-            pickordropmessage.put(p.getUniqueId(), System.currentTimeMillis());
-            if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
-                message.replaceAll("%block%", String.valueOf(item));
-                message.replaceAll("%itemweight%", String.valueOf(weight));
-                message.replaceAll("%totalweight%", String.valueOf(weight*amount));
-                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
-            }else {
-                message.replaceAll("%block%", String.valueOf(item));
-                message.replaceAll("%itemweight%", String.valueOf(weight));
-                message.replaceAll("%totalweight%", String.valueOf(weight*amount));
-                p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
+            message = Messages.getMessages().getString("lost-item-message");
+        else if(action.equalsIgnoreCase("place"))
+            message = Messages.getMessages().getString("place-block-message");
+        if(!pickmessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("receive") && Messages.getMessages().getBoolean("receive-item-message-enabled")) {
+            pickmessage.put(p.getUniqueId(), System.currentTimeMillis());
+            messageSender(message, p, item, weight, amount);
+        }else if(action.equalsIgnoreCase("receive") && Messages.getMessages().getBoolean("receive-item-message-enabled")){
+            long timeElapsed = System.currentTimeMillis() - pickmessage.get(p.getUniqueId());
+            if(timeElapsed >= Messages.getMessages().getDouble("receive-item-message-cooldown") * 1000){
+                pickmessage.put(p.getUniqueId(), System.currentTimeMillis());
+                messageSender(message, p, item, weight, amount);
             }
-        }else{
-            long timeElapsed = System.currentTimeMillis() - pickordropmessage.get(p.getUniqueId());
-            if(timeElapsed >= getPlugin().getConfig().getDouble("messages-cooldown") * 1000){
-                pickordropmessage.put(p.getUniqueId(), System.currentTimeMillis());
-                if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
-                    message.replaceAll("%block%", String.valueOf(item));
-                    message.replaceAll("%itemweight%", String.valueOf(weight));
-                    message.replaceAll("%totalweight%", String.valueOf(weight*amount));
-                    p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
-                }else {
-                    message.replaceAll("%block%", String.valueOf(item));
-                    message.replaceAll("%itemweight%", String.valueOf(weight));
-                    message.replaceAll("%totalweight%", String.valueOf(weight*amount));
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
-                }
+        }
+        if(!placemessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("place") && Messages.getMessages().getBoolean("place-block-message-enabled")) {
+            placemessage.put(p.getUniqueId(), System.currentTimeMillis());
+            messageSender(message, p, item, weight, amount);
+        }else if(action.equalsIgnoreCase("place") && Messages.getMessages().getBoolean("place-block-message-enabled")){
+            long timeElapsed = System.currentTimeMillis() - placemessage.get(p.getUniqueId());
+            if(timeElapsed >= Messages.getMessages().getDouble("place-block-message-cooldown") * 1000){
+                placemessage.put(p.getUniqueId(), System.currentTimeMillis());
+                messageSender(message, p, item, weight, amount);
             }
+        }if(!dropmessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("lose") && Messages.getMessages().getBoolean("lost-item-message-enabled")) {
+            dropmessage.put(p.getUniqueId(), System.currentTimeMillis());
+            messageSender(message, p, item, weight, amount);
+        }else if(action.equalsIgnoreCase("lose") && Messages.getMessages().getBoolean("lost-item-message-enabled")){
+            long timeElapsed = System.currentTimeMillis() - dropmessage.get(p.getUniqueId());
+            if(timeElapsed >= Messages.getMessages().getDouble("lost-item-message-cooldown") * 1000){
+                dropmessage.put(p.getUniqueId(), System.currentTimeMillis());
+                messageSender(message, p, item, weight, amount);
+            }
+        }
+    }
+
+    private void messageSender(String message, Player p, Material item, float weight, int amount){
+        if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
+            message = message.replaceAll("%block%", String.valueOf(item));
+            message = message.replaceAll("%itemweight%", String.valueOf(weight));
+            message = message.replaceAll("%amount%", String.valueOf(amount));
+            message = message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
+        }else {
+            message = message.replaceAll("%block%", String.valueOf(item));
+            message = message.replaceAll("%itemweight%", String.valueOf(weight));
+            message = message.replaceAll("%amount%", String.valueOf(amount));
+            message = message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
         }
     }
 

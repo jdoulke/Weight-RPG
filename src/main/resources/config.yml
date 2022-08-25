@@ -1,16 +1,16 @@
 #####################################################################
 #                                                                   #
 #                                                                   #
-#                 Weight RPG Plugin Configuration                   #
-#                      Author Ted_2001                              #
-#           https://www.spigotmc.org/members/ted_2001.66700/        #
+#                  Weight RPG Plugin Configuration                  #
+#                          Author Ted_2001                          #
+#         https://www.spigotmc.org/members/ted_2001.66700/          #
 #                                                                   #
 #                                                                   #
 #####################################################################
 
 
-#Here set up options for weight levels. The effects will be used when the players have more weight than your type's value.
-#Messages can support placeholders. List of placeholders
+# Here set up options for weight levels. The effects will be used when the players have more weight than your type's value.
+# Messages can support placeholders. List of placeholders
 # %playername% for player's name.
 # %displayname% for player's display name.
 # %weight% for player's weight.
@@ -20,19 +20,23 @@
 # %percentage% for weight percentage (weight * 100 / maxweight)
 # %percentageweight% for percentage animation.
 
-#The message that will send to the player before reach level 1 value.
+
+message-before-level1-enabled: true
+# The message that will send to the player before reach level 1 value.
 message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1%"
 
 weight-level-1:
-  #when this level will take effect.
+  # when this level will take effect.
   value: 900
-  #normal speed is 0.2, accept values 0 between 1.
+  # normal speed is 0.2, accept values 0 between 1.
   speed: 0.15
-  #Disable jump for players in this level when they are carrying too many items. (default false)
+  # Disable jump for players in this level when they are carrying too many items. (default is false)
   disable-jump: false
-  #the sound that will play when this level takes effect. Write none for no sound. List of sounds https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+  # the sound that will play when this level takes effect. Write none for no sound. List of sounds https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
   sound: none
-  #The message that will send to the player when he will be over your typed value.
+  # If message will send to the player when he will reach this level (default is true)
+  message-enabled: true
+  # The message that will send to the player when he will be over your typed value.
   message: "%displayname%: &eI am carrying too many items. &e%weight% &2/ &c%level2%"
 weight-level-2:
   enabled: true
@@ -40,6 +44,7 @@ weight-level-2:
   speed: 0.1
   disable-jump: false
   sound: ENTITY_PLAYER_HURT
+  message-enabled: true
   message: "%displayname%: &6I am carrying too many items. &e%weight% &2/ &c%level3%"
 weight-level-3:
   enabled: true
@@ -47,39 +52,20 @@ weight-level-3:
   speed: 0.05
   disable-jump: true
   sound: ENTITY_PLAYER_HURT
+  message-enabled: true
   message: "%displayname%: &cI am carrying too many items. &4%weight%"
 
-#Should messages send as actionbar messages? (if false send messages on chat, default true)
+# Should messages send as actionbar messages? (if false send messages on chat, default is true)
 actionbar-messages: true
 
-#Couldown in seconds before the next message send to the player. (default 10)
-messages-cooldown: 10
+# Couldown in seconds before the next 'level message' and sound send to the player. (default is 30)
+messages-cooldown: 30
 
-#The message that will send to the player when he is carrying too many items to jump.
-disable-jump-message: "%displayname%: &cI am carrying too many items to &2jump."
-
-#The message that wil send to the player when he will pick up or receive any item(s).
-#you can use all placeholders and %item% for item's name, %itemweight% for item's weight and %totalweight% for total items weight
-receive-item-message: "%displayname% &aYou receive &e%item% &awhich weight's &8%totalweight% &a."
-
-#The message that wil send to the player when he will drop,place or lose any item(s).
-lost-item-message: "%displayname% &aYou lost &e%item% &awhich weight's &8%totalweight% &a."
-
-#Check everyone's inventory in seconds. Only integers value.
+# Check everyone's inventory in seconds. Only integers value.
 check-weight: 3
 
-#Message of /weight command. Support all placeholders.
-weight-command-message:
-  - "%displayname% &eyour weight is &e%weight% &a/ &c%maxweight%."
-  - "&cPercentage %percentage%%"
-  - "%percentageweight%"
-  - "&eLevel 1 &avalue is &c%level1%."
-  - "&6Level 2 &avalue is &c%level2%."
-  - "&cLevel 3 &avalue is &c%level3%."
-  #- ""
 
-
-#disable the plugin on this world(s). It can be empty.
+# Disable the plugin on this world(s). It can be empty.
 disabled-worlds:
   - world_nether
   #- world_the_end

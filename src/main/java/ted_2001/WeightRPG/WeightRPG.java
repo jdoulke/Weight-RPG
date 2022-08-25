@@ -4,11 +4,13 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
 import ted_2001.WeightRPG.Commands.Tabcompleter;
 import ted_2001.WeightRPG.Commands.WeightCommand;
 import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.JsonFile;
+import ted_2001.WeightRPG.Utils.Messages;
 
 import java.io.File;
 import java.util.List;
@@ -21,6 +23,8 @@ public final class WeightRPG extends JavaPlugin {
 
      private static WeightRPG plugin;
 
+    public BukkitScheduler scheduler = this.getServer().getScheduler();
+    public BukkitTask task;
 
     @Override
     public void onEnable() {
@@ -38,6 +42,11 @@ public final class WeightRPG extends JavaPlugin {
         if(!Weight.exists())
             Weight.mkdir();
         js.saveJsonFile();
+        Messages.create();
+        Messages.getDefaults();
+        Messages.getMessages().options().copyDefaults(true);
+        Messages.getDefaults();
+        Messages.saveMessages();
         getServer().getLogger().info("[Weight-RPG] Done.");
         js.readJsonFile();
         getServer().getLogger().info("[Weight-RPG] Read weight files successfully.");
@@ -45,14 +54,18 @@ public final class WeightRPG extends JavaPlugin {
         List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
         for (Player plist : players)
             w.calculateWeight(plist);
-        BukkitScheduler scheduler = this.getServer().getScheduler();
+        scheduler();
+    }
+
+    public void scheduler() {
         int timer;
         if(this.getConfig().getDouble("check-weight") <= 0) {
             timer = 2;
         }else {
             timer = (int) this.getConfig().getDouble("check-weight");
         }
-        scheduler.scheduleSyncRepeatingTask(this, new Runnable() {
+        task = scheduler.runTaskTimer(this, new Runnable() {
+            @Override
             public void run() {
                 List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
                 CalculateWeight w= new CalculateWeight();
@@ -60,7 +73,7 @@ public final class WeightRPG extends JavaPlugin {
                     if(!plist.hasPermission("weight.bypass"))
                         w.calculateWeight(plist);
             }
-        }, 0,timer * 20);
+        },0, timer * 20L);
     }
 
     @Override

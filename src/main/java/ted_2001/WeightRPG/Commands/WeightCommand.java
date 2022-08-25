@@ -6,6 +6,7 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.JsonFile;
+import ted_2001.WeightRPG.Utils.Messages;
 
 
 import java.io.File;
@@ -25,18 +26,20 @@ public class WeightCommand implements CommandExecutor {
             Player p = (Player) sender;
             if(p.hasPermission("weight.use")){
                 if(args.length == 0){
-                    List<String> message = getPlugin().getConfig().getStringList("weight-command-message");
+                    List<String> message = Messages.getMessages().getStringList("weight-command-message");
                     for (String s : message)
                         p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(s, p)));
                 }
-            }
+            }else
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
             if(args.length == 1) {
                 String arg0 = args[0];
                 if (arg0.equalsIgnoreCase("reload")) {
                     if(p.hasPermission("weight.reload")) {
                         reloadcommand();
                         p.sendMessage(ChatColor.GREEN + "You successfully reload config and weight files.");
-                    }
+                    }else
+                        p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 }
             }
         }else if(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) {
@@ -56,14 +59,28 @@ public class WeightCommand implements CommandExecutor {
 
     private void reloadcommand() {
         File config = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\config.yml");
+        File messages = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\messages.yml");
         File blocksweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
         File toolsweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Tools And Weapons Weight.json");
         File miscweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
         if(config.exists()) {
             getPlugin().reloadConfig();
+            getPlugin().task.cancel();
+            getPlugin().scheduler();
         }else{
             getPlugin().getConfig().options().copyDefaults();
             getPlugin().saveDefaultConfig();
+            getPlugin().task.cancel();
+            getPlugin().scheduler();
+        }
+        if(messages.exists())
+            Messages.reloadMessagesConfig();
+        else {
+            Messages.create();
+            Messages.getDefaults();
+            Messages.getMessages().options().copyDefaults(true);
+            Messages.getDefaults();
+            Messages.saveMessages();
         }
         if (!blocksweight.exists() || !toolsweight.exists() || !miscweight.exists())
                 js.saveJsonFile();
