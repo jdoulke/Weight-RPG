@@ -13,6 +13,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.Messages;
 
@@ -67,7 +68,7 @@ public class WeightCalculateListeners implements Listener {
     public void onItemPickUp(EntityPickupItemEvent e){
         if(e.getEntity() instanceof Player){
             Player p = ((Player) e.getEntity()).getPlayer();
-            Material item = e.getItem().getItemStack().getType();
+            ItemStack item = e.getItem().getItemStack();
             int amount = e.getItem().getItemStack().getAmount();
             float weight = globalitemsweight.get(item);
             if(!p.hasPermission("weight.bypass")) {
@@ -89,7 +90,7 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.HIGH)
     public void onItemDrop(PlayerDropItemEvent e){
         Player p = e.getPlayer();
-        Material item = e.getItemDrop().getItemStack().getType();
+        ItemStack item = e.getItemDrop().getItemStack();
         int amount = e.getItemDrop().getItemStack().getAmount();
         float weight = globalitemsweight.get(item);
         if(!p.hasPermission("weight.bypass")) {
@@ -108,7 +109,7 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerBlockPlace(BlockPlaceEvent e){
         Player p = e.getPlayer();
-        Material block = e.getBlock().getType();
+        ItemStack block = new ItemStack(e.getBlock().getType());
         float weight = globalitemsweight.get(block);
         if(!p.hasPermission("weight.bypass")) {
             if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
@@ -190,7 +191,7 @@ public class WeightCalculateListeners implements Listener {
         return loc.getBlock().getType().toString().contains("STAIRS") || loc.getBlock().getType().toString().contains("SLAB");
     }
 
-    private void putWeightValue(Player p, Material item, int amount,String s) {
+    private void putWeightValue(Player p, ItemStack item, int amount,String s) {
         String PlayerGamemode = p.getGameMode().toString();
         disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
         if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
@@ -206,17 +207,17 @@ public class WeightCalculateListeners implements Listener {
         float weight = 0;
         if (playerweight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("place")) {
             weight = playerweight.get(p.getUniqueId());
-            weight -= globalitemsweight.get(item) * amount;
+            weight -= globalitemsweight.get(item.getType()) * amount;
         }else if (playerweight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("pick")) {
             weight = playerweight.get(p.getUniqueId());
-            weight += globalitemsweight.get(item) * amount;
+            weight += globalitemsweight.get(item.getType()) * amount;
         }
         weight = (float) (Math.round(weight * 1000.0) / 1000.0);
         playerweight.put(p.getUniqueId(), weight);
 
     }
 
-    private void message(Player p, String action, Material item, float weight, int amount){
+    private void message(Player p, String action, ItemStack item, float weight, int amount){
         String message = "";
         if (action.equalsIgnoreCase("receive"))
             message = Messages.getMessages().getString("receive-item-message");
@@ -255,15 +256,17 @@ public class WeightCalculateListeners implements Listener {
         }
     }
 
-    private void messageSender(String message, Player p, Material item, float weight, int amount){
+    private void messageSender(String message, Player p, ItemStack item, float weight, int amount ){
         if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
-            message = message.replaceAll("%block%", String.valueOf(item));
+            message = message.replaceAll("%block%", String.valueOf(item.getType()));
+            message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
             message = message.replaceAll("%itemweight%", String.valueOf(weight));
             message = message.replaceAll("%amount%", String.valueOf(amount));
             message = message.replaceAll("%totalweight%", String.valueOf(weight*amount));
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
         }else {
-            message = message.replaceAll("%block%", String.valueOf(item));
+            message = message.replaceAll("%block%", String.valueOf(item.getType()));
+            message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
             message = message.replaceAll("%itemweight%", String.valueOf(weight));
             message = message.replaceAll("%amount%", String.valueOf(amount));
             message = message.replaceAll("%totalweight%", String.valueOf(weight*amount));
