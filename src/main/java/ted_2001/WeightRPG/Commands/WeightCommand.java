@@ -12,6 +12,7 @@ import ted_2001.WeightRPG.Utils.Messages;
 import java.io.File;
 import java.util.List;
 
+import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -63,16 +64,15 @@ public class WeightCommand implements CommandExecutor {
         File blocksweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
         File toolsweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Tools And Weapons Weight.json");
         File miscweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
+        customitemsweight.clear();
         if(config.exists()) {
             getPlugin().reloadConfig();
-            getPlugin().task.cancel();
-            getPlugin().scheduler();
         }else{
             getPlugin().getConfig().options().copyDefaults();
             getPlugin().saveDefaultConfig();
-            getPlugin().task.cancel();
-            getPlugin().scheduler();
         }
+        getPlugin().task.cancel();
+        getPlugin().scheduler();
         if(messages.exists())
             Messages.reloadMessagesConfig();
         else {
@@ -81,6 +81,7 @@ public class WeightCommand implements CommandExecutor {
             Messages.getMessages().options().copyDefaults(true);
             Messages.getDefaults();
             Messages.saveMessages();
+            Messages.getDefaults();
         }
         if (!blocksweight.exists() || !toolsweight.exists() || !miscweight.exists())
                 js.saveJsonFile();
@@ -91,6 +92,4 @@ public class WeightCommand implements CommandExecutor {
         }
     }
 
-    private void showCommandList(Player p) {
-    }
 }

@@ -1,7 +1,9 @@
 package ted_2001.WeightRPG.Utils;
 
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,6 +13,7 @@ import org.json.JSONTokener;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 
 
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
@@ -21,6 +24,7 @@ public class JsonFile {
 
 
     public static HashMap<Material, Float> globalitemsweight = new HashMap<Material, Float>();
+    public static HashMap<String, Float> customitemsweight = new HashMap<String, Float>();
     public void saveJsonFile(){
         JSONObject ItemsWeight = new JSONObject();
         JSONObject ArmorAndWeaponsWeight = new JSONObject();
@@ -238,7 +242,7 @@ public class JsonFile {
                         if(!tempitem.contains("AIR") && !tempitem.contains("WALL") && !tempitem.equalsIgnoreCase("FIRE") && !tempitem.equalsIgnoreCase("SOUL_FIRE")
                             && !tempitem.equalsIgnoreCase("LAVA") && !tempitem.equalsIgnoreCase("WATER")  && !tempitem.contains("POWDER_SNOW") && !tempitem.contains("CAKE") &&
                             !tempitem.contains("COLUMN")  && !tempitem.contains("GATEWAY")  && !tempitem.contains("PORTAL")  && !tempitem.contains("STEM") && !tempitem.contains("LIGHT") && !tempitem.contains("VOID") &&
-                            !tempitem.contains("BUNDLE") && !tempitem.contains("CAULDRON") && !tempitem.contains("MANGROVE_PROPAGULE") ) {
+                            !tempitem.contains("BUNDLE") && !tempitem.contains("CAULDRON") ) {
                             items.put(icount, tempitem + "=1");
                             icount++;
                         }
@@ -319,6 +323,7 @@ public class JsonFile {
         tokener = new JSONTokener(is);
         JSONObject  armor = new JSONObject(tokener);
         addWeightForArmor(armor);
+        addCustomItemsWeight();
 
     }
 
@@ -408,6 +413,16 @@ public class JsonFile {
             Material material = Material.getMaterial(item);
             Float weight = Float.valueOf(item_weight[1]);
             globalitemsweight.put(material,weight);
+        }
+    }
+
+    private void addCustomItemsWeight() {
+        List<String> customitems = getPlugin().getConfig().getStringList("custom-items-weight");
+        for (String item : customitems) {
+            String[] item_weight = item.split("=");
+            item = ChatColor.translateAlternateColorCodes('&', item_weight[0]);
+            Float weight = Float.valueOf(item_weight[1]);
+            customitemsweight.put(item, weight);
         }
     }
 

@@ -54,15 +54,15 @@ public class Messages {
         try {
             //add the default options in the messages.yml
             configuration.load(file);
-            ArrayList<String> comments = new ArrayList<>();configuration.addDefault("disable-jump-message", "%displayname%: &cI am carrying too many items to &2jump.");
+            ArrayList<String> comments = new ArrayList<>();configuration.addDefault("disable-jump-message", "%displayname%: &cI am carrying too many items to &2jump. %percentageweight%");
             configuration.addDefault("disable-jump-message-cooldown", 3);
-            configuration.addDefault("receive-item-message", "%displayname% &aYou receive &c%amount% &aof &e%block% &awhich weight's &8%totalweight%&a.");
+            configuration.addDefault("receive-item-message", "%displayname% &aYou receive &c%amount% &aof &e%block% &awhich weights &6%totalweight%&a. %percentageweight%");
             configuration.addDefault("receive-item-message-cooldown", 1);
             configuration.addDefault("receive-item-message-enabled", true);
-            configuration.addDefault("lost-item-message", "%displayname% &aYou lost &e%block% &awhich weight's &8%totalweight%&a.");
+            configuration.addDefault("lost-item-message", "%displayname% &aYou lost &e%block% &awhich weights &6%totalweight%&a. %percentageweight%");
             configuration.addDefault("lost-item-message-cooldown", 1);
             configuration.addDefault("lost-item-message-enabled", true);
-            configuration.addDefault("place-block-message", "%displayname% &aYou placed &e%block% &awhich weight's &8%itemweight%&a.");
+            configuration.addDefault("place-block-message", "%displayname% &aYou placed &e%block% &awhich weights &6%itemweight%&a. %percentageweight%");
             configuration.addDefault("place-block-message-cooldown", 2);
             configuration.addDefault("place-block-message-enabled", true);
             comments.clear();
@@ -82,8 +82,8 @@ public class Messages {
             configuration.setComments("place-block-message", Collections.singletonList("The message that will send to the player when he will place a block."));
             configuration.setComments("disable-jump-message-cooldown", Collections.singletonList("Couldown in seconds before the next message will send to the player. (default is 3)"));
             comments.add("The message that wil send to the player when he will pick up or receive any item(s).");
-            comments.add("You can use all placeholders %block% for item's name, %itemweight% for items weight, ");
-            comments.add("%itemdisplayname% for item's display name, %amount% for items amount and %totalweight% for total items weight.");
+            comments.add("You can use all placeholders %block% for items name, %itemweight% for items weight, ");
+            comments.add("%itemdisplayname% for items display name, %amount% for items amount and %totalweight% for total items weight.");
             configuration.setComments("receive-item-message", comments);
             configuration.setComments("disable-jump-message", Collections.singletonList("The message that will send to the player when he is carrying too many items to jump. (if disable-jump is enabled"));
         }catch (IOException | InvalidConfigurationException e){

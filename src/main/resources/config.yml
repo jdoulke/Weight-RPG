@@ -23,7 +23,7 @@
 
 message-before-level1-enabled: true
 # The message that will send to the player before reach level 1 value.
-message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1%"
+message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1% %percentageweight%"
 
 weight-level-1:
   # when this level will take effect.
@@ -37,7 +37,7 @@ weight-level-1:
   # If message will send to the player when he will reach this level (default is true)
   message-enabled: true
   # The message that will send to the player when he will be over your typed value.
-  message: "%displayname%: &eI am carrying too many items. &e%weight% &2/ &c%level2%"
+  message: "%displayname%: &eI am carrying too many items. &e%weight% &2/ &c%level2% %percentageweight%"
 weight-level-2:
   enabled: true
   value: 1300
@@ -45,7 +45,7 @@ weight-level-2:
   disable-jump: false
   sound: ENTITY_PLAYER_HURT
   message-enabled: true
-  message: "%displayname%: &6I am carrying too many items. &e%weight% &2/ &c%level3%"
+  message: "%displayname%: &6I am carrying too many items. &e%weight% &2/ &c%level3% %percentageweight%"
 weight-level-3:
   enabled: true
   value: 1800
@@ -53,7 +53,7 @@ weight-level-3:
   disable-jump: true
   sound: ENTITY_PLAYER_HURT
   message-enabled: true
-  message: "%displayname%: &cI am carrying too many items. &4%weight%"
+  message: "%displayname%: &cI am carrying too many items. &4%weight% %percentageweight%"
 
 # Should messages send as actionbar messages? (if false send messages on chat, default is true)
 actionbar-messages: true
@@ -64,6 +64,10 @@ messages-cooldown: 30
 # Check everyone's inventory in seconds. Only integers value.
 check-weight: 3
 
+# Here add customs Items name for custom weight. Don't add space after and before '='.
+custom-items-weight:
+#  - "customitemname=weight"
+  - "&c&lZeus Sword=20"
 
 # Disable the plugin on this world(s). It can be empty.
 disabled-worlds:

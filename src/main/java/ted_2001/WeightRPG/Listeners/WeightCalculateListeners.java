@@ -23,6 +23,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static ted_2001.WeightRPG.Utils.CalculateWeight.playerweight;
+import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
@@ -35,7 +36,7 @@ public class WeightCalculateListeners implements Listener {
     public final HashMap<UUID, Long> pickmessage = new HashMap<>();
     public final HashMap<UUID, Long> placemessage = new HashMap<>();
     public final HashMap<UUID, Long> dropmessage = new HashMap<>();
-    private List<String> disabledworlds;
+
     @EventHandler (priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent e){
         Player p = (Player) e.getPlayer();
@@ -70,16 +71,28 @@ public class WeightCalculateListeners implements Listener {
             Player p = ((Player) e.getEntity()).getPlayer();
             ItemStack item = e.getItem().getItemStack();
             int amount = e.getItem().getItemStack().getAmount();
-            float weight = globalitemsweight.get(item);
+            if(globalitemsweight.get(item.getType()) == null){
+                getPlugin().getServer().getLogger().info("[Weight-RPG] " + item.getType() + " isn't at your weight files. You might want to add it manually.");
+                return;
+            }
+            float weight = 0;
+            boolean iscustomitem = false;
+            if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
+                weight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+                iscustomitem = true;
+            }
+            else if(globalitemsweight.get(item.getType()) != null)
+                weight = globalitemsweight.get(item.getType());
+            assert p != null;
             if(!p.hasPermission("weight.bypass")) {
-                if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
+                if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || iscustomitem) {
                     w.calculateWeight(p);
                     message(p,"receive",item,weight, amount);
                 }else{
                     String s = "pick";
                     putWeightValue(p, item, amount, s);
                     message(p,"receive",item,weight, amount);
-                    w.getWeightsEffect(p);
+                       w.getWeightsEffect(p);
                 }
             }
         }
@@ -92,33 +105,56 @@ public class WeightCalculateListeners implements Listener {
         Player p = e.getPlayer();
         ItemStack item = e.getItemDrop().getItemStack();
         int amount = e.getItemDrop().getItemStack().getAmount();
-        float weight = globalitemsweight.get(item);
-        if(!p.hasPermission("weight.bypass")) {
-            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
+        if(globalitemsweight.get(item.getType()) == null){
+            getPlugin().getServer().getLogger().info("[Weight-RPG] " + item.getType() + " isn't at your weight files. You might want to add it manually.");
+            return;
+        }
+        boolean iscustomitem = false;
+        float weight = 0;
+        if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
+                weight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+                iscustomitem = true;
+        }
+        else if(globalitemsweight.get(item.getType()) != null)
+            weight = globalitemsweight.get(item.getType());
+        if (!p.hasPermission("weight.bypass")) {
+            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || iscustomitem) {
                 w.calculateWeight(p);
-                message(p,"lose",item,weight, amount);
+                message(p, "lose", item, weight, amount);
             } else {
                 String s = "place";
                 putWeightValue(p, item, amount, s);
-                message(p,"lose",item,weight, amount);
+                message(p, "lose", item, weight, amount);
                 w.getWeightsEffect(p);
             }
         }
+
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerBlockPlace(BlockPlaceEvent e){
         Player p = e.getPlayer();
         ItemStack block = new ItemStack(e.getBlock().getType());
-        float weight = globalitemsweight.get(block);
-        if(!p.hasPermission("weight.bypass")) {
-            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null) {
+        if(globalitemsweight.get(block.getType()) == null){
+            getPlugin().getServer().getLogger().info("[Weight-RPG] " + block.getType() + " isn't at your weight files. You might want to add it manually.");
+            return;
+        }
+        float weight = 0;
+        boolean iscustomitem = false;
+        if(customitemsweight.containsKey(Objects.requireNonNull(block.getItemMeta()).getDisplayName())) {
+            weight = customitemsweight.get(Objects.requireNonNull(block.getItemMeta()).getDisplayName());
+            iscustomitem = true;
+        }
+       else if(globalitemsweight.get(block.getType()) != null)
+            weight = globalitemsweight.get(block.getType());
+        if (!p.hasPermission("weight.bypass")) {
+            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || iscustomitem) {
                 w.calculateWeight(p);
-                message(p,"place",block,weight, 1);
-            }else{
+                message(p, "place", block, weight, 1);
+            } else {
                 String s = "place";
                 putWeightValue(p, block, 1, s);
-                message(p,"place",block,weight, 1);
+                message(p, "place", block, weight, 1);
                 w.getWeightsEffect(p);
             }
         }
@@ -139,7 +175,7 @@ public class WeightCalculateListeners implements Listener {
             return;
         if(p.getLocation().getBlock().getType() == Material.LADDER || p.getLocation().getBlock().getType() == Material.WATER || p.getLocation().getBlock().getType() == Material.LAVA)
             return;
-        if(e.getTo().getY() > e.getFrom().getY()) {
+        if(Objects.requireNonNull(e.getTo()).getY() > e.getFrom().getY()) {
             float weight = playerweight.get(p.getUniqueId());
             boolean disablejump = false;
             double weight1 = getPlugin().getConfig().getDouble("weight-level-1.value");
@@ -193,7 +229,7 @@ public class WeightCalculateListeners implements Listener {
 
     private void putWeightValue(Player p, ItemStack item, int amount,String s) {
         String PlayerGamemode = p.getGameMode().toString();
-        disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
         if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
             p.setWalkSpeed((float) 0.2);
             return;
@@ -259,17 +295,25 @@ public class WeightCalculateListeners implements Listener {
     private void messageSender(String message, Player p, ItemStack item, float weight, int amount ){
         if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
             message = message.replaceAll("%block%", String.valueOf(item.getType()));
-            message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
+            if(!Objects.requireNonNull(item.getItemMeta()).getDisplayName().equalsIgnoreCase(""))
+                message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
+            else
+                message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
             message = message.replaceAll("%itemweight%", String.valueOf(weight));
             message = message.replaceAll("%amount%", String.valueOf(amount));
             message = message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+            message = message.replaceAll("_", " ");
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
         }else {
             message = message.replaceAll("%block%", String.valueOf(item.getType()));
-            message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
+            if(!Objects.requireNonNull(item.getItemMeta()).getDisplayName().equalsIgnoreCase(""))
+                message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
+            else
+                message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
             message = message.replaceAll("%itemweight%", String.valueOf(weight));
             message = message.replaceAll("%amount%", String.valueOf(amount));
             message = message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+            message = message.replaceAll("_", " ");
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
         }
     }

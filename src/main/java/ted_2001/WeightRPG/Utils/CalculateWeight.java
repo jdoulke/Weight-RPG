@@ -7,7 +7,6 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,13 +14,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 
+import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
 public class CalculateWeight {
-
-    private List<String> disabledworlds;
 
     float weight;
     public static HashMap<UUID,Float> playerweight = new HashMap<>();
@@ -34,7 +32,7 @@ public class CalculateWeight {
 
     public void calculateWeight(Player p){
         String PlayerGamemode = p.getGameMode().toString();
-        disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
         if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
             p.setWalkSpeed((float) 0.2);
             return;
@@ -49,10 +47,17 @@ public class CalculateWeight {
         ItemStack[] items = inv.getStorageContents();
         ItemStack[] armor = inv.getArmorContents();
         weight = 0;
-        float itemweight = 0;
+        float itemweight;
+        boolean customitems;
         for (ItemStack item : items) {
             if (item != null) {
-                if(globalitemsweight.get(item.getType()) != null) {
+                customitems = false;
+                if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())){
+                    itemweight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+                    weight += itemweight * item.getAmount();
+                    customitems = true;
+                }
+                if(globalitemsweight.get(item.getType()) != null && !customitems) {
                     itemweight = globalitemsweight.get(item.getType());
                     weight += itemweight * item.getAmount();
                 }
@@ -60,7 +65,13 @@ public class CalculateWeight {
         }
         for (ItemStack itemStack : armor) {
             if(itemStack != null) {
-                if (globalitemsweight.get(itemStack.getType()) != null) {
+                customitems = false;
+                if(customitemsweight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName())){
+                    itemweight = weight = customitemsweight.get(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
+                    weight += itemweight * itemStack.getAmount();
+                    customitems = true;
+                }
+                if (globalitemsweight.get(itemStack.getType()) != null && !customitems) {
                     itemweight = globalitemsweight.get(itemStack.getType());
                     weight += itemweight * itemStack.getAmount();
                 }
@@ -71,6 +82,8 @@ public class CalculateWeight {
         getWeightsEffect(p);
 
     }
+
+
 
     public void getWeightsEffect(Player p) {
         double weight1 = getPlugin().getConfig().getDouble("weight-level-1.value");
@@ -175,7 +188,8 @@ public class CalculateWeight {
         }else {
             maxweight = (float) getPlugin().getConfig().getDouble("weight-level-1.value");
         }
-        return (weight * 100/maxweight);
+        weight = (weight * 100 / maxweight);
+        return (float) (Math.round(weight * 100.0) / 100.0);
     }
 
     public String percentageGetter(Player p){

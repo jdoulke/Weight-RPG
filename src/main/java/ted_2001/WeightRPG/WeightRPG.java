@@ -47,6 +47,7 @@ public final class WeightRPG extends JavaPlugin {
         Messages.getMessages().options().copyDefaults(true);
         Messages.getDefaults();
         Messages.saveMessages();
+        Messages.getDefaults();
         getServer().getLogger().info("[Weight-RPG] Done.");
         js.readJsonFile();
         getServer().getLogger().info("[Weight-RPG] Read weight files successfully.");
