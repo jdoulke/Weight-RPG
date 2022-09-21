@@ -95,6 +95,7 @@ public class CalculateWeight {
             return;
         if(playerweight.get(id) <= weight1){
             if(getPlugin().getConfig().getBoolean("message-before-level1-enabled")) {
+                p.setWalkSpeed((float) 0.2);
                 message = getPlugin().getConfig().getString("message-before-level1");
                 messageChooser(message, p, null);
             }

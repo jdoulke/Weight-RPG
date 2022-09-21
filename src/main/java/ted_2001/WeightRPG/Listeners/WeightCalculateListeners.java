@@ -37,6 +37,8 @@ public class WeightCalculateListeners implements Listener {
     public final HashMap<UUID, Long> placemessage = new HashMap<>();
     public final HashMap<UUID, Long> dropmessage = new HashMap<>();
 
+
+
     @EventHandler (priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent e){
         Player p = (Player) e.getPlayer();
@@ -57,6 +59,20 @@ public class WeightCalculateListeners implements Listener {
             w.calculateWeight(p);
     }
 
+    @EventHandler (priority = EventPriority.NORMAL)
+    public void onPlayerChangedWorldEvent(PlayerChangedWorldEvent e){
+        Player p = e.getPlayer();
+        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+        for (String disabledworld : disabledworlds) {
+            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+                p.setWalkSpeed((float) 0.2);
+                return;
+            }
+        }
+        if(!p.hasPermission("weight.bypass"))
+            w.calculateWeight(p);
+    }
+
     @EventHandler (priority = EventPriority.LOWEST)
     public void onGamemodeChange(PlayerGameModeChangeEvent e){
         Player p =e.getPlayer();
@@ -69,6 +85,14 @@ public class WeightCalculateListeners implements Listener {
     public void onItemPickUp(EntityPickupItemEvent e){
         if(e.getEntity() instanceof Player){
             Player p = ((Player) e.getEntity()).getPlayer();
+            assert p != null;
+            List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+            for (String disabledworld : disabledworlds) {
+                if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+                    p.setWalkSpeed((float) 0.2);
+                    return;
+                }
+            }
             ItemStack item = e.getItem().getItemStack();
             int amount = e.getItem().getItemStack().getAmount();
             if(globalitemsweight.get(item.getType()) == null){
@@ -83,7 +107,6 @@ public class WeightCalculateListeners implements Listener {
             }
             else if(globalitemsweight.get(item.getType()) != null)
                 weight = globalitemsweight.get(item.getType());
-            assert p != null;
             if(!p.hasPermission("weight.bypass")) {
                 if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || iscustomitem) {
                     w.calculateWeight(p);
@@ -103,6 +126,13 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.HIGH)
     public void onItemDrop(PlayerDropItemEvent e){
         Player p = e.getPlayer();
+        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+        for (String disabledworld : disabledworlds) {
+            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+                p.setWalkSpeed((float) 0.2);
+                return;
+            }
+        }
         ItemStack item = e.getItemDrop().getItemStack();
         int amount = e.getItemDrop().getItemStack().getAmount();
         if(globalitemsweight.get(item.getType()) == null){
@@ -134,6 +164,13 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerBlockPlace(BlockPlaceEvent e){
         Player p = e.getPlayer();
+        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+        for (String disabledworld : disabledworlds) {
+            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+                p.setWalkSpeed((float) 0.2);
+                return;
+            }
+        }
         ItemStack block = new ItemStack(e.getBlock().getType());
         if(globalitemsweight.get(block.getType()) == null){
             getPlugin().getServer().getLogger().info("[Weight-RPG] " + block.getType() + " isn't at your weight files. You might want to add it manually.");
@@ -163,6 +200,13 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerJump(PlayerMoveEvent e){
         Player p = e.getPlayer();
+        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+        for (String disabledworld : disabledworlds) {
+            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+                p.setWalkSpeed((float) 0.2);
+                return;
+            }
+        }
         Location loc = p.getLocation();
         if(p.hasPermission("weight.bypass.jump"))
             return;
@@ -293,6 +337,8 @@ public class WeightCalculateListeners implements Listener {
     }
 
     private void messageSender(String message, Player p, ItemStack item, float weight, int amount ){
+        if(message == null)
+            return;
         if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
             message = message.replaceAll("%block%", String.valueOf(item.getType()));
             if(!Objects.requireNonNull(item.getItemMeta()).getDisplayName().equalsIgnoreCase(""))

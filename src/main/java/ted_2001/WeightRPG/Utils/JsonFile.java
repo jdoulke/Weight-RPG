@@ -3,7 +3,6 @@ package ted_2001.WeightRPG.Utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,12 +18,16 @@ import java.util.List;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
+
 public class JsonFile {
 
 
 
     public static HashMap<Material, Float> globalitemsweight = new HashMap<Material, Float>();
     public static HashMap<String, Float> customitemsweight = new HashMap<String, Float>();
+    private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" +ChatColor.GRAY + "] ";
+
+    public boolean successfullRead = true;
     public void saveJsonFile(){
         JSONObject ItemsWeight = new JSONObject();
         JSONObject ArmorAndWeaponsWeight = new JSONObject();
@@ -362,7 +365,9 @@ public class JsonFile {
             addGlobalItemsWeight(candles);
             addGlobalItemsWeight(redstone);
             addGlobalItemsWeight(dyes);
-        }catch (JSONException e){}
+        }catch (JSONException e){
+
+        }
 
     }
 
@@ -402,28 +407,56 @@ public class JsonFile {
             addGlobalItemsWeight(concretes);
             addGlobalItemsWeight(table);
             addGlobalItemsWeight(wood);
-        }catch (JSONException e){}
+        }catch (JSONException e){
+            getPlugin().getServer().getConsoleSender().sendMessage(e.getMessage());
+        }
     }
 
     private void addGlobalItemsWeight(JSONArray array) {
+        String origin = "Vanilla";
         for(int i = 0; i < array.length(); i++){
             String item = array.get(i).toString();
             String[] item_weight = item.split("=");
             item = item_weight[0];
             Material material = Material.getMaterial(item);
-            Float weight = Float.valueOf(item_weight[1]);
+            float weight = getWeight(item_weight, item, origin);
             globalitemsweight.put(material,weight);
         }
     }
 
     private void addCustomItemsWeight() {
+        String origin = "Custom";
         List<String> customitems = getPlugin().getConfig().getStringList("custom-items-weight");
         for (String item : customitems) {
             String[] item_weight = item.split("=");
             item = ChatColor.translateAlternateColorCodes('&', item_weight[0]);
-            Float weight = Float.valueOf(item_weight[1]);
+            float weight = getWeight(item_weight, item, origin);
             customitemsweight.put(item, weight);
         }
+    }
+
+
+    private float getWeight(String[] item_weight, String item, String origin) {
+        float weight = 0;
+        try {
+            weight = Float.parseFloat(item_weight[1]);
+        }catch (NumberFormatException | ArrayIndexOutOfBoundsException e){
+            if(origin.equalsIgnoreCase("Custom") && e.toString().contains("Number"))
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Custom item " + ChatColor.BLUE + item + ChatColor.GRAY +" in config.yml couldn't be added in the weight list because of an ERROR.");
+            else if(origin.equalsIgnoreCase("Vanilla") && e.toString().contains("Number"))
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Item " + item + ChatColor.GRAY+" in Weight files couldn't be added in the weight list because of an ERROR.");
+            else if(origin.equalsIgnoreCase("Custom") && e.toString().contains("Array")) {
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Custom item " + item + ChatColor.GRAY + " in config.yml couldn't be added in the weight list because of an ERROR.");
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may forgot to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in custom-items-weight.");
+            }else{
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Item " + ChatColor.BLUE + item + ChatColor.GRAY + " in Weight files couldn't be added in the weight list because of an ERROR.");
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may forgot to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in json file.");
+            }
+            getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED +"ERROR" +ChatColor.GRAY + " Message: " + ChatColor.RED +e.getMessage());
+
+            successfullRead = false;
+        }
+        return weight;
     }
 
 

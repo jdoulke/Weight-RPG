@@ -1,5 +1,6 @@
 package ted_2001.WeightRPG;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -25,6 +26,7 @@ public final class WeightRPG extends JavaPlugin {
 
     public BukkitScheduler scheduler = this.getServer().getScheduler();
     public BukkitTask task;
+    private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" +ChatColor.GRAY + "] ";
 
     @Override
     public void onEnable() {
@@ -34,7 +36,7 @@ public final class WeightRPG extends JavaPlugin {
         TabCompleter tc = new Tabcompleter();
         Objects.requireNonNull(getPlugin().getCommand("weight")).setTabCompleter(tc);
         JsonFile js = new JsonFile();
-        getServer().getLogger().info("[Weight-RPG] Getting ready config and items weight files.");
+        getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Getting ready config and items weight files.");
         getConfig().options().copyDefaults();
         saveDefaultConfig();
         String path = this.getDataFolder().getAbsolutePath();
@@ -43,14 +45,13 @@ public final class WeightRPG extends JavaPlugin {
             Weight.mkdir();
         js.saveJsonFile();
         Messages.create();
-        Messages.getDefaults();
-        Messages.getMessages().options().copyDefaults(true);
-        Messages.getDefaults();
-        Messages.saveMessages();
-        Messages.getDefaults();
-        getServer().getLogger().info("[Weight-RPG] Done.");
         js.readJsonFile();
-        getServer().getLogger().info("[Weight-RPG] Read weight files successfully.");
+        if(js.successfullRead) {
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY+"Read weight files" + ChatColor.GREEN + " SUCCESSFULLY.");
+        }else{
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "ERROR" + ChatColor.GRAY+" Weight or Config files have ERROR(s).");
+        }
+        getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Done.");
         CalculateWeight w= new CalculateWeight();
         List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
         for (Player plist : players)

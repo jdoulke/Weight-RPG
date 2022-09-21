@@ -64,10 +64,11 @@ messages-cooldown: 30
 # Check everyone's inventory in seconds. Only integers value.
 check-weight: 3
 
-# Here add customs Items name for custom weight. Don't add space after and before '='.
+# Here add customs items name for custom weight. Don't add space after and before '='. Use '&' for color codes.
 custom-items-weight:
 #  - "customitemname=weight"
-  - "&c&lZeus Sword=20"
+  - "&c&lThunder Sword=20"
+  - "&6Amazing Pickaxe=14"
 
 # Disable the plugin on this world(s). It can be empty.
 disabled-worlds:

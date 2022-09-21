@@ -20,6 +20,8 @@ public class WeightCommand implements CommandExecutor {
 
     private final JsonFile js = new JsonFile();
     CalculateWeight w= new CalculateWeight();
+    private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" +ChatColor.GRAY + "] ";
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
@@ -27,6 +29,13 @@ public class WeightCommand implements CommandExecutor {
             Player p = (Player) sender;
             if(p.hasPermission("weight.use")){
                 if(args.length == 0){
+                    List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+                    for (String disabledworld : disabledworlds) {
+                        if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+                            p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED +"is disabled in this world.");
+                            return false;
+                        }
+                    }
                     List<String> message = Messages.getMessages().getStringList("weight-command-message");
                     for (String s : message)
                         p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(s, p)));
@@ -38,7 +47,11 @@ public class WeightCommand implements CommandExecutor {
                 if (arg0.equalsIgnoreCase("reload")) {
                     if(p.hasPermission("weight.reload")) {
                         reloadcommand();
-                        p.sendMessage(ChatColor.GREEN + "You successfully reload config and weight files.");
+                        if(js.successfullRead)
+                            p.sendMessage(ChatColor.GREEN + "You successfully reload config and weight files.");
+                        else
+                            p.sendMessage(ChatColor.RED + "There was an error in the reload. Check the Console.");
+                        js.successfullRead = true;
                     }else
                         p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 }
@@ -46,12 +59,16 @@ public class WeightCommand implements CommandExecutor {
         }else if(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) {
             Server c = sender.getServer();
             if (args.length == 0)
-                c.getLogger().info("This command can only execute by a player.");
+                c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "This command can only execute by a player.");
             if (args.length == 1) {
                 String arg0 = args[0];
                 if (arg0.equalsIgnoreCase("reload")) {
                     reloadcommand();
-                    c.getLogger().info("You successfully reload config and weight files.");
+                    if(js.successfullRead)
+                        c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You successfully reload config and weight files.");
+                    else
+                        c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There was an error in the reload.");
+                    js.successfullRead = true;
                 }
             }
         }
@@ -77,11 +94,6 @@ public class WeightCommand implements CommandExecutor {
             Messages.reloadMessagesConfig();
         else {
             Messages.create();
-            Messages.getDefaults();
-            Messages.getMessages().options().copyDefaults(true);
-            Messages.getDefaults();
-            Messages.saveMessages();
-            Messages.getDefaults();
         }
         if (!blocksweight.exists() || !toolsweight.exists() || !miscweight.exists())
                 js.saveJsonFile();
