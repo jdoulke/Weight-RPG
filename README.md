@@ -1,4 +1,5 @@
-Weight-RPG
+Weight-RPG is a Minecraft plugin that adds a new mechanic to the game.
+
 Inventory weight mechanic just like in RPGs!
 
 Description
