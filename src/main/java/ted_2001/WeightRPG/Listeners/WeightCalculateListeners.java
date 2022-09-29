@@ -69,6 +69,11 @@ public class WeightCalculateListeners implements Listener {
                 return;
             }
         }
+        String PlayerGamemode = p.getGameMode().toString();
+        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
+            p.setWalkSpeed((float) 0.2);
+            return;
+        }
         if(!p.hasPermission("weight.bypass"))
             w.calculateWeight(p);
     }
@@ -93,10 +98,14 @@ public class WeightCalculateListeners implements Listener {
                     return;
                 }
             }
+            String PlayerGamemode = p.getGameMode().toString();
+            if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
+                return;
+            }
             ItemStack item = e.getItem().getItemStack();
             int amount = e.getItem().getItemStack().getAmount();
             if(globalitemsweight.get(item.getType()) == null){
-                getPlugin().getServer().getLogger().info("[Weight-RPG] " + item.getType() + " isn't at your weight files. You might want to add it manually.");
+                getPlugin().getServer().getLogger().info("[Weight-RPG] " + item.getType() + " isn't in the weight files. You might want to add it manually.");
                 return;
             }
             float weight = 0;
@@ -133,10 +142,14 @@ public class WeightCalculateListeners implements Listener {
                 return;
             }
         }
+        String PlayerGamemode = p.getGameMode().toString();
+        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
+            return;
+        }
         ItemStack item = e.getItemDrop().getItemStack();
         int amount = e.getItemDrop().getItemStack().getAmount();
         if(globalitemsweight.get(item.getType()) == null){
-            getPlugin().getServer().getLogger().info("[Weight-RPG] " + item.getType() + " isn't at your weight files. You might want to add it manually.");
+            getPlugin().getServer().getLogger().info("[Weight-RPG] " + item.getType() + " isn't in the weight files. You might want to add it manually.");
             return;
         }
         boolean iscustomitem = false;
@@ -171,9 +184,15 @@ public class WeightCalculateListeners implements Listener {
                 return;
             }
         }
+        String PlayerGamemode = p.getGameMode().toString();
+        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
+            return;
+        }
         ItemStack block = new ItemStack(e.getBlock().getType());
         if(globalitemsweight.get(block.getType()) == null){
-            getPlugin().getServer().getLogger().info("[Weight-RPG] " + block.getType() + " isn't at your weight files. You might want to add it manually.");
+            if(block.getType().toString().equalsIgnoreCase("FIRE"))
+                return;
+            getPlugin().getServer().getLogger().info("[Weight-RPG] " + block.getType() + " isn't in the weight files. You might want to add it manually.");
             return;
         }
         float weight = 0;
@@ -206,6 +225,10 @@ public class WeightCalculateListeners implements Listener {
                 p.setWalkSpeed((float) 0.2);
                 return;
             }
+        }
+        String PlayerGamemode = p.getGameMode().toString();
+        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
+            return;
         }
         Location loc = p.getLocation();
         if(p.hasPermission("weight.bypass.jump"))

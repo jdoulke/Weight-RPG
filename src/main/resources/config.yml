@@ -17,7 +17,7 @@
 # %maxweight% for global max weight. (if you have enabled level 3 then level 3 is the maximum if you have disabled level 3 but enabled level 2 then level 2 is the max.
 # %world% for player's world.
 # %level1% for weight level 1 value %level2% for level 2 and %level3% for level 3.
-# %percentage% for weight percentage (weight * 100 / maxweight)
+# %percentage% for weight percentage (weight * 100 / max weight)
 # %percentageweight% for percentage animation.
 
 
@@ -34,7 +34,7 @@ weight-level-1:
   disable-jump: false
   # the sound that will play when this level takes effect. Write none for no sound. List of sounds https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
   sound: none
-  # If message will send to the player when he will reach this level (default is true)
+  # If the message send to the player when he will reach this level (default is true)
   message-enabled: true
   # The message that will send to the player when he will be over your typed value.
   message: "%displayname%: &eI am carrying too many items. &e%weight% &2/ &c%level2% %percentageweight%"
@@ -58,7 +58,7 @@ weight-level-3:
 # Should messages send as actionbar messages? (if false send messages on chat, default is true)
 actionbar-messages: true
 
-# Couldown in seconds before the next 'level message' and sound send to the player. (default is 30)
+# Couldown in seconds before the next 'level message' and sound sent to the player. (default is 30)
 messages-cooldown: 30
 
 # Check everyone's inventory in seconds. Only integers value.

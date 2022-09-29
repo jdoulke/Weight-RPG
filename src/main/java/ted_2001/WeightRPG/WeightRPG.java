@@ -1,5 +1,6 @@
 package ted_2001.WeightRPG;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
@@ -12,6 +13,7 @@ import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.JsonFile;
 import ted_2001.WeightRPG.Utils.Messages;
+import ted_2001.WeightRPG.Utils.UpdateChecker;
 
 import java.io.File;
 import java.util.List;
@@ -57,6 +59,16 @@ public final class WeightRPG extends JavaPlugin {
         for (Player plist : players)
             w.calculateWeight(plist);
         scheduler();
+        new UpdateChecker(this, 105513).getVersion(version -> {
+            if (this.getDescription().getVersion().equals(version)) {
+                getLogger().info("There is not a new update available.");
+            } else if (Double.parseDouble(this.getDescription().getVersion()) < Double.parseDouble(version)){
+                getLogger().info("There is a new update available.");
+            } else {
+                getLogger().info("You are using a version newer than spigot uploaded version.");
+            }
+        });
+        Metrics metrics = new Metrics(this,16524);
     }
 
     public void scheduler() {

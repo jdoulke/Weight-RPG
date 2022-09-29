@@ -1,7 +1,7 @@
 name: Weight-RPG
 version: '${project.version}'
 main: ted_2001.WeightRPG.WeightRPG
-api-version: 1.18
+api-version: 1.13
 authors: [ Ted_2001 ]
 commands:
   weight:

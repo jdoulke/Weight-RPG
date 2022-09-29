@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.List;
 
 import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
+import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -35,6 +36,15 @@ public class WeightCommand implements CommandExecutor {
                             p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED +"is disabled in this world.");
                             return false;
                         }
+                    }
+                    String PlayerGamemode = p.getGameMode().toString();
+                    if(PlayerGamemode.equalsIgnoreCase("CREATIVE") ) {
+                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED +"is disabled on "+ ChatColor.GREEN + "Creative Mode.");
+                         return false;
+                    }
+                    if(PlayerGamemode.equalsIgnoreCase("SPECTATOR") ) {
+                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED +"is disabled on "+ ChatColor.GREEN + "Spectator Mode.");
+                        return false;
                     }
                     List<String> message = Messages.getMessages().getStringList("weight-command-message");
                     for (String s : message)
@@ -82,6 +92,7 @@ public class WeightCommand implements CommandExecutor {
         File toolsweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Tools And Weapons Weight.json");
         File miscweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
         customitemsweight.clear();
+        globalitemsweight.clear();
         if(config.exists()) {
             getPlugin().reloadConfig();
         }else{

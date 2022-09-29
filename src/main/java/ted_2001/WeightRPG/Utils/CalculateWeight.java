@@ -3,6 +3,7 @@ package ted_2001.WeightRPG.Utils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -37,6 +38,7 @@ public class CalculateWeight {
             p.setWalkSpeed((float) 0.2);
             return;
         }
+        GameMode playergamemode = p.getGameMode();
         for (String disabledworld : disabledworlds) {
             if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
                 p.setWalkSpeed((float) 0.2);
@@ -94,8 +96,9 @@ public class CalculateWeight {
         if(playerweight.get(id) == null)
             return;
         if(playerweight.get(id) <= weight1){
-            if(getPlugin().getConfig().getBoolean("message-before-level1-enabled")) {
+            if(p.getWalkSpeed() < 0.2)
                 p.setWalkSpeed((float) 0.2);
+            if(getPlugin().getConfig().getBoolean("message-before-level1-enabled")) {
                 message = getPlugin().getConfig().getString("message-before-level1");
                 messageChooser(message, p, null);
             }
@@ -194,6 +197,8 @@ public class CalculateWeight {
     }
 
     public String percentageGetter(Player p){
+        if(p == null)
+            return "";
         float weight = playerweight.get(p.getUniqueId());
         float maxweight;
         String message = "";

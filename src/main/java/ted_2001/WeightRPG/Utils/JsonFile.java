@@ -73,7 +73,7 @@ public class JsonFile {
         File miscweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
         if(getPlugin().getDataFolder().exists()) {
             if (!blocksweight.exists() || !toolsweight.exists() || !miscweight.exists()) {
-                getPlugin().getServer().getLogger().info("[Weight-RPG] Weights files don't exist. Creating them.");
+                getPlugin().getServer().getLogger().info("[Weight-RPG] Weights files don't exist. Creating them...");
                 Material[] allitems = Material.values();
                 for(int i =1;i < allitems.length;i++){
                     String tempitem = allitems[i].toString();
@@ -447,10 +447,10 @@ public class JsonFile {
                 getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Item " + item + ChatColor.GRAY+" in Weight files couldn't be added in the weight list because of an ERROR.");
             else if(origin.equalsIgnoreCase("Custom") && e.toString().contains("Array")) {
                 getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Custom item " + item + ChatColor.GRAY + " in config.yml couldn't be added in the weight list because of an ERROR.");
-                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may forgot to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in custom-items-weight.");
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may have forgotten to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in custom-items-weight.");
             }else{
                 getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Item " + ChatColor.BLUE + item + ChatColor.GRAY + " in Weight files couldn't be added in the weight list because of an ERROR.");
-                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may forgot to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in json file.");
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may have forgotten to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in json file.");
             }
             getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED +"ERROR" +ChatColor.GRAY + " Message: " + ChatColor.RED +e.getMessage());
 

@@ -2,15 +2,15 @@
 disable-jump-message: '%displayname%: &cI am carrying too many items to &2jump. %percentageweight%'
 # Couldown in seconds before the next message will send to the player. (default is 3)
 disable-jump-message-cooldown: 3
-# The message that wil send to the player when he will pick up or receive any item(s).
+# The message that will send to the player when he will pick up or receive any item(s).
 # You can use all placeholders %block% for items name, %itemweight% for items weight,
-# %itemdisplayname% for item's display name, %amount% for items amount and %totalweight% for total items weight.
+# %itemdisplayname% for item's display name, %amount% for items amount, and %totalweight% for total items weight.
 receive-item-message: '%displayname% &aYou receive &c%amount% &aof &e%itemdisplayname% &awhich weights &6%totalweight%&a. %percentageweight%'
 receive-item-message-cooldown: 1
 # Enable or disable received items messages. (default is true)
 receive-item-message-enabled: true
 # The message that will send to the player when he will drop or lose any item(s).
-lost-item-message: '%displayname% &aYou lost &e%itemdisplayname% &awhich weights &6%totalweight%&a. %percentageweight%'
+lost-item-message: '%displayname% &aYou lost &c%amount% &e%itemdisplayname% &awhich weights &6%totalweight%&a. %percentageweight%'
 lost-item-message-cooldown: 1
 lost-item-message-enabled: true
 # The message that will send to the player when he will place a block.
@@ -25,4 +25,4 @@ weight-command-message:
   - '&eLevel 1 &avalue is &c%level1%.'
   - '&6Level 2 &avalue is &c%level2%.'
   - '&cLevel 3 &avalue is &c%level3%.'
-  - '&aanything else you want.'
+  #- '&aanything else you want.'
