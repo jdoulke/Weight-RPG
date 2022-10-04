@@ -1,5 +1,10 @@
 package ted_2001.WeightRPG;
 
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.command.TabCompleter;
@@ -24,7 +29,8 @@ import java.util.Objects;
 
 public final class WeightRPG extends JavaPlugin {
 
-     private static WeightRPG plugin;
+    public static StateFlag MY_CUSTOM_FLAG;
+    private static WeightRPG plugin;
 
     public BukkitScheduler scheduler = this.getServer().getScheduler();
     public BukkitTask task;
@@ -61,14 +67,32 @@ public final class WeightRPG extends JavaPlugin {
         scheduler();
         new UpdateChecker(this, 105513).getVersion(version -> {
             if (this.getDescription().getVersion().equals(version)) {
-                getLogger().info("There is not a new update available.");
+                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There is not a new update available.");
             } else if (Double.parseDouble(this.getDescription().getVersion()) < Double.parseDouble(version)){
-                getLogger().info("There is a new update available.");
+                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There is a new update available.");
             } else {
-                getLogger().info("You are using a version newer than spigot uploaded version.");
+                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You are using a version newer than spigot uploaded version.");
             }
         });
         Metrics metrics = new Metrics(this,16524);
+        if(getServer().getPluginManager().isPluginEnabled("WorldGuard")) {
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + "WorldGuard " + ChatColor.GRAY + "found. Register flag. " );
+            FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+            try {
+                StateFlag flag = new StateFlag("weight-rpg", true);
+                registry.register(flag);
+                MY_CUSTOM_FLAG = flag; // only set our field if there was no error
+            } catch (FlagConflictException e) {
+                // some other plugin registered a flag by the same name already.
+                // you can use the existing flag, but this may cause conflicts - be sure to check type
+                Flag<?> existing = registry.get("weight-rpg");
+                if (existing instanceof StateFlag) {
+                    MY_CUSTOM_FLAG = (StateFlag) existing;
+                } else {
+                    getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + "WorldGuard " + ChatColor.GRAY + "Couldn't register flag. Contact the developer. " );
+                }
+            }
+        }
     }
 
     public void scheduler() {

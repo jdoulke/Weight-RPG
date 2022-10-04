@@ -3,6 +3,7 @@ version: '${project.version}'
 main: ted_2001.WeightRPG.WeightRPG
 api-version: 1.13
 authors: [ Ted_2001 ]
+softdepend: [WorldGuard]
 commands:
   weight:
     description: List of all commands for Weight RPG Plugin.

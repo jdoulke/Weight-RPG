@@ -1,5 +1,9 @@
 package ted_2001.WeightRPG.Listeners;
 
+import com.sk89q.worldedit.world.World;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -38,10 +42,14 @@ public class WeightCalculateListeners implements Listener {
     public final HashMap<UUID, Long> dropmessage = new HashMap<>();
 
 
+    RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+    boolean isEnabled = false;
 
     @EventHandler (priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent e){
         Player p = (Player) e.getPlayer();
+        //RegionManager regions = container.get((World) p.getWorld());
+        //regions.getApplicableRegions(p.getLocation())
         if(!p.hasPermission("weight.bypass"))
             w.calculateWeight(p);
     }
@@ -62,18 +70,9 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerChangedWorldEvent(PlayerChangedWorldEvent e){
         Player p = e.getPlayer();
-        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-        for (String disabledworld : disabledworlds) {
-            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed((float) 0.2);
-                return;
-            }
-        }
-        String PlayerGamemode = p.getGameMode().toString();
-        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
-            p.setWalkSpeed((float) 0.2);
+        isEnabled = checkIfEnable(p);
+        if(!isEnabled)
             return;
-        }
         if(!p.hasPermission("weight.bypass"))
             w.calculateWeight(p);
     }
@@ -82,7 +81,7 @@ public class WeightCalculateListeners implements Listener {
     public void onGamemodeChange(PlayerGameModeChangeEvent e){
         Player p =e.getPlayer();
         if(e.getNewGameMode().toString().equalsIgnoreCase("CREATIVE") || e.getNewGameMode().toString().equalsIgnoreCase("SPECTATOR")){
-            p.setWalkSpeed((float) 0.2);
+            p.setWalkSpeed(0.2f);
         }
     }
 
@@ -91,17 +90,9 @@ public class WeightCalculateListeners implements Listener {
         if(e.getEntity() instanceof Player){
             Player p = ((Player) e.getEntity()).getPlayer();
             assert p != null;
-            List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-            for (String disabledworld : disabledworlds) {
-                if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                    p.setWalkSpeed((float) 0.2);
-                    return;
-                }
-            }
-            String PlayerGamemode = p.getGameMode().toString();
-            if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
+            isEnabled = checkIfEnable(p);
+            if(!isEnabled)
                 return;
-            }
             ItemStack item = e.getItem().getItemStack();
             int amount = e.getItem().getItemStack().getAmount();
             if(globalitemsweight.get(item.getType()) == null){
@@ -135,17 +126,9 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.HIGH)
     public void onItemDrop(PlayerDropItemEvent e){
         Player p = e.getPlayer();
-        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-        for (String disabledworld : disabledworlds) {
-            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed((float) 0.2);
-                return;
-            }
-        }
-        String PlayerGamemode = p.getGameMode().toString();
-        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
+        isEnabled = checkIfEnable(p);
+        if(!isEnabled)
             return;
-        }
         ItemStack item = e.getItemDrop().getItemStack();
         int amount = e.getItemDrop().getItemStack().getAmount();
         if(globalitemsweight.get(item.getType()) == null){
@@ -177,17 +160,9 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerBlockPlace(BlockPlaceEvent e){
         Player p = e.getPlayer();
-        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-        for (String disabledworld : disabledworlds) {
-            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed((float) 0.2);
-                return;
-            }
-        }
-        String PlayerGamemode = p.getGameMode().toString();
-        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
+        isEnabled = checkIfEnable(p);
+        if(!isEnabled)
             return;
-        }
         ItemStack block = new ItemStack(e.getBlock().getType());
         if(globalitemsweight.get(block.getType()) == null){
             if(block.getType().toString().equalsIgnoreCase("FIRE"))
@@ -222,7 +197,7 @@ public class WeightCalculateListeners implements Listener {
         List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
         for (String disabledworld : disabledworlds) {
             if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed((float) 0.2);
+                p.setWalkSpeed(0.2f);
                 return;
             }
         }
@@ -278,6 +253,19 @@ public class WeightCalculateListeners implements Listener {
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p)));
     }
 
+    private boolean checkIfEnable(Player p) {
+        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+        for (String disabledworld : disabledworlds) {
+            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+                p.setWalkSpeed((float) 0.2);
+                return false;
+            }
+        }
+        String PlayerGamemode = p.getGameMode().toString();
+        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR"))
+            return false;
+        return true;
+    }
 
     private boolean checkblocks(Location loc) {
         loc.setX(loc.getBlockX() +0.5);
@@ -298,12 +286,12 @@ public class WeightCalculateListeners implements Listener {
         String PlayerGamemode = p.getGameMode().toString();
         List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
         if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
-            p.setWalkSpeed((float) 0.2);
+            p.setWalkSpeed(0.2f);
             return;
         }
         for (String disabledworld : disabledworlds) {
             if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed((float) 0.2);
+                p.setWalkSpeed(0.2f);
                 return;
             }
         }

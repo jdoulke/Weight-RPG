@@ -38,7 +38,6 @@ public class CalculateWeight {
             p.setWalkSpeed((float) 0.2);
             return;
         }
-        GameMode playergamemode = p.getGameMode();
         for (String disabledworld : disabledworlds) {
             if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
                 p.setWalkSpeed((float) 0.2);
@@ -130,7 +129,7 @@ public class CalculateWeight {
                 messageChooser(message, p, s);
             }
         }else {
-            p.setWalkSpeed((float) 0.2);
+            p.setWalkSpeed(0.2f);
         }
     }
 
