@@ -1,9 +1,17 @@
 package ted_2001.WeightRPG.Utils;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -15,8 +23,10 @@ import java.util.Objects;
 import java.util.UUID;
 
 
+import static org.bukkit.Bukkit.getServer;
 import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
+import static ted_2001.WeightRPG.Utils.WorldGuardRegionHolder.MY_CUSTOM_FLAG;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -27,23 +37,18 @@ public class CalculateWeight {
     public static HashMap<UUID, Long> cooldown = new HashMap<>();
     boolean Weight2 = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
     boolean Weight3 = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
-
+    boolean isPluginEnabled = false;
+    boolean isWorldGuardEnabled = getServer().getPluginManager().isPluginEnabled("WorldGuard");
 
 
 
     public void calculateWeight(Player p){
-        String PlayerGamemode = p.getGameMode().toString();
-        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
-            p.setWalkSpeed((float) 0.2);
+        isPluginEnabled = checkIfEnable(p);
+        if(!isPluginEnabled)
             return;
-        }
-        for (String disabledworld : disabledworlds) {
-            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed((float) 0.2);
+        if(isWorldGuardEnabled)
+            if (isInRegion(p))
                 return;
-            }
-        }
         PlayerInventory inv = p.getInventory();
         ItemStack[] items = inv.getStorageContents();
         ItemStack[] armor = inv.getArmorContents();
@@ -144,6 +149,40 @@ public class CalculateWeight {
         }
     }
 
+    private boolean checkIfEnable(Player p) {
+        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
+        for (String disabledworld : disabledworlds) {
+            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+                p.setWalkSpeed((float) 0.2);
+                return false;
+            }
+        }
+        String PlayerGamemode = p.getGameMode().toString();
+        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR"))
+            return false;
+        return true;
+    }
+
+    private boolean isInRegion(Player p) {
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionManager regions = container.get(BukkitAdapter.adapt(p.getWorld()));
+        if (regions != null) {
+            Location location = p.getLocation();
+            int x = location.getBlockX();
+            int y = location.getBlockY();
+            int z = location.getBlockZ();
+            ApplicableRegionSet reg = regions.getApplicableRegions(BlockVector3.at(x,y,z));
+            if(reg.size() > 0) {
+                LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
+                if (!reg.testState(localPlayer, MY_CUSTOM_FLAG)) {
+                    p.setWalkSpeed(0.2f);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private void cooldownMessager(Player p, Sound s, String message) {
         cooldown.put(p.getUniqueId(), System.currentTimeMillis());
         if(getPlugin().getConfig().getBoolean("actionbar-messages"))
@@ -153,6 +192,8 @@ public class CalculateWeight {
         if(s != null)
             p.playSound(p.getLocation(),s,1,1);
     }
+
+
 
 
     public String messageSender(String message, Player p){

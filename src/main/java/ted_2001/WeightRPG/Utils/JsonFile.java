@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
+import static org.bukkit.Bukkit.getServer;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -73,7 +74,7 @@ public class JsonFile {
         File miscweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
         if(getPlugin().getDataFolder().exists()) {
             if (!blocksweight.exists() || !toolsweight.exists() || !miscweight.exists()) {
-                getPlugin().getServer().getLogger().info("[Weight-RPG] Weights files don't exist. Creating them...");
+                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Weights files don't exist. Creating them...");
                 Material[] allitems = Material.values();
                 for(int i =1;i < allitems.length;i++){
                     String tempitem = allitems[i].toString();

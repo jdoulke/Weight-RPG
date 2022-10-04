@@ -15,10 +15,7 @@ import org.bukkit.scheduler.BukkitTask;
 import ted_2001.WeightRPG.Commands.Tabcompleter;
 import ted_2001.WeightRPG.Commands.WeightCommand;
 import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
-import ted_2001.WeightRPG.Utils.CalculateWeight;
-import ted_2001.WeightRPG.Utils.JsonFile;
-import ted_2001.WeightRPG.Utils.Messages;
-import ted_2001.WeightRPG.Utils.UpdateChecker;
+import ted_2001.WeightRPG.Utils.*;
 
 import java.io.File;
 import java.util.List;
@@ -29,7 +26,7 @@ import java.util.Objects;
 
 public final class WeightRPG extends JavaPlugin {
 
-    public static StateFlag MY_CUSTOM_FLAG;
+
     private static WeightRPG plugin;
 
     public BukkitScheduler scheduler = this.getServer().getScheduler();
@@ -75,24 +72,7 @@ public final class WeightRPG extends JavaPlugin {
             }
         });
         Metrics metrics = new Metrics(this,16524);
-        if(getServer().getPluginManager().isPluginEnabled("WorldGuard")) {
-            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + "WorldGuard " + ChatColor.GRAY + "found. Register flag. " );
-            FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-            try {
-                StateFlag flag = new StateFlag("weight-rpg", true);
-                registry.register(flag);
-                MY_CUSTOM_FLAG = flag; // only set our field if there was no error
-            } catch (FlagConflictException e) {
-                // some other plugin registered a flag by the same name already.
-                // you can use the existing flag, but this may cause conflicts - be sure to check type
-                Flag<?> existing = registry.get("weight-rpg");
-                if (existing instanceof StateFlag) {
-                    MY_CUSTOM_FLAG = (StateFlag) existing;
-                } else {
-                    getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + "WorldGuard " + ChatColor.GRAY + "Couldn't register flag. Contact the developer. " );
-                }
-            }
-        }
+
     }
 
     public void scheduler() {
@@ -114,6 +94,17 @@ public final class WeightRPG extends JavaPlugin {
         },0, timer * 20L);
     }
 
+    @Override
+    public void onLoad(){
+        if(getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+            try {
+                WorldGuardRegionHolder holder = new WorldGuardRegionHolder();
+                holder.RegionHolder();
+            } catch (NoClassDefFoundError e) {
+                // Do something here
+            }
+        }
+    }
     @Override
     public void onDisable() {
         saveDefaultConfig();

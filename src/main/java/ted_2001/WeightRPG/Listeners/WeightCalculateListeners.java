@@ -1,7 +1,15 @@
 package ted_2001.WeightRPG.Listeners;
 
+
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.world.World;
+import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.association.RegionAssociable;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import net.md_5.bungee.api.ChatColor;
@@ -26,9 +34,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import static org.bukkit.Bukkit.getServer;
 import static ted_2001.WeightRPG.Utils.CalculateWeight.playerweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
+import static ted_2001.WeightRPG.Utils.WorldGuardRegionHolder.MY_CUSTOM_FLAG;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -40,22 +50,30 @@ public class WeightCalculateListeners implements Listener {
     public final HashMap<UUID, Long> pickmessage = new HashMap<>();
     public final HashMap<UUID, Long> placemessage = new HashMap<>();
     public final HashMap<UUID, Long> dropmessage = new HashMap<>();
+    private final String pluginPrefix = org.bukkit.ChatColor.GRAY + "[" + org.bukkit.ChatColor.YELLOW + "Weight-RPG" + org.bukkit.ChatColor.GRAY + "] ";
 
-
-    RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-    boolean isEnabled = false;
+    boolean isPluginEnabled = false;
+    boolean isWorldGuardEnabled = getServer().getPluginManager().isPluginEnabled("WorldGuard");
 
     @EventHandler (priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent e){
         Player p = (Player) e.getPlayer();
-        //RegionManager regions = container.get((World) p.getWorld());
-        //regions.getApplicableRegions(p.getLocation())
+        if(isWorldGuardEnabled)
+            if (isInRegion(p))
+                return;
         if(!p.hasPermission("weight.bypass"))
             w.calculateWeight(p);
     }
+
+
+
+
     @EventHandler (priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent e){
         Player p = e.getPlayer();
+        if(isWorldGuardEnabled)
+            if (isInRegion(p))
+                return;
         if(!p.hasPermission("weight.bypass"))
             w.calculateWeight(p);
     }
@@ -63,6 +81,9 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerRespawn(PlayerRespawnEvent e){
         Player p = e.getPlayer();
+        if(isWorldGuardEnabled)
+            if (isInRegion(p))
+                return;
         if(!p.hasPermission("weight.bypass"))
             w.calculateWeight(p);
     }
@@ -70,9 +91,12 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerChangedWorldEvent(PlayerChangedWorldEvent e){
         Player p = e.getPlayer();
-        isEnabled = checkIfEnable(p);
-        if(!isEnabled)
+        isPluginEnabled = checkIfEnable(p);
+        if(!isPluginEnabled)
             return;
+        if(isWorldGuardEnabled)
+            if (isInRegion(p))
+                return;
         if(!p.hasPermission("weight.bypass"))
             w.calculateWeight(p);
     }
@@ -90,13 +114,16 @@ public class WeightCalculateListeners implements Listener {
         if(e.getEntity() instanceof Player){
             Player p = ((Player) e.getEntity()).getPlayer();
             assert p != null;
-            isEnabled = checkIfEnable(p);
-            if(!isEnabled)
+            isPluginEnabled = checkIfEnable(p);
+            if(!isPluginEnabled)
                 return;
+            if(isWorldGuardEnabled)
+                if (isInRegion(p))
+                    return;
             ItemStack item = e.getItem().getItemStack();
             int amount = e.getItem().getItemStack().getAmount();
             if(globalitemsweight.get(item.getType()) == null){
-                getPlugin().getServer().getLogger().info("[Weight-RPG] " + item.getType() + " isn't in the weight files. You might want to add it manually.");
+                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA +item.getType()  + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
                 return;
             }
             float weight = 0;
@@ -126,13 +153,16 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.HIGH)
     public void onItemDrop(PlayerDropItemEvent e){
         Player p = e.getPlayer();
-        isEnabled = checkIfEnable(p);
-        if(!isEnabled)
+        isPluginEnabled = checkIfEnable(p);
+        if(!isPluginEnabled)
             return;
+        if(isWorldGuardEnabled)
+            if (isInRegion(p))
+                return;
         ItemStack item = e.getItemDrop().getItemStack();
         int amount = e.getItemDrop().getItemStack().getAmount();
         if(globalitemsweight.get(item.getType()) == null){
-            getPlugin().getServer().getLogger().info("[Weight-RPG] " + item.getType() + " isn't in the weight files. You might want to add it manually.");
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA +item.getType()  + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
             return;
         }
         boolean iscustomitem = false;
@@ -154,20 +184,22 @@ public class WeightCalculateListeners implements Listener {
                 w.getWeightsEffect(p);
             }
         }
-
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerBlockPlace(BlockPlaceEvent e){
         Player p = e.getPlayer();
-        isEnabled = checkIfEnable(p);
-        if(!isEnabled)
+        isPluginEnabled = checkIfEnable(p);
+        if(!isPluginEnabled)
             return;
+        if(isWorldGuardEnabled)
+            if (isInRegion(p))
+                return;
         ItemStack block = new ItemStack(e.getBlock().getType());
         if(globalitemsweight.get(block.getType()) == null){
             if(block.getType().toString().equalsIgnoreCase("FIRE"))
                 return;
-            getPlugin().getServer().getLogger().info("[Weight-RPG] " + block.getType() + " isn't in the weight files. You might want to add it manually.");
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + block.getType()  + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
             return;
         }
         float weight = 0;
@@ -194,17 +226,12 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerJump(PlayerMoveEvent e){
         Player p = e.getPlayer();
-        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-        for (String disabledworld : disabledworlds) {
-            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed(0.2f);
-                return;
-            }
-        }
-        String PlayerGamemode = p.getGameMode().toString();
-        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
+        isPluginEnabled = checkIfEnable(p);
+        if(!isPluginEnabled)
             return;
-        }
+        if(isWorldGuardEnabled)
+            if (isInRegion(p))
+                return;
         Location loc = p.getLocation();
         if(p.hasPermission("weight.bypass.jump"))
             return;
@@ -218,28 +245,32 @@ public class WeightCalculateListeners implements Listener {
         if(p.getLocation().getBlock().getType() == Material.LADDER || p.getLocation().getBlock().getType() == Material.WATER || p.getLocation().getBlock().getType() == Material.LAVA)
             return;
         if(Objects.requireNonNull(e.getTo()).getY() > e.getFrom().getY()) {
-            float weight = playerweight.get(p.getUniqueId());
-            boolean disablejump = false;
-            double weight1 = getPlugin().getConfig().getDouble("weight-level-1.value");
-            double weight2 = getPlugin().getConfig().getDouble("weight-level-2.value");
-            double weight3 = getPlugin().getConfig().getDouble("weight-level-3.value");
-            if(weight > weight1 && weight < weight2) {
-                disablejump = getPlugin().getConfig().getBoolean("weight-level-1.disable-jump");
-            }else if(weight > weight2 && weight < weight3) {
-                disablejump = getPlugin().getConfig().getBoolean("weight-level-2.disable-jump");
-            }else if(weight > weight3) {
-                disablejump = getPlugin().getConfig().getBoolean("weight-level-3.disable-jump");
-            }
-            if(disablejump) {
-                e.getTo().setY(e.getFrom().getY());
-                if(!jumpmessage.containsKey(p.getUniqueId())) {
-                    jumpmessager(p);
-                }else{
-                    long timeElapsed = System.currentTimeMillis() - jumpmessage.get(p.getUniqueId());
-                    if(timeElapsed >= Messages.getMessages().getInt("disable-jump-message-cooldown") * 1000L){
+                if(playerweight.get(p.getUniqueId())!= null){
+                    float weight = playerweight.get(p.getUniqueId());
+                    boolean disablejump = false;
+                    double weight1 = getPlugin().getConfig().getDouble("weight-level-1.value");
+                    double weight2 = getPlugin().getConfig().getDouble("weight-level-2.value");
+                    double weight3 = getPlugin().getConfig().getDouble("weight-level-3.value");
+                    if(weight > weight1 && weight < weight2) {
+                        disablejump = getPlugin().getConfig().getBoolean("weight-level-1.disable-jump");
+                    }else if(weight > weight2 && weight < weight3) {
+                        disablejump = getPlugin().getConfig().getBoolean("weight-level-2.disable-jump");
+                    }else if(weight > weight3) {
+                    disablejump = getPlugin().getConfig().getBoolean("weight-level-3.disable-jump");
+                    }
+                    if(disablejump) {
+                    e.getTo().setY(e.getFrom().getY());
+                    if(!jumpmessage.containsKey(p.getUniqueId())) {
                         jumpmessager(p);
+                    }else{
+                        long timeElapsed = System.currentTimeMillis() - jumpmessage.get(p.getUniqueId());
+                        if(timeElapsed >= Messages.getMessages().getInt("disable-jump-message-cooldown") * 1000L){
+                             jumpmessager(p);
+                        }
                     }
                 }
+            }else{
+                w.calculateWeight(p);
             }
         }
     }
@@ -253,6 +284,7 @@ public class WeightCalculateListeners implements Listener {
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p)));
     }
 
+    //check if the player is on a disabled world or is on creative or spectator mode
     private boolean checkIfEnable(Player p) {
         List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
         for (String disabledworld : disabledworlds) {
@@ -266,6 +298,28 @@ public class WeightCalculateListeners implements Listener {
             return false;
         return true;
     }
+
+    //check if the player is in a worldguard plugin's region
+    private boolean isInRegion(Player p) {
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionManager regions = container.get(BukkitAdapter.adapt(p.getWorld()));
+        if (regions != null) {
+            Location location = p.getLocation();
+            int x = location.getBlockX();
+            int y = location.getBlockY();
+            int z = location.getBlockZ();
+            ApplicableRegionSet reg = regions.getApplicableRegions(BlockVector3.at(x,y,z));
+            if(reg.size() > 0) {
+                LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
+                if (!reg.testState(localPlayer, MY_CUSTOM_FLAG)) {
+                    p.setWalkSpeed(0.2f);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     private boolean checkblocks(Location loc) {
         loc.setX(loc.getBlockX() +0.5);
@@ -283,18 +337,9 @@ public class WeightCalculateListeners implements Listener {
     }
 
     private void putWeightValue(Player p, ItemStack item, int amount,String s) {
-        String PlayerGamemode = p.getGameMode().toString();
-        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR")) {
-            p.setWalkSpeed(0.2f);
+        isPluginEnabled = checkIfEnable(p);
+        if(!isPluginEnabled)
             return;
-        }
-        for (String disabledworld : disabledworlds) {
-            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed(0.2f);
-                return;
-            }
-        }
         float weight = 0;
         if (playerweight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("place")) {
             weight = playerweight.get(p.getUniqueId());
