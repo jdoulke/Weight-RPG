@@ -8,7 +8,6 @@ import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import org.bukkit.ChatColor;
 
 import static org.bukkit.Bukkit.getServer;
-import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 public class WorldGuardRegionHolder {
 

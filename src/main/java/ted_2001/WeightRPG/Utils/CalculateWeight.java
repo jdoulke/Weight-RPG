@@ -172,7 +172,7 @@ public class CalculateWeight {
     }
 
     private boolean isInRegion(Player p) {
-        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        /*RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
         RegionManager regions = container.get(BukkitAdapter.adapt(p.getWorld()));
         if (regions != null) {
             Location location = p.getLocation();
@@ -187,7 +187,7 @@ public class CalculateWeight {
                     return true;
                 }
             }
-        }
+        }*/
         return false;
     }
 

@@ -301,22 +301,24 @@ public class WeightCalculateListeners implements Listener {
 
     //check if the player is in a worldguard plugin's region
     private boolean isInRegion(Player p) {
-        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        RegionManager regions = container.get(BukkitAdapter.adapt(p.getWorld()));
-        if (regions != null) {
-            Location location = p.getLocation();
-            int x = location.getBlockX();
-            int y = location.getBlockY();
-            int z = location.getBlockZ();
-            ApplicableRegionSet reg = regions.getApplicableRegions(BlockVector3.at(x,y,z));
-            if(reg.size() > 0) {
-                LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
-                if (!reg.testState(localPlayer, MY_CUSTOM_FLAG)) {
-                    p.setWalkSpeed(0.2f);
-                    return true;
+        try {
+            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+            RegionManager regions = container.get(BukkitAdapter.adapt(p.getWorld()));
+            if (regions != null) {
+                Location location = p.getLocation();
+                int x = location.getBlockX();
+                int y = location.getBlockY();
+                int z = location.getBlockZ();
+                ApplicableRegionSet reg = regions.getApplicableRegions(BlockVector3.at(x, y, z));
+                if (reg.size() > 0) {
+                    LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
+                    if (!reg.testState(localPlayer, MY_CUSTOM_FLAG)) {
+                        p.setWalkSpeed(0.2f);
+                        return true;
+                    }
                 }
             }
-        }
+        }catch (NoClassDefFoundError ignored){}
         return false;
     }
 
