@@ -38,7 +38,7 @@ public final class WeightRPG extends JavaPlugin {
         TabCompleter tc = new Tabcompleter();
         Objects.requireNonNull(getPlugin().getCommand("weight")).setTabCompleter(tc);
         JsonFile js = new JsonFile();
-        getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Getting ready config and items weight files.");
+        getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Preparing config and weight files...");
         getConfig().options().copyDefaults();
         saveDefaultConfig();
         String path = this.getDataFolder().getAbsolutePath();
@@ -49,7 +49,7 @@ public final class WeightRPG extends JavaPlugin {
         Messages.create();
         js.readJsonFile();
         if(js.successfullRead) {
-            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY+"Read weight files" + ChatColor.GREEN + " SUCCESSFULLY.");
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY+"Reading weight files completed" + ChatColor.GREEN + " SUCCESSFULLY.");
         }else{
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "ERROR" + ChatColor.GRAY+" Weight or Config files have ERROR(s).");
         }
@@ -61,11 +61,11 @@ public final class WeightRPG extends JavaPlugin {
         scheduler();
         new UpdateChecker(this, 105513).getVersion(version -> {
             if (this.getDescription().getVersion().equals(version)) {
-                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There is not a new update available.");
+                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There is no new update available.");
             } else if (Double.parseDouble(this.getDescription().getVersion()) < Double.parseDouble(version)){
                 getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There is a new update available.");
             } else {
-                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You are using a version newer than spigot uploaded version.");
+                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You are using a newer version compared to the version uploaded on spigot.");
             }
         });
         Metrics metrics = new Metrics(this,16524);

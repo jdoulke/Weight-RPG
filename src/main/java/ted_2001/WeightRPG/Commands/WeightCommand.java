@@ -58,9 +58,9 @@ public class WeightCommand implements CommandExecutor {
                     if(p.hasPermission("weight.reload")) {
                         reloadcommand();
                         if(js.successfullRead)
-                            p.sendMessage(ChatColor.GREEN + "You successfully reload config and weight files.");
+                            p.sendMessage(ChatColor.GREEN + "Config and weight files reloaded succefully.");
                         else
-                            p.sendMessage(ChatColor.RED + "There was an error in the reload. Check the Console.");
+                            p.sendMessage(ChatColor.RED + "There was an error while reloading, check the console.");
                         js.successfullRead = true;
                     }else
                         p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
@@ -69,15 +69,15 @@ public class WeightCommand implements CommandExecutor {
         }else if(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) {
             Server c = sender.getServer();
             if (args.length == 0)
-                c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "This command can only execute by a player.");
+                c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "This command can only be executed by a player.");
             if (args.length == 1) {
                 String arg0 = args[0];
                 if (arg0.equalsIgnoreCase("reload")) {
                     reloadcommand();
                     if(js.successfullRead)
-                        c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You successfully reload config and weight files.");
+                        c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Config and weight files reloaded succefully.");
                     else
-                        c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There was an error in the reload.");
+                        c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There was an error while reloading.");
                     js.successfullRead = true;
                 }
             }
