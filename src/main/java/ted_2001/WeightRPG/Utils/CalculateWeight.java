@@ -219,6 +219,9 @@ public class CalculateWeight {
         if (p == null)
             return "";
 
+        if(playerweight.get(p.getUniqueId()) == null)
+            calculateWeight(p);
+
         float weight = playerweight.get(p.getUniqueId()), maxWeight;
         if (Weight3)
             maxWeight = weightThresholdValues[2];
