@@ -218,8 +218,12 @@ public class CalculateWeight {
     public String generateProgressBar(Player p) {
         if (p == null)
             return "";
-
-        float weight = playerweight.get(p.getUniqueId()), maxWeight;
+        float weight;
+        float maxWeight;
+        if(playerweight.get(p.getUniqueId()) == null)
+            weight = 0;
+        else
+            weight = playerweight.get(p.getUniqueId());
         if (Weight3)
             maxWeight = weightThresholdValues[2];
         else if (Weight2)
