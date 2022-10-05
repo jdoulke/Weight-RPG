@@ -243,7 +243,6 @@ public class CalculateWeight {
             message.insert(5, darkRedColor);
         else
             message.insert(5, colorCodes[colorIndex]);
-
         message.insert(9 + coloredBars, whiteColor);
 
         return ChatColor.translateAlternateColorCodes('&', message.toString());
