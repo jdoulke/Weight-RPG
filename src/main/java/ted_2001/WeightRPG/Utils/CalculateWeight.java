@@ -37,14 +37,21 @@ public class CalculateWeight {
     public static HashMap<UUID, Long> cooldown = new HashMap<>();
     boolean Weight2 = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
     boolean Weight3 = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
-    boolean isPluginEnabled = false;
     boolean isWorldGuardEnabled = getServer().getPluginManager().isPluginEnabled("WorldGuard");
 
+    private static final float[] weightThresholdValues = {
+            (float) getPlugin().getConfig().getDouble("weight-level-1.value"),
+            (float) getPlugin().getConfig().getDouble("weight-level-2.value"),
+            (float) getPlugin().getConfig().getDouble("weight-level-3.value")
+    };
 
+    // Color codes for progress bar
+    private static final String whiteColor = "&f&l";
+    private static final String darkRedColor = "&4&l";
+    private static final String[] colorCodes = {"&a&l", "&2&l", "&e&l", "&6&l", "&c&l"}; // Light Green, Green, Yellow, Orange, Red
 
     public void calculateWeight(Player p){
-        isPluginEnabled = checkIfEnable(p);
-        if(!isPluginEnabled)
+        if(!checkIfEnable(p))
             return;
         if(isWorldGuardEnabled)
             if (isInRegion(p))
@@ -83,7 +90,6 @@ public class CalculateWeight {
                 }
             }
         }
-        weight = (float) (Math.round(weight * 1000.0) / 1000.0);
         playerweight.put(p.getUniqueId(), weight);
         getWeightsEffect(p);
 
@@ -92,16 +98,18 @@ public class CalculateWeight {
 
 
     public void getWeightsEffect(Player p) {
-        double weight1 = getPlugin().getConfig().getDouble("weight-level-1.value");
-        double weight2 = getPlugin().getConfig().getDouble("weight-level-2.value");
-        double weight3 = getPlugin().getConfig().getDouble("weight-level-3.value");
         UUID id = p.getUniqueId();
-        String message;
-        if(playerweight.get(id) == null)
+        if (playerweight.get(id) == null)
             return;
-        if(playerweight.get(id) <= weight1){
+
+        double weight1 = weightThresholdValues[0];
+        double weight2 = weightThresholdValues[1];
+        double weight3 = weightThresholdValues[2];
+        String message;
+
+        if (playerweight.get(id) <= weight1) {
             if(p.getWalkSpeed() < 0.2)
-                p.setWalkSpeed((float) 0.2);
+                p.setWalkSpeed(0.2f);
             if(getPlugin().getConfig().getBoolean("message-before-level1-enabled")) {
                 message = getPlugin().getConfig().getString("message-before-level1");
                 messageChooser(message, p, null);
@@ -204,100 +212,64 @@ public class CalculateWeight {
         else
             message = message.replaceAll("%weight%", "0");
         message = message.replaceAll("%world%", p.getWorld().getName());
-        message = message.replaceAll("%level1%", Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-1.value")));
-        message = message.replaceAll("%level2%", Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-2.value")));
-        message = message.replaceAll("%level3%", Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-3.value")));
-        message = message.replaceAll("%percentageweight%", percentageGetter(p));
-        message = message.replaceAll("%percentage%", String.valueOf(percentagegetter(p)));
-        if(Weight3) {
-            float maxweight = (float) getPlugin().getConfig().getDouble("weight-level-3.value");
-            message = message.replaceAll("%maxweight%", String.valueOf(maxweight));
-            return message;
-        }else if(Weight2){
-            float maxweight = (float) getPlugin().getConfig().getDouble("weight-level-2.value");
-            message = message.replaceAll("%maxweight%", String.valueOf(maxweight));
-            return message;
-        }else {
-            float maxweight = (float) getPlugin().getConfig().getDouble("weight-level-1.value");
-            message = message.replaceAll("%maxweight%", String.valueOf(maxweight));
-            return message;
-        }
-    }
-    public float percentagegetter(Player p){
-        if(playerweight.get(p.getUniqueId()) == null)
-            return 0;
-        float weight = playerweight.get(p.getUniqueId());
-        float maxweight;
-        if(Weight3) {
-            maxweight = (float) getPlugin().getConfig().getDouble("weight-level-3.value");
-        }else if(Weight2){
-            maxweight = (float) getPlugin().getConfig().getDouble("weight-level-2.value");
-        }else {
-            maxweight = (float) getPlugin().getConfig().getDouble("weight-level-1.value");
-        }
-        weight = (weight * 100 / maxweight);
-        return (float) (Math.round(weight * 100.0) / 100.0);
+        message = message.replaceAll("%level1%", Objects.requireNonNull(String.valueOf(weightThresholdValues[0])));
+        message = message.replaceAll("%level2%", Objects.requireNonNull(String.valueOf(weightThresholdValues[1])));
+        message = message.replaceAll("%level3%", Objects.requireNonNull(String.valueOf(weightThresholdValues[2])));
+        message = message.replaceAll("%percentageweight%", generateProgressBar(p));
+        message = message.replaceAll("%percentage%", String.format("%.1f", getPercentage(p)));
+
+        if (Weight3)
+            message = message.replaceAll("%maxweight%", String.valueOf(weightThresholdValues[2]));
+        else if (Weight2)
+            message = message.replaceAll("%maxweight%", String.valueOf(weightThresholdValues[1]));
+        else
+            message = message.replaceAll("%maxweight%", String.valueOf(weightThresholdValues[0]));
+
+        return message;
     }
 
-    public String percentageGetter(Player p){
-        if(p == null)
+    public float getPercentage(Player p){
+        if(playerweight.get(p.getUniqueId()) == null)
+            return 0;
+
+        float weight = playerweight.get(p.getUniqueId()), maxWeight;
+        if (Weight3)
+            maxWeight = weightThresholdValues[2];
+        else if (Weight2)
+            maxWeight = weightThresholdValues[1];
+        else
+            maxWeight = weightThresholdValues[0];
+
+        return weight * 100 / maxWeight;
+    }
+
+    public String generateProgressBar(Player p) {
+        if (p == null)
             return "";
-        float weight = 0;
-        if(playerweight.get(p.getUniqueId()) != null)
-            weight = playerweight.get(p.getUniqueId());
-        else calculateWeight(p);
-        float maxweight;
-        String message = "";
-        if(Weight3) {
-            maxweight = (float) getPlugin().getConfig().getDouble("weight-level-3.value");
-        }else if(Weight2){
-            maxweight = (float) getPlugin().getConfig().getDouble("weight-level-2.value");
-        }else {
-            maxweight = (float) getPlugin().getConfig().getDouble("weight-level-1.value");
-        }
-        float percentage =  (weight * 100/maxweight);
-        percentage = (float) (Math.round(percentage * 1000.0) / 1000.0);
-        if (percentage >= 0 && percentage <= 5.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&a&l|&f&l|||||||||||||||||||&7&l]");
-        }else if (percentage >= 6 && percentage <= 10.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&a&l||&f&l||||||||||||||||||&7&l]");
-        }else if (percentage >= 11 && percentage <= 14.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&a&l|||&f&l|||||||||||||||||&7&l]");
-        }else if (percentage >= 15 && percentage <= 19.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&2&l||||&f&l||||||||||||||||&7&l]");
-        }else if (percentage >= 20 && percentage <= 24.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&2&l|||||&f&l|||||||||||||||&7&l]");
-        }else if (percentage >= 25 && percentage <= 29.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&2&l||||||&f&l||||||||||||||&7&l]");
-        }else if (percentage >= 30 && percentage <= 34.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&2&l|||||||&f&l|||||||||||||&7&l]");
-        }else if (percentage >= 35 && percentage <= 39.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&e&l||||||||&f&l||||||||||||&7&l]");
-        }else if (percentage >= 40 && percentage <= 44.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&e&l|||||||||&f&l|||||||||||&7&l]");
-        }else if (percentage >= 45 && percentage <= 49.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&e&l||||||||||&f&l||||||||||&7&l]");
-        }else if (percentage >= 50 && percentage <= 54.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&6&l|||||||||||&f&l|||||||||&7&l]");
-        }else if (percentage >= 55 && percentage <= 59.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&6&l||||||||||||&f&l||||||||&7&l]");
-        }else if (percentage >= 60 && percentage <= 64.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&6&l|||||||||||||&f&l|||||||&7&l]");
-        }else if (percentage >= 65 && percentage <= 69.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&6&l||||||||||||||&f&l||||||&7&l]");
-        }else if (percentage >= 70 && percentage <= 74.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&c&l|||||||||||||||&f&l|||||&7&l]");
-        }else if (percentage >= 75 && percentage <= 79.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&c&l||||||||||||||||&f&l||||&7&l]");
-        }else if (percentage >= 80 && percentage <= 84.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&c&l|||||||||||||||||&f&l|||&7&l]");
-        }else if (percentage >= 85 && percentage <= 89.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&4&l||||||||||||||||||&f&l||&7&l]");
-        }else if (percentage >= 90 && percentage <= 94.99){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&4&l|||||||||||||||||||&f&l|&7&l]");
-        }else if (percentage >= 95){
-            message = ChatColor.translateAlternateColorCodes('&', "&7&l[&4&l||||||||||||||||||||&7&l]");
-        }
-        return message;
+
+        float weight = playerweight.get(p.getUniqueId()), maxWeight;
+        if (Weight3)
+            maxWeight = weightThresholdValues[2];
+        else if (Weight2)
+            maxWeight = weightThresholdValues[1];
+        else
+            maxWeight = weightThresholdValues[0];
+
+        float percentage = (weight * 100 / maxWeight);
+
+        StringBuilder message = new StringBuilder(38);
+        message.append("&7&l[||||||||||||||||||||&7&l]");
+
+        int coloredBars = ((int)percentage >= 100) ? 20 : (((int)percentage) / 5 + 1);
+        int colorIndex = ((int)percentage >= 100) ? 4 : (((int)percentage) / 20);
+
+        if((int)percentage >= 95)
+            message.insert(5, darkRedColor);
+        else
+            message.insert(5, colorCodes[colorIndex]);
+
+        message.insert(9 + coloredBars, whiteColor);
+
+        return ChatColor.translateAlternateColorCodes('&', message.toString());
     }
 }
