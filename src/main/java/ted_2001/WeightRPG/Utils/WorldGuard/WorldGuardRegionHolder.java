@@ -1,4 +1,4 @@
-package ted_2001.WeightRPG.Utils;
+package ted_2001.WeightRPG.Utils.WorldGuard;
 
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.flags.Flag;

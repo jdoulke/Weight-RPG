@@ -1,10 +1,6 @@
 package ted_2001.WeightRPG;
 
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.flags.Flag;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
-import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
+
 import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.command.TabCompleter;
@@ -16,12 +12,13 @@ import ted_2001.WeightRPG.Commands.Tabcompleter;
 import ted_2001.WeightRPG.Commands.WeightCommand;
 import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
 import ted_2001.WeightRPG.Utils.*;
+import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder;
 
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
-
+import static org.bukkit.Bukkit.getServer;
 
 
 public final class WeightRPG extends JavaPlugin {

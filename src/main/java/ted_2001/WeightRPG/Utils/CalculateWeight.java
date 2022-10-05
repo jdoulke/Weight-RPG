@@ -1,21 +1,13 @@
 package ted_2001.WeightRPG.Utils;
 
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldguard.LocalPlayer;
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.RegionContainer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +18,6 @@ import java.util.UUID;
 import static org.bukkit.Bukkit.getServer;
 import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
-import static ted_2001.WeightRPG.Utils.WorldGuardRegionHolder.MY_CUSTOM_FLAG;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -53,9 +44,11 @@ public class CalculateWeight {
     public void calculateWeight(Player p){
         if(!checkIfEnable(p))
             return;
-        if(isWorldGuardEnabled)
-            if (isInRegion(p))
+        if(isWorldGuardEnabled) {
+            WorldGuardRegion worldguard = new WorldGuardRegion();
+            if (worldguard.isInRegion(p))
                 return;
+        }
         PlayerInventory inv = p.getInventory();
         ItemStack[] items = inv.getStorageContents();
         ItemStack[] armor = inv.getArmorContents();
@@ -101,7 +94,6 @@ public class CalculateWeight {
         UUID id = p.getUniqueId();
         if (playerweight.get(id) == null)
             return;
-
         double weight1 = weightThresholdValues[0];
         double weight2 = weightThresholdValues[1];
         double weight3 = weightThresholdValues[2];
@@ -171,25 +163,6 @@ public class CalculateWeight {
         return true;
     }
 
-    private boolean isInRegion(Player p) {
-        /*RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        RegionManager regions = container.get(BukkitAdapter.adapt(p.getWorld()));
-        if (regions != null) {
-            Location location = p.getLocation();
-            int x = location.getBlockX();
-            int y = location.getBlockY();
-            int z = location.getBlockZ();
-            ApplicableRegionSet reg = regions.getApplicableRegions(BlockVector3.at(x,y,z));
-            if(reg.size() > 0) {
-                LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
-                if (!reg.testState(localPlayer, MY_CUSTOM_FLAG)) {
-                    p.setWalkSpeed(0.2f);
-                    return true;
-                }
-            }
-        }*/
-        return false;
-    }
 
     private void cooldownMessager(Player p, Sound s, String message) {
         cooldown.put(p.getUniqueId(), System.currentTimeMillis());
@@ -231,7 +204,6 @@ public class CalculateWeight {
     public float getPercentage(Player p){
         if(playerweight.get(p.getUniqueId()) == null)
             return 0;
-
         float weight = playerweight.get(p.getUniqueId()), maxWeight;
         if (Weight3)
             maxWeight = weightThresholdValues[2];
