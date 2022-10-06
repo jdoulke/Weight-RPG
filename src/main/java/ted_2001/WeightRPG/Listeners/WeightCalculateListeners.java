@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import static org.bukkit.Bukkit.getServer;
 import static ted_2001.WeightRPG.Utils.CalculateWeight.playerweight;
+import static ted_2001.WeightRPG.Utils.CalculateWeight.weightThresholdValues;
 import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
@@ -231,9 +232,9 @@ public class WeightCalculateListeners implements Listener {
                 if(playerweight.get(p.getUniqueId())!= null){
                     float weight = playerweight.get(p.getUniqueId());
                     boolean disablejump = false;
-                    double weight1 = getPlugin().getConfig().getDouble("weight-level-1.value");
-                    double weight2 = getPlugin().getConfig().getDouble("weight-level-2.value");
-                    double weight3 = getPlugin().getConfig().getDouble("weight-level-3.value");
+                    double weight1 = weightThresholdValues[0];
+                    double weight2 = weightThresholdValues[1];
+                    double weight3 = weightThresholdValues[2];
                     if(weight > weight1 && weight < weight2) {
                         disablejump = getPlugin().getConfig().getBoolean("weight-level-1.disable-jump");
                     }else if(weight > weight2 && weight < weight3) {
@@ -318,7 +319,6 @@ public class WeightCalculateListeners implements Listener {
             weight = playerweight.get(p.getUniqueId());
             weight += globalitemsweight.get(item.getType()) * amount;
         }
-        weight = (float) (Math.round(weight * 1000.0) / 1000.0);
         playerweight.put(p.getUniqueId(), weight);
 
     }
@@ -371,9 +371,9 @@ public class WeightCalculateListeners implements Listener {
                 message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
             else
                 message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
-            message = message.replaceAll("%itemweight%", String.valueOf(weight));
+            message = message.replaceAll("%itemweight%", String.format("%.1f", weight));
             message = message.replaceAll("%amount%", String.valueOf(amount));
-            message = message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+            message = message.replaceAll("%totalweight%", String.format("%.1f", weight*amount));
             message = message.replaceAll("_", " ");
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
         }else {
@@ -382,9 +382,9 @@ public class WeightCalculateListeners implements Listener {
                 message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
             else
                 message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
-            message = message.replaceAll("%itemweight%", String.valueOf(weight));
+            message = message.replaceAll("%itemweight%", String.format("%.1f", weight));
             message = message.replaceAll("%amount%", String.valueOf(amount));
-            message = message.replaceAll("%totalweight%", String.valueOf(weight*amount));
+            message = message.replaceAll("%totalweight%", String.format("%.1f", weight*amount));
             message = message.replaceAll("_", " ");
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
         }

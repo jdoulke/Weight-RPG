@@ -80,7 +80,7 @@ public class WeightCommand implements CommandExecutor {
                     if(p.hasPermission("weight.get." + arg1)) {
                         Material item = Material.getMaterial(arg1);
                         if(globalitemsweight.get(item) != null)
-                            p.sendMessage(pluginPrefix + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weight's " + ChatColor.RED + globalitemsweight.get(item));
+                            p.sendMessage(pluginPrefix + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weight's " + ChatColor.RED + String.format("%.1f", globalitemsweight.get(item)));
                         else
                             p.sendMessage(pluginPrefix + ChatColor.RED + "Couldn't find the " + ChatColor.YELLOW + arg1 + ChatColor.RED + " in the weight files.");
                     }
@@ -119,11 +119,11 @@ public class WeightCommand implements CommandExecutor {
             getPlugin().getConfig().options().copyDefaults();
             getPlugin().saveDefaultConfig();
         }
-        weightThresholdValues = new float[]{
-                (float) getPlugin().getConfig().getDouble("weight-level-1.value"),
-                (float) getPlugin().getConfig().getDouble("weight-level-2.value"),
-                (float) getPlugin().getConfig().getDouble("weight-level-3.value")
-        };
+
+        weightThresholdValues[0] = (float) getPlugin().getConfig().getDouble("weight-level-1.value");
+        weightThresholdValues[1] = (float) getPlugin().getConfig().getDouble("weight-level-2.value");
+        weightThresholdValues[2] = (float) getPlugin().getConfig().getDouble("weight-level-3.value");
+
         getPlugin().task.cancel();
         getPlugin().scheduler();
         if(messages.exists())

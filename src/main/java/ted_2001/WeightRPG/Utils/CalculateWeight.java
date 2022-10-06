@@ -181,7 +181,7 @@ public class CalculateWeight {
         message = message.replaceAll("%playername%", p.getName());
         message = message.replaceAll("%displayname%", p.getDisplayName());
         if(playerweight.get(p.getUniqueId())!= null)
-            message = message.replaceAll("%weight%", String.valueOf(playerweight.get(p.getUniqueId())));
+            message = message.replaceAll("%weight%", String.format("%.1f",playerweight.get(p.getUniqueId())));
         else
             message = message.replaceAll("%weight%", "0");
         message = message.replaceAll("%world%", p.getWorld().getName());
