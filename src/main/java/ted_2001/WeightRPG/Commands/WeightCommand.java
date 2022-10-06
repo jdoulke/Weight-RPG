@@ -1,6 +1,7 @@
 package ted_2001.WeightRPG.Commands;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -15,6 +16,7 @@ import java.util.List;
 import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
+import static ted_2001.WeightRPG.Utils.CalculateWeight.weightThresholdValues;
 
 
 public class WeightCommand implements CommandExecutor {
@@ -58,12 +60,30 @@ public class WeightCommand implements CommandExecutor {
                     if(p.hasPermission("weight.reload")) {
                         reloadcommand();
                         if(js.successfullRead)
-                            p.sendMessage(ChatColor.GREEN + "Config and weight files reloaded succefully.");
+                            p.sendMessage(pluginPrefix + ChatColor.GREEN + "Config and weight files reloaded succefully.");
                         else
-                            p.sendMessage(ChatColor.RED + "There was an error while reloading, check the console.");
+                            p.sendMessage(pluginPrefix + ChatColor.RED + "There was an error while reloading, check the console.");
                         js.successfullRead = true;
                     }else
                         p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                }else if(arg0.equalsIgnoreCase("get")) {
+                    if(p.hasPermission("weight.get")) {
+                        p.sendMessage(pluginPrefix + ChatColor.GREEN + "You can see items weight by using the command /weight get <item>.");
+                    }else
+                        p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                }else
+                    p.sendMessage(pluginPrefix + ChatColor.RED + "Couldn't find this command.");
+            }if(args.length == 2) {
+                String arg0 = args[0];
+                String arg1 = args[1].toUpperCase();
+                if(arg0.equalsIgnoreCase("get")) {
+                    if(p.hasPermission("weight.get." + arg1)) {
+                        Material item = Material.getMaterial(arg1);
+                        if(globalitemsweight.get(item) != null)
+                            p.sendMessage(pluginPrefix + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weight's " + ChatColor.RED + globalitemsweight.get(item));
+                        else
+                            p.sendMessage(pluginPrefix + ChatColor.RED + "Couldn't find the " + ChatColor.YELLOW + arg1 + ChatColor.RED + " in the weight files.");
+                    }
                 }
             }
         }else if(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) {
@@ -99,6 +119,11 @@ public class WeightCommand implements CommandExecutor {
             getPlugin().getConfig().options().copyDefaults();
             getPlugin().saveDefaultConfig();
         }
+        weightThresholdValues = new float[]{
+                (float) getPlugin().getConfig().getDouble("weight-level-1.value"),
+                (float) getPlugin().getConfig().getDouble("weight-level-2.value"),
+                (float) getPlugin().getConfig().getDouble("weight-level-3.value")
+        };
         getPlugin().task.cancel();
         getPlugin().scheduler();
         if(messages.exists())

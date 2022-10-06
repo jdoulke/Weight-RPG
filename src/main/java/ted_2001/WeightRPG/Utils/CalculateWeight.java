@@ -30,7 +30,7 @@ public class CalculateWeight {
     boolean Weight3 = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
     boolean isWorldGuardEnabled = getServer().getPluginManager().isPluginEnabled("WorldGuard");
 
-    private static final float[] weightThresholdValues = {
+    public static float[] weightThresholdValues = new float[]{
             (float) getPlugin().getConfig().getDouble("weight-level-1.value"),
             (float) getPlugin().getConfig().getDouble("weight-level-2.value"),
             (float) getPlugin().getConfig().getDouble("weight-level-3.value")
