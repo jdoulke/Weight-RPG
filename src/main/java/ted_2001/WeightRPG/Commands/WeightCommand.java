@@ -80,9 +80,9 @@ public class WeightCommand implements CommandExecutor {
                     if(p.hasPermission("weight.get." + arg1)) {
                         Material item = Material.getMaterial(arg1);
                         if(globalitemsweight.get(item) != null)
-                            p.sendMessage(pluginPrefix + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weight's " + ChatColor.RED + String.format("%.1f", globalitemsweight.get(item)));
+                            p.sendMessage(pluginPrefix + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weighs " + ChatColor.RED + String.format("%.1f", globalitemsweight.get(item)));
                         else
-                            p.sendMessage(pluginPrefix + ChatColor.RED + "Couldn't find the " + ChatColor.YELLOW + arg1 + ChatColor.RED + " in the weight files.");
+                            p.sendMessage(pluginPrefix + ChatColor.RED + "Couldn't find " + ChatColor.YELLOW + arg1 + ChatColor.RED + " in the weight files.");
                     }
                 }
             }
