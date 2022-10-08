@@ -181,7 +181,7 @@ public class CalculateWeight {
         message = message.replaceAll("%playername%", p.getName());
         message = message.replaceAll("%displayname%", p.getDisplayName());
         if(playerweight.get(p.getUniqueId())!= null)
-            message = message.replaceAll("%weight%", String.format("%.1f",playerweight.get(p.getUniqueId())));
+            message = message.replaceAll("%weight%", String.format("%.2f",playerweight.get(p.getUniqueId())));
         else
             message = message.replaceAll("%weight%", "0");
         message = message.replaceAll("%world%", p.getWorld().getName());
@@ -189,7 +189,7 @@ public class CalculateWeight {
         message = message.replaceAll("%level2%", Objects.requireNonNull(String.valueOf(weightThresholdValues[1])));
         message = message.replaceAll("%level3%", Objects.requireNonNull(String.valueOf(weightThresholdValues[2])));
         message = message.replaceAll("%percentageweight%", generateProgressBar(p));
-        message = message.replaceAll("%percentage%", String.format("%.1f", getPercentage(p)));
+        message = message.replaceAll("%percentage%", String.format("%.2f", getPercentage(p)));
 
         if (Weight3)
             message = message.replaceAll("%maxweight%", String.valueOf(weightThresholdValues[2]));

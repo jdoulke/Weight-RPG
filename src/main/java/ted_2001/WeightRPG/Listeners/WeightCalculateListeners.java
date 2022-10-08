@@ -371,9 +371,9 @@ public class WeightCalculateListeners implements Listener {
                 message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
             else
                 message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
-            message = message.replaceAll("%itemweight%", String.format("%.1f", weight));
+            message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
             message = message.replaceAll("%amount%", String.valueOf(amount));
-            message = message.replaceAll("%totalweight%", String.format("%.1f", weight*amount));
+            message = message.replaceAll("%totalweight%", String.format("%.2f", weight*amount));
             message = message.replaceAll("_", " ");
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
         }else {
@@ -382,9 +382,9 @@ public class WeightCalculateListeners implements Listener {
                 message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
             else
                 message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
-            message = message.replaceAll("%itemweight%", String.format("%.1f", weight));
+            message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
             message = message.replaceAll("%amount%", String.valueOf(amount));
-            message = message.replaceAll("%totalweight%", String.format("%.1f", weight*amount));
+            message = message.replaceAll("%totalweight%", String.format("%.2f", weight*amount));
             message = message.replaceAll("_", " ");
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
         }
