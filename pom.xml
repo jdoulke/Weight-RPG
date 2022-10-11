@@ -6,7 +6,7 @@
 
     <groupId>ted_2001</groupId>
     <artifactId>Weight-RPG</artifactId>
-    <version>1.5</version>
+    <version>1.6</version>
     <packaging>jar</packaging>
 
     <name>Weight-RPG</name>

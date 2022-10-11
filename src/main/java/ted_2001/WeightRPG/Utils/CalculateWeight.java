@@ -52,6 +52,7 @@ public class CalculateWeight {
         PlayerInventory inv = p.getInventory();
         ItemStack[] items = inv.getStorageContents();
         ItemStack[] armor = inv.getArmorContents();
+        ItemStack secondhand = inv.getItemInOffHand();
         weight = 0;
         float itemweight;
         boolean customitems;
@@ -81,6 +82,18 @@ public class CalculateWeight {
                     itemweight = globalitemsweight.get(itemStack.getType());
                     weight += itemweight * itemStack.getAmount();
                 }
+            }
+        }
+        if(secondhand.getItemMeta() != null){
+            customitems = false;
+            if(customitemsweight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName())){
+                itemweight = customitemsweight.get(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName());
+                weight += itemweight * secondhand.getAmount();
+                customitems = true;
+            }
+            if(globalitemsweight.get(secondhand.getType()) != null && !customitems) {
+                itemweight = globalitemsweight.get(secondhand.getType());
+                weight += itemweight * secondhand.getAmount();
             }
         }
         playerweight.put(p.getUniqueId(), weight);
