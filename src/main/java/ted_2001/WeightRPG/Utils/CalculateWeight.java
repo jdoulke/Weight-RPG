@@ -42,7 +42,7 @@ public class CalculateWeight {
     private static final String[] colorCodes = {"&a&l", "&2&l", "&e&l", "&6&l", "&c&l"}; // Light Green, Green, Yellow, Orange, Red
 
     public void calculateWeight(Player p){
-        if(!checkIfEnable(p))
+        if(!isEnabled(p))
             return;
         if(isWorldGuardEnabled) {
             WorldGuardRegion worldguard = new WorldGuardRegion();
@@ -54,8 +54,6 @@ public class CalculateWeight {
         ItemStack[] armor = inv.getArmorContents();
         ItemStack secondhand = inv.getItemInOffHand();
         weight = 0;
-        float itemweight;
-        boolean customitems;
         for (ItemStack item : items) {
             if (item != null) {
                 secondHandWeightCalculator(item);
@@ -63,16 +61,7 @@ public class CalculateWeight {
         }
         for (ItemStack itemStack : armor) {
             if(itemStack != null) {
-                customitems = false;
-                if(customitemsweight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName())){
-                    itemweight = weight = customitemsweight.get(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
-                    weight += itemweight * itemStack.getAmount();
-                    customitems = true;
-                }
-                if (globalitemsweight.get(itemStack.getType()) != null && !customitems) {
-                    itemweight = globalitemsweight.get(itemStack.getType());
-                    weight += itemweight * itemStack.getAmount();
-                }
+                itemWeightCalculations(itemStack);
             }
         }
         if(secondhand.getItemMeta() != null){
@@ -83,19 +72,23 @@ public class CalculateWeight {
 
     }
 
+    private void itemWeightCalculations(ItemStack itemStack) {
+        boolean customItems;
+        float itemWeight;
+        customItems = false;
+        if(customitemsweight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName())){
+            itemWeight = customitemsweight.get(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
+            weight += itemWeight * itemStack.getAmount();
+            customItems = true;
+        }
+        if (globalitemsweight.get(itemStack.getType()) != null && !customItems) {
+            itemWeight = globalitemsweight.get(itemStack.getType());
+            weight += itemWeight * itemStack.getAmount();
+        }
+    }
+
     private void secondHandWeightCalculator(ItemStack secondhand) {
-        boolean customitems;
-        float itemweight;
-        customitems = false;
-        if(customitemsweight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName())){
-            itemweight = customitemsweight.get(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName());
-            weight += itemweight * secondhand.getAmount();
-            customitems = true;
-        }
-        if(globalitemsweight.get(secondhand.getType()) != null && !customitems) {
-            itemweight = globalitemsweight.get(secondhand.getType());
-            weight += itemweight * secondhand.getAmount();
-        }
+        itemWeightCalculations(secondhand);
     }
 
 
@@ -158,9 +151,6 @@ public class CalculateWeight {
         }
     }
 
-    private boolean checkIfEnable(Player p) {
-        return isEnabled(p);
-    }
 
     public static boolean isEnabled(Player p) {
         List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");

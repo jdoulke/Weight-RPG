@@ -2,11 +2,16 @@ package ted_2001.WeightRPG.Utils.PlaceholderAPI;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import ted_2001.WeightRPG.WeightRPG;
 
-import static ted_2001.WeightRPG.Utils.CalculateWeight.playerweight;
-import static ted_2001.WeightRPG.Utils.CalculateWeight.weightThresholdValues;
+import java.util.Objects;
+
+import static ted_2001.WeightRPG.Utils.CalculateWeight.*;
+import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
+import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 public class WeightExpasion extends PlaceholderExpansion {
@@ -47,9 +52,12 @@ public class WeightExpasion extends PlaceholderExpansion {
             return "";
         }
         if(params.equals("current_weight")){
-            if(playerweight.get(p.getUniqueId()) != null) {
-                return String.format("%.2f", playerweight.get(p.getUniqueId()));
-            }
+            if(isEnabled(p)) {
+                if (playerweight.get(p.getUniqueId()) != null) {
+                    return String.format("%.2f", playerweight.get(p.getUniqueId()));
+                }
+            }else
+                return "0";
         }
         if(params.equals("max_weight")){
             float maxWeight = 0;
@@ -73,7 +81,53 @@ public class WeightExpasion extends PlaceholderExpansion {
                 return String.valueOf(weightThresholdValues[2]);
             else
                 return "Level 3 is disabled";
-
+        if(params.equals("item_in_main_hand")){
+            ItemStack mainhand = p.getInventory().getItemInMainHand();
+            if(isEnabled(p)) {
+                if (mainhand.getType() != Material.AIR)
+                    return itemWeightCalculations(mainhand);
+                else
+                    return "0";
+            }else
+                return "0";
+        }
+        if(params.equals("item_in_second_hand")){
+            ItemStack secondhand = p.getInventory().getItemInOffHand();
+            if(isEnabled(p)) {
+                if (secondhand.getType() != Material.AIR)
+                    return itemWeightCalculations(secondhand);
+                else
+                    return "0";
+            }else
+                return "0";
+        }
+        if(params.equals("armor_weight")){
+            ItemStack[] armor = p.getInventory().getArmorContents();
+            float weight = 0;
+            for (ItemStack itemStack : armor) {
+                if(itemStack != null) {
+                    weight += Float.parseFloat(itemWeightCalculations(itemStack));
+                }
+            }
+            return String.valueOf(weight);
+        }
         return "Unknown";
+    }
+
+    private String itemWeightCalculations(ItemStack item) {
+        boolean customItems;
+        float itemWeight;
+        String weight = "0";
+        customItems = false;
+        if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())){
+            itemWeight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+            weight = String.valueOf(itemWeight * item.getAmount());
+            customItems = true;
+        }
+        if (globalitemsweight.get(item.getType()) != null && !customItems) {
+            itemWeight = globalitemsweight.get(item.getType());
+            weight = String.valueOf(itemWeight * item.getAmount());
+        }
+        return weight;
     }
 }
