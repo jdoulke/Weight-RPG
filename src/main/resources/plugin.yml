@@ -3,7 +3,7 @@ version: '${project.version}'
 main: ted_2001.WeightRPG.WeightRPG
 api-version: 1.13
 authors: [ Ted_2001 ]
-softdepend: [WorldGuard]
+softdepend: [WorldGuard, PlaceholderAPI]
 commands:
   weight:
     description: Shows the weight of the player.

@@ -58,16 +58,7 @@ public class CalculateWeight {
         boolean customitems;
         for (ItemStack item : items) {
             if (item != null) {
-                customitems = false;
-                if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())){
-                    itemweight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
-                    weight += itemweight * item.getAmount();
-                    customitems = true;
-                }
-                if(globalitemsweight.get(item.getType()) != null && !customitems) {
-                    itemweight = globalitemsweight.get(item.getType());
-                    weight += itemweight * item.getAmount();
-                }
+                secondHandWeightCalculator(item);
             }
         }
         for (ItemStack itemStack : armor) {
@@ -85,22 +76,27 @@ public class CalculateWeight {
             }
         }
         if(secondhand.getItemMeta() != null){
-            customitems = false;
-            if(customitemsweight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName())){
-                itemweight = customitemsweight.get(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName());
-                weight += itemweight * secondhand.getAmount();
-                customitems = true;
-            }
-            if(globalitemsweight.get(secondhand.getType()) != null && !customitems) {
-                itemweight = globalitemsweight.get(secondhand.getType());
-                weight += itemweight * secondhand.getAmount();
-            }
+            secondHandWeightCalculator(secondhand);
         }
         playerweight.put(p.getUniqueId(), weight);
         getWeightsEffect(p);
 
     }
 
+    private void secondHandWeightCalculator(ItemStack secondhand) {
+        boolean customitems;
+        float itemweight;
+        customitems = false;
+        if(customitemsweight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName())){
+            itemweight = customitemsweight.get(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName());
+            weight += itemweight * secondhand.getAmount();
+            customitems = true;
+        }
+        if(globalitemsweight.get(secondhand.getType()) != null && !customitems) {
+            itemweight = globalitemsweight.get(secondhand.getType());
+            weight += itemweight * secondhand.getAmount();
+        }
+    }
 
 
     public void getWeightsEffect(Player p) {
@@ -163,6 +159,10 @@ public class CalculateWeight {
     }
 
     private boolean checkIfEnable(Player p) {
+        return isEnabled(p);
+    }
+
+    public static boolean isEnabled(Player p) {
         List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
         for (String disabledworld : disabledworlds) {
             if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
@@ -171,9 +171,7 @@ public class CalculateWeight {
             }
         }
         String PlayerGamemode = p.getGameMode().toString();
-        if(PlayerGamemode.equalsIgnoreCase("CREATIVE") || PlayerGamemode.equalsIgnoreCase("SPECTATOR"))
-            return false;
-        return true;
+        return !PlayerGamemode.equalsIgnoreCase("CREATIVE") && !PlayerGamemode.equalsIgnoreCase("SPECTATOR");
     }
 
 

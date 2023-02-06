@@ -367,7 +367,7 @@ public class JsonFile {
             addGlobalItemsWeight(redstone);
             addGlobalItemsWeight(dyes);
         }catch (JSONException e){
-
+            e.printStackTrace();
         }
 
     }

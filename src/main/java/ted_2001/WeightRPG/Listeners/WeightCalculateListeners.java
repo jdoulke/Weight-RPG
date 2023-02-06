@@ -21,13 +21,11 @@ import ted_2001.WeightRPG.Utils.Messages;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 import static org.bukkit.Bukkit.getServer;
-import static ted_2001.WeightRPG.Utils.CalculateWeight.playerweight;
-import static ted_2001.WeightRPG.Utils.CalculateWeight.weightThresholdValues;
+import static ted_2001.WeightRPG.Utils.CalculateWeight.*;
 import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
@@ -270,15 +268,7 @@ public class WeightCalculateListeners implements Listener {
 
     //check if the player is on a disabled world or is on creative or spectator mode
     private boolean checkIfEnable(Player p) {
-        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-        for (String disabledworld : disabledworlds) {
-            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed((float) 0.2);
-                return false;
-            }
-        }
-        String PlayerGamemode = p.getGameMode().toString();
-        return !PlayerGamemode.equalsIgnoreCase("CREATIVE") && !PlayerGamemode.equalsIgnoreCase("SPECTATOR");
+        return isEnabled(p);
     }
 
     private boolean isWorldGuardEnabled(Player p) {
@@ -366,34 +356,26 @@ public class WeightCalculateListeners implements Listener {
         if(message == null)
             return;
         if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
-            message = message.replaceAll("%block%", String.valueOf(item.getType()));
-            if(!Objects.requireNonNull(item.getItemMeta()).getDisplayName().equalsIgnoreCase(""))
-                message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
-            else
-                message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
-            message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
-            message = message.replaceAll("%amount%", String.valueOf(amount));
-            message = message.replaceAll("%totalweight%", String.format("%.2f", weight*amount));
-            message = message.replaceAll("_", " ");
+            message = getPlaceholders(message, item, weight, amount);
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
         }else {
-            message = message.replaceAll("%block%", String.valueOf(item.getType()));
-            if(!Objects.requireNonNull(item.getItemMeta()).getDisplayName().equalsIgnoreCase(""))
-                message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
-            else
-                message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
-            message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
-            message = message.replaceAll("%amount%", String.valueOf(amount));
-            message = message.replaceAll("%totalweight%", String.format("%.2f", weight*amount));
-            message = message.replaceAll("_", " ");
+            message = getPlaceholders(message, item, weight, amount);
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
         }
     }
 
-
-
-
-
+    private String getPlaceholders(String message, ItemStack item, float weight, int amount) {
+        message = message.replaceAll("%block%", String.valueOf(item.getType()));
+        if(!Objects.requireNonNull(item.getItemMeta()).getDisplayName().equalsIgnoreCase(""))
+            message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
+        else
+            message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
+        message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
+        message = message.replaceAll("%amount%", String.valueOf(amount));
+        message = message.replaceAll("%totalweight%", String.format("%.2f", weight*amount));
+        message = message.replaceAll("_", " ");
+        return message;
+    }
 
 
 }

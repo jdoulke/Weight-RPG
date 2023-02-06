@@ -2,6 +2,7 @@ package ted_2001.WeightRPG;
 
 
 import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
@@ -12,6 +13,7 @@ import ted_2001.WeightRPG.Commands.Tabcompleter;
 import ted_2001.WeightRPG.Commands.WeightCommand;
 import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
 import ted_2001.WeightRPG.Utils.*;
+import ted_2001.WeightRPG.Utils.PlaceholderAPI.WeightExpasion;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder;
 
 import java.io.File;
@@ -54,10 +56,12 @@ public final class WeightRPG extends JavaPlugin {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "ERROR" + ChatColor.GRAY+" Weight or Config files have ERROR(s).");
         }
         getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Done.");
-        CalculateWeight w= new CalculateWeight();
-        List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
-        for (Player plist : players)
-            w.calculateWeight(plist);
+        // Small check to make sure that PlaceholderAPI is installed
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + "PlaceholderAPI" +ChatColor.GRAY + " found. Registering placeholders");
+            new WeightExpasion().register();
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Done.");
+        }
         scheduler();
         new UpdateChecker(this, 105513).getVersion(version -> {
             if (this.getDescription().getVersion().equals(version)) {
@@ -74,19 +78,19 @@ public final class WeightRPG extends JavaPlugin {
 
     public void scheduler() {
         int timer;
-        if(this.getConfig().getDouble("check-weight") <= 0) {
+        if(this.getConfig().getDouble("check-weight") <= 0)
             timer = 2;
-        }else {
+        else
             timer = (int) this.getConfig().getDouble("check-weight");
-        }
+
         task = scheduler.runTaskTimer(this, new Runnable() {
             @Override
             public void run() {
                 List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
-                CalculateWeight w= new CalculateWeight();
+                CalculateWeight weightCalculator= new CalculateWeight();
                 for (Player plist : players)
                     if(!plist.hasPermission("weight.bypass"))
-                        w.calculateWeight(plist);
+                        weightCalculator.calculateWeight(plist);
             }
         },0, timer * 20L);
     }
