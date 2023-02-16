@@ -58,7 +58,7 @@ public class WeightCommand implements CommandExecutor {
                 String arg0 = args[0];
                 if (arg0.equalsIgnoreCase("reload")) {
                     if(p.hasPermission("weight.reload")) {
-                        reloadcommand();
+                        reloadCommand();
                         if(js.successfullRead)
                             p.sendMessage(pluginPrefix + ChatColor.GREEN + "Config and weight files reloaded succefully.");
                         else
@@ -93,7 +93,7 @@ public class WeightCommand implements CommandExecutor {
             if (args.length == 1) {
                 String arg0 = args[0];
                 if (arg0.equalsIgnoreCase("reload")) {
-                    reloadcommand();
+                    reloadCommand();
                     if(js.successfullRead)
                         c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Config and weight files reloaded succefully.");
                     else
@@ -105,12 +105,12 @@ public class WeightCommand implements CommandExecutor {
         return false;
     }
 
-    private void reloadcommand() {
+    private void reloadCommand() {
         File config = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\config.yml");
         File messages = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\messages.yml");
-        File blocksweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
-        File toolsweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Tools And Weapons Weight.json");
-        File miscweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
+        File blocksWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
+        File toolsWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Tools And Weapons Weight.json");
+        File miscWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
         customitemsweight.clear();
         globalitemsweight.clear();
         if(config.exists()) {
@@ -131,7 +131,7 @@ public class WeightCommand implements CommandExecutor {
         else {
             Messages.create();
         }
-        if (!blocksweight.exists() || !toolsweight.exists() || !miscweight.exists())
+        if (!blocksWeight.exists() || !toolsWeight.exists() || !miscWeight.exists())
                 js.saveJsonFile();
         js.readJsonFile();
         List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();

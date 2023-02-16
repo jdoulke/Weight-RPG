@@ -15,9 +15,9 @@ import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 public class Messages {
 
+
     private static File file;
     private static FileConfiguration configuration;
-
 
 
     //create the messages.yml file
