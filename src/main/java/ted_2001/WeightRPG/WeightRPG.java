@@ -30,11 +30,12 @@ public final class WeightRPG extends JavaPlugin {
 
     public BukkitScheduler scheduler = this.getServer().getScheduler();
     public BukkitTask task;
-    private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" +ChatColor.GRAY + "] ";
+    private String pluginPrefix;
 
     @Override
     public void onEnable() {
         plugin = this;
+        pluginPrefix = ChatColor.translateAlternateColorCodes('&', getConfig().getString("plugin-prefix"));
         getServer().getPluginManager().registerEvents(new WeightCalculateListeners(), this);
         Objects.requireNonNull(getCommand("weight")).setExecutor(new WeightCommand());
         TabCompleter tc = new Tabcompleter();
@@ -117,6 +118,12 @@ public final class WeightRPG extends JavaPlugin {
     public static WeightRPG getPlugin(){
         return plugin;
     }
+
+    public void reloadPluginPrefix(){
+        this.pluginPrefix = ChatColor.translateAlternateColorCodes('&', getConfig().getString("plugin-prefix"));
+    }
+
+    public String getPluginPrefix(){return pluginPrefix;}
 
 
 }

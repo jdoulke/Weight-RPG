@@ -23,7 +23,6 @@ public class WeightCommand implements CommandExecutor {
 
     private final JsonFile js = new JsonFile();
     CalculateWeight w= new CalculateWeight();
-    private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" +ChatColor.GRAY + "] ";
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -60,19 +59,19 @@ public class WeightCommand implements CommandExecutor {
                     if(p.hasPermission("weight.reload")) {
                         reloadCommand();
                         if(js.successfullRead)
-                            p.sendMessage(pluginPrefix + ChatColor.GREEN + "Config and weight files reloaded succefully.");
+                            p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "Config and weight files reloaded succefully.");
                         else
-                            p.sendMessage(pluginPrefix + ChatColor.RED + "There was an error while reloading, check the console.");
+                            p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "There was an error while reloading, check the console.");
                         js.successfullRead = true;
                     }else
                         p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 }else if(arg0.equalsIgnoreCase("get")) {
                     if(p.hasPermission("weight.get")) {
-                        p.sendMessage(pluginPrefix + ChatColor.GREEN + "You can see items weight by using the command /weight get <item>.");
+                        p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GREEN + "You can see items weight by using the command /weight get <item>.");
                     }else
                         p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 }else
-                    p.sendMessage(pluginPrefix + ChatColor.RED + "Couldn't find this command.");
+                    p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
             }if(args.length == 2) {
                 String arg0 = args[0];
                 String arg1 = args[1].toUpperCase();
@@ -80,24 +79,24 @@ public class WeightCommand implements CommandExecutor {
                     if(p.hasPermission("weight.get." + arg1)) {
                         Material item = Material.getMaterial(arg1);
                         if(globalitemsweight.get(item) != null)
-                            p.sendMessage(pluginPrefix + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weighs " + ChatColor.RED + String.format("%.1f", globalitemsweight.get(item)));
+                            p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weighs " + ChatColor.RED + String.format("%.1f", globalitemsweight.get(item)));
                         else
-                            p.sendMessage(pluginPrefix + ChatColor.RED + "Couldn't find " + ChatColor.YELLOW + arg1 + ChatColor.RED + " in the weight files.");
+                            p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find " + ChatColor.YELLOW + arg1 + ChatColor.RED + " in the weight files.");
                     }
                 }
             }
         }else if(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) {
             Server c = sender.getServer();
             if (args.length == 0)
-                c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "This command can only be executed by a player.");
+                c.getConsoleSender().sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GRAY + "This command can only be executed by a player.");
             if (args.length == 1) {
                 String arg0 = args[0];
                 if (arg0.equalsIgnoreCase("reload")) {
                     reloadCommand();
                     if(js.successfullRead)
-                        c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Config and weight files reloaded succefully.");
+                        c.getConsoleSender().sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GRAY + "Config and weight files reloaded succefully.");
                     else
-                        c.getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There was an error while reloading.");
+                        c.getConsoleSender().sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GRAY + "There was an error while reloading.");
                     js.successfullRead = true;
                 }
             }
@@ -138,6 +137,7 @@ public class WeightCommand implements CommandExecutor {
         for (Player plist : players) {
             w.calculateWeight(plist);
         }
+        getPlugin().reloadPluginPrefix();
     }
 
 }

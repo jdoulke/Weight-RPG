@@ -70,6 +70,8 @@ custom-items-weight:
   - "&c&lThunder Sword=20"
   - "&6Amazing Pickaxe=14"
 
+plugin-prefix: "&7[&eWeight-RPG&7]&f: "
+
 # Disable the plugin on this world(s). It can be empty.
 disabled-worlds:
   - world_nether
