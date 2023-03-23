@@ -27,7 +27,7 @@ message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1% %perce
 
 weight-level-1:
   # when this level will take effect.
-  value: 900
+  value: 1000
   # normal speed is 0.2, accept values 0 between 1.
   speed: 0.15
   # Disable jump for players in this level when they are carrying too many items. (default is false)
@@ -40,7 +40,7 @@ weight-level-1:
   message: "%displayname%: &eI am carrying too many items. &e%weight% &2/ &c%level2% %percentageweight%"
 weight-level-2:
   enabled: true
-  value: 1300
+  value: 1500
   speed: 0.1
   disable-jump: false
   sound: ENTITY_PLAYER_HURT
@@ -48,7 +48,7 @@ weight-level-2:
   message: "%displayname%: &6I am carrying too many items. &e%weight% &2/ &c%level3% %percentageweight%"
 weight-level-3:
   enabled: true
-  value: 1800
+  value: 2000
   speed: 0.05
   disable-jump: true
   sound: ENTITY_PLAYER_HURT
@@ -74,7 +74,7 @@ plugin-prefix: "&7[&eWeight-RPG&7]&f: "
 
 # Disable the plugin on this world(s). It can be empty.
 disabled-worlds:
-  - world_nether
+  #- world_nether
   #- world_the_end
   #- world2
   #- world_3

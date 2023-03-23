@@ -6,7 +6,7 @@
 
     <groupId>ted_2001</groupId>
     <artifactId>Weight-RPG</artifactId>
-    <version>1.72</version>
+    <version>1.73</version>
     <packaging>jar</packaging>
 
     <name>Weight-RPG</name>
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19-R0.1-SNAPSHOT</version>
+            <version>1.19.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
