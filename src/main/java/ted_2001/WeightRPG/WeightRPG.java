@@ -45,9 +45,10 @@ public final class WeightRPG extends JavaPlugin {
         getConfig().options().copyDefaults();
         saveDefaultConfig();
         String path = this.getDataFolder().getAbsolutePath();
-        File Weight = new File(path + "\\Weights");
-        if(!Weight.exists())
-            Weight.mkdir();
+        File weightsDir = new File(path + File.separator + "Weights");
+        if (!weightsDir.exists()) {
+            weightsDir.mkdir();
+        }
         js.saveJsonFile();
         Messages.create();
         js.readJsonFile();

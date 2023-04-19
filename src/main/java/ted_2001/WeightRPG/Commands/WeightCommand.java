@@ -105,11 +105,12 @@ public class WeightCommand implements CommandExecutor {
     }
 
     private void reloadCommand() {
-        File config = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\config.yml");
-        File messages = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\messages.yml");
-        File blocksWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
-        File toolsWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Tools And Weapons Weight.json");
-        File miscWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
+        String separator = File.separator;
+        File config = new File(getPlugin().getDataFolder().getAbsolutePath() + separator + "config.yml");
+        File messages = new File(getPlugin().getDataFolder().getAbsolutePath() + separator + "messages.yml");
+        File blocksWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + separator + "Weights" + separator + "Blocks Weight.json");
+        File toolsWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + separator + "Weights" + separator + "Tools And Weapons Weight.json");
+        File miscWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + separator + "Weights" + separator + "Misc Items Weight.json");
         customitemsweight.clear();
         globalitemsweight.clear();
         if(config.exists()) {

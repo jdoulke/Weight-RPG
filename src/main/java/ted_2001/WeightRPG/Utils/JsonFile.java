@@ -69,11 +69,11 @@ public class JsonFile {
         int flowerscount = 0, carpetcount = 0, candlecount = 0, headcount = 0, bannercount = 0, bedcount = 0, woodcount = 0 , leavescount = 0, shulkercount = 0;
         int ingotscount = 0, buttoncount = 0, platecount = 0, doorcount = 0, fencecount = 0, eggcount = 0, dyescount = 0, signcount = 0, horsecount = 0, redstonecount = 0;
         int boatcount = 0, workcount = 0, foodcount = 0;
-        File blocksweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
-        File toolsweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Tools And Weapons Weight.json");
-        File miscweight = new File(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
+        File blocksWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
+        File toolsWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
+        File miscWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
         if(getPlugin().getDataFolder().exists()) {
-            if (!blocksweight.exists() || !toolsweight.exists() || !miscweight.exists()) {
+            if (!blocksWeight.exists() || !toolsWeight.exists() || !miscWeight.exists()) {
                 getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Weights files don't exist. Creating them...");
                 Material[] allitems = Material.values();
                 for(int i =1;i < allitems.length;i++){
@@ -284,15 +284,15 @@ public class JsonFile {
                 ItemsWeight.put("Eggs Weight", egg);
                 ItemsWeight.put("Dyes Weight", dyes);
                 ItemsWeight.put("Flowers Weight", flowers);
-                try (PrintWriter out = new PrintWriter(new FileWriter(blocksweight))) {
+                try (PrintWriter out = new PrintWriter(new FileWriter(blocksWeight))) {
                     out.write(BlocksWeight.toString(2));
                 }catch (Exception e){
                     e.printStackTrace();
-                }try (PrintWriter out = new PrintWriter(new FileWriter(toolsweight))) {
+                }try (PrintWriter out = new PrintWriter(new FileWriter(toolsWeight))) {
                     out.write(ArmorAndWeaponsWeight.toString(2));
                 }catch (Exception e){
                     e.printStackTrace();
-                }try (PrintWriter out = new PrintWriter(new FileWriter(miscweight))) {
+                }try (PrintWriter out = new PrintWriter(new FileWriter(miscWeight))) {
                     out.write(ItemsWeight.toString(2));
                 }catch (Exception e){
                     e.printStackTrace();
@@ -301,34 +301,33 @@ public class JsonFile {
         }
     }
 
-    public void readJsonFile(){
+    public void readJsonFile() {
         InputStream is;
         try {
-            is = new FileInputStream(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Blocks Weight.json");
+            is = new FileInputStream(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
         JSONTokener tokener = new JSONTokener(is);
-        JSONObject  blocksweight = new JSONObject(tokener);
+        JSONObject blocksweight = new JSONObject(tokener);
         addWeightForBlocks(blocksweight);
         try {
-            is = new FileInputStream(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Misc Items Weight.json");
+            is = new FileInputStream(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
         tokener = new JSONTokener(is);
-        JSONObject  miscweight = new JSONObject(tokener);
+        JSONObject miscweight = new JSONObject(tokener);
         addWeightForItems(miscweight);
         try {
-            is = new FileInputStream(getPlugin().getDataFolder().getAbsolutePath() + "\\Weights\\Tools And Weapons Weight.json");
+            is = new FileInputStream(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
         tokener = new JSONTokener(is);
-        JSONObject  armor = new JSONObject(tokener);
+        JSONObject armor = new JSONObject(tokener);
         addWeightForArmor(armor);
         addCustomItemsWeight();
-
     }
 
     private void addWeightForArmor(JSONObject armor) {

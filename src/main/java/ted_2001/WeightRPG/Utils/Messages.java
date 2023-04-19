@@ -6,11 +6,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Objects;
 
-import static org.bukkit.Bukkit.getServer;
+
+
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 public class Messages {

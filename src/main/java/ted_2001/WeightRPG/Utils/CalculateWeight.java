@@ -142,11 +142,11 @@ public class CalculateWeight {
 
     private void messageChooser(String message, Player p,Sound s) {
         if(!cooldown.containsKey(p.getUniqueId())) {
-            cooldownMessager(p,s,message);
+            cooldownMessanger(p,s,message);
         }else{
             long timeElapsed = System.currentTimeMillis() - cooldown.get(p.getUniqueId());
             if(timeElapsed >= getPlugin().getConfig().getDouble("messages-cooldown") * 1000){
-                cooldownMessager(p,s,message);
+                cooldownMessanger(p,s,message);
             }
         }
     }
@@ -165,7 +165,7 @@ public class CalculateWeight {
     }
 
 
-    private void cooldownMessager(Player p, Sound s, String message) {
+    private void cooldownMessanger(Player p, Sound s, String message) {
         cooldown.put(p.getUniqueId(), System.currentTimeMillis());
         if(getPlugin().getConfig().getBoolean("actionbar-messages"))
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message,p))));
