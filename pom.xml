@@ -6,7 +6,7 @@
 
     <groupId>ted_2001</groupId>
     <artifactId>Weight-RPG</artifactId>
-    <version>1.74</version>
+    <version>1.75</version>
     <packaging>jar</packaging>
 
     <name>Weight-RPG</name>
@@ -81,18 +81,18 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19.4-R0.1-SNAPSHOT</version>
+            <version>1.20.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20220320</version>
+            <version>20230227</version>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

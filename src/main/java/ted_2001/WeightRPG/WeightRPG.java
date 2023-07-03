@@ -2,6 +2,8 @@ package ted_2001.WeightRPG;
 
 
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.CustomChart;
+import org.bstats.json.JsonObjectBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.TabCompleter;
@@ -20,7 +22,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
-import static org.bukkit.Bukkit.getServer;
 
 
 public final class WeightRPG extends JavaPlugin {
@@ -35,7 +36,7 @@ public final class WeightRPG extends JavaPlugin {
     @Override
     public void onEnable() {
         plugin = this;
-        pluginPrefix = ChatColor.translateAlternateColorCodes('&', getConfig().getString("plugin-prefix"));
+        pluginPrefix = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(getConfig().getString("plugin-prefix")));
         getServer().getPluginManager().registerEvents(new WeightCalculateListeners(), this);
         Objects.requireNonNull(getCommand("weight")).setExecutor(new WeightCommand());
         TabCompleter tc = new Tabcompleter();
@@ -85,15 +86,12 @@ public final class WeightRPG extends JavaPlugin {
         else
             timer = (int) this.getConfig().getDouble("check-weight");
 
-        task = scheduler.runTaskTimer(this, new Runnable() {
-            @Override
-            public void run() {
-                List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
-                CalculateWeight weightCalculator= new CalculateWeight();
-                for (Player plist : players)
-                    if(!plist.hasPermission("weight.bypass"))
-                        weightCalculator.calculateWeight(plist);
-            }
+        task = scheduler.runTaskTimer(this, () -> {
+            List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
+            CalculateWeight weightCalculator= new CalculateWeight();
+            for (Player plist : players)
+                if(!plist.hasPermission("weight.bypass"))
+                    weightCalculator.calculateWeight(plist);
         },0, timer * 20L);
     }
 
@@ -121,7 +119,7 @@ public final class WeightRPG extends JavaPlugin {
     }
 
     public void reloadPluginPrefix(){
-        this.pluginPrefix = ChatColor.translateAlternateColorCodes('&', getConfig().getString("plugin-prefix"));
+        this.pluginPrefix = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(getConfig().getString("plugin-prefix")));
     }
 
     public String getPluginPrefix(){return pluginPrefix;}
