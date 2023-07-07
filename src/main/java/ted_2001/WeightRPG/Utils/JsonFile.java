@@ -24,8 +24,8 @@ public class JsonFile {
 
 
 
-    public static HashMap<Material, Float> globalitemsweight = new HashMap<Material, Float>();
-    public static HashMap<String, Float> customitemsweight = new HashMap<String, Float>();
+    public static HashMap<Material, Float> globalitemsweight = new HashMap<>();
+    public static HashMap<String, Float> customitemsweight = new HashMap<>();
     private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" +ChatColor.GRAY + "] ";
 
     public boolean successfullRead = true;

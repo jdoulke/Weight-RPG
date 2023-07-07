@@ -35,10 +35,10 @@ public class WeightCalculateListeners implements Listener {
 
 
     CalculateWeight w= new CalculateWeight();
-    public final HashMap<UUID, Long> jumpmessage = new HashMap<>();
-    public final HashMap<UUID, Long> pickmessage = new HashMap<>();
-    public final HashMap<UUID, Long> placemessage = new HashMap<>();
-    public final HashMap<UUID, Long> dropmessage = new HashMap<>();
+    public final HashMap<UUID, Long> jumpMessage = new HashMap<>();
+    public final HashMap<UUID, Long> pickMessage = new HashMap<>();
+    public final HashMap<UUID, Long> placeMessage = new HashMap<>();
+    public final HashMap<UUID, Long> dropMessage = new HashMap<>();
 
     private final String pluginPrefix = org.bukkit.ChatColor.GRAY + "[" + org.bukkit.ChatColor.YELLOW + "Weight-RPG" + org.bukkit.ChatColor.GRAY + "] ";
 
@@ -112,15 +112,14 @@ public class WeightCalculateListeners implements Listener {
                 return;
             }
             float weight = 0;
-            boolean iscustomitem = false;
+            boolean isCustomItem = false;
             if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
                 weight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
-                iscustomitem = true;
-            }
-            else if(globalitemsweight.get(item.getType()) != null)
+                isCustomItem = true;
+            } else if(globalitemsweight.get(item.getType()) != null)
                 weight = globalitemsweight.get(item.getType());
             if(!p.hasPermission("weight.bypass")) {
-                if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || iscustomitem) {
+                if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || isCustomItem) {
                     w.calculateWeight(p);
                     message(p,"receive",item,weight, amount);
                 }else{
@@ -149,16 +148,16 @@ public class WeightCalculateListeners implements Listener {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA +item.getType()  + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
             return;
         }
-        boolean iscustomitem = false;
+        boolean isCustomItem = false;
         float weight = 0;
         if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
                 weight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
-                iscustomitem = true;
+            isCustomItem = true;
         }
         else if(globalitemsweight.get(item.getType()) != null)
             weight = globalitemsweight.get(item.getType());
         if (!p.hasPermission("weight.bypass")) {
-            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || iscustomitem) {
+            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || isCustomItem) {
                 w.calculateWeight(p);
                 message(p, "lose", item, weight, amount);
             } else {
@@ -186,15 +185,15 @@ public class WeightCalculateListeners implements Listener {
             return;
         }
         float weight = 0;
-        boolean iscustomitem = false;
+        boolean isCustomItem = false;
         if(customitemsweight.containsKey(Objects.requireNonNull(block.getItemMeta()).getDisplayName())) {
             weight = customitemsweight.get(Objects.requireNonNull(block.getItemMeta()).getDisplayName());
-            iscustomitem = true;
+            isCustomItem = true;
         }
        else if(globalitemsweight.get(block.getType()) != null)
             weight = globalitemsweight.get(block.getType());
         if (!p.hasPermission("weight.bypass")) {
-            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || iscustomitem) {
+            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || isCustomItem) {
                 w.calculateWeight(p);
                 message(p, "place", block, weight, 1);
             } else {
@@ -217,15 +216,25 @@ public class WeightCalculateListeners implements Listener {
         Location loc = p.getLocation();
         if(p.hasPermission("weight.bypass.jump"))
             return;
-        if(checkblocks(loc))
+        if(checkBlocks(loc))
             return;
         String y = String.valueOf(p.getLocation().getY());
         String[] ydigit = y.split("\\.");
         int digit = Integer.parseInt(String.valueOf(ydigit[1].charAt(0)));
+
         if(digit != 0)
             return;
-        if(p.getLocation().getBlock().getType() == Material.LADDER || p.getLocation().getBlock().getType() == Material.WATER || p.getLocation().getBlock().getType() == Material.LAVA)
+        if(loc.getBlock().getType() == Material.LADDER ||  loc.getBlock().getType() == Material.WATER || loc.getBlock().getType() == Material.LAVA)
             return;
+        if(p.isFlying()) {
+            return;
+        }
+        loc = p.getLocation();
+        loc.setY(loc.getY() - 2);
+        if( p.getInventory().getChestplate() != null && p.getInventory().getChestplate().getType() == Material.ELYTRA && loc.getBlock().getType() == Material.AIR) {
+            return;
+        }
+
         if(Objects.requireNonNull(e.getTo()).getY() > e.getFrom().getY()) {
                 if(playerweight.get(p.getUniqueId())!= null){
                     float weight = playerweight.get(p.getUniqueId());
@@ -242,12 +251,12 @@ public class WeightCalculateListeners implements Listener {
                     }
                     if(disablejump) {
                     e.getTo().setY(e.getFrom().getY());
-                    if(!jumpmessage.containsKey(p.getUniqueId())) {
-                        jumpmessager(p);
+                    if(!jumpMessage.containsKey(p.getUniqueId())) {
+                        jumpMessage(p);
                     }else{
-                        long timeElapsed = System.currentTimeMillis() - jumpmessage.get(p.getUniqueId());
+                        long timeElapsed = System.currentTimeMillis() - jumpMessage.get(p.getUniqueId());
                         if(timeElapsed >= Messages.getMessages().getInt("disable-jump-message-cooldown") * 1000L){
-                             jumpmessager(p);
+                             jumpMessage(p);
                         }
                     }
                 }
@@ -257,8 +266,8 @@ public class WeightCalculateListeners implements Listener {
         }
     }
 
-    private void jumpmessager(Player p) {
-        jumpmessage.put(p.getUniqueId(), System.currentTimeMillis());
+    private void jumpMessage(Player p) {
+        jumpMessage.put(p.getUniqueId(), System.currentTimeMillis());
         String message = Messages.getMessages().getString("disable-jump-message");
         if(getPlugin().getConfig().getBoolean("actionbar-messages"))
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p))));
@@ -282,7 +291,7 @@ public class WeightCalculateListeners implements Listener {
 
 
 
-    private boolean checkblocks(Location loc) {
+    private boolean checkBlocks(Location loc) {
         loc.setX(loc.getBlockX() +0.5);
         if(loc.getBlock().getType().toString().contains("STAIRS") || loc.getBlock().getType().toString().contains("SLAB"))
             return true;
@@ -321,32 +330,32 @@ public class WeightCalculateListeners implements Listener {
             message = Messages.getMessages().getString("lost-item-message");
         else if(action.equalsIgnoreCase("place"))
             message = Messages.getMessages().getString("place-block-message");
-        if(!pickmessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("receive") && Messages.getMessages().getBoolean("receive-item-message-enabled")) {
-            pickmessage.put(p.getUniqueId(), System.currentTimeMillis());
+        if(!pickMessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("receive") && Messages.getMessages().getBoolean("receive-item-message-enabled")) {
+            pickMessage.put(p.getUniqueId(), System.currentTimeMillis());
             messageSender(message, p, item, weight, amount);
         }else if(action.equalsIgnoreCase("receive") && Messages.getMessages().getBoolean("receive-item-message-enabled")){
-            long timeElapsed = System.currentTimeMillis() - pickmessage.get(p.getUniqueId());
+            long timeElapsed = System.currentTimeMillis() - pickMessage.get(p.getUniqueId());
             if(timeElapsed >= Messages.getMessages().getDouble("receive-item-message-cooldown") * 1000){
-                pickmessage.put(p.getUniqueId(), System.currentTimeMillis());
+                pickMessage.put(p.getUniqueId(), System.currentTimeMillis());
                 messageSender(message, p, item, weight, amount);
             }
         }
-        if(!placemessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("place") && Messages.getMessages().getBoolean("place-block-message-enabled")) {
-            placemessage.put(p.getUniqueId(), System.currentTimeMillis());
+        if(!placeMessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("place") && Messages.getMessages().getBoolean("place-block-message-enabled")) {
+            placeMessage.put(p.getUniqueId(), System.currentTimeMillis());
             messageSender(message, p, item, weight, amount);
         }else if(action.equalsIgnoreCase("place") && Messages.getMessages().getBoolean("place-block-message-enabled")){
-            long timeElapsed = System.currentTimeMillis() - placemessage.get(p.getUniqueId());
+            long timeElapsed = System.currentTimeMillis() - placeMessage.get(p.getUniqueId());
             if(timeElapsed >= Messages.getMessages().getDouble("place-block-message-cooldown") * 1000){
-                placemessage.put(p.getUniqueId(), System.currentTimeMillis());
+                placeMessage.put(p.getUniqueId(), System.currentTimeMillis());
                 messageSender(message, p, item, weight, amount);
             }
-        }if(!dropmessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("lose") && Messages.getMessages().getBoolean("lost-item-message-enabled")) {
-            dropmessage.put(p.getUniqueId(), System.currentTimeMillis());
+        }if(!dropMessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("lose") && Messages.getMessages().getBoolean("lost-item-message-enabled")) {
+            dropMessage.put(p.getUniqueId(), System.currentTimeMillis());
             messageSender(message, p, item, weight, amount);
         }else if(action.equalsIgnoreCase("lose") && Messages.getMessages().getBoolean("lost-item-message-enabled")){
-            long timeElapsed = System.currentTimeMillis() - dropmessage.get(p.getUniqueId());
+            long timeElapsed = System.currentTimeMillis() - dropMessage.get(p.getUniqueId());
             if(timeElapsed >= Messages.getMessages().getDouble("lost-item-message-cooldown") * 1000){
-                dropmessage.put(p.getUniqueId(), System.currentTimeMillis());
+                dropMessage.put(p.getUniqueId(), System.currentTimeMillis());
                 messageSender(message, p, item, weight, amount);
             }
         }
