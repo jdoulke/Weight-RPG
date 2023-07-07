@@ -1,7 +1,6 @@
 package ted_2001.WeightRPG.Utils.PlaceholderAPI;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -53,8 +52,8 @@ public class WeightExpasion extends PlaceholderExpansion {
         }
         if(params.equals("current_weight")){
             if(isEnabled(p)) {
-                if (playerweight.get(p.getUniqueId()) != null) {
-                    return String.format("%.2f", playerweight.get(p.getUniqueId()));
+                if (playerWeight.get(p.getUniqueId()) != null) {
+                    return String.format("%.2f", playerWeight.get(p.getUniqueId()));
                 }
             }else
                 return "0";

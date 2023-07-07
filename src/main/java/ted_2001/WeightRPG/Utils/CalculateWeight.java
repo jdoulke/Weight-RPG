@@ -24,7 +24,7 @@ import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 public class CalculateWeight {
 
     float weight;
-    public static HashMap<UUID,Float> playerweight = new HashMap<>();
+    public static HashMap<UUID,Float> playerWeight = new HashMap<>();
     public static HashMap<UUID, Long> cooldown = new HashMap<>();
     boolean Weight2 = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
     boolean Weight3 = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
@@ -67,7 +67,7 @@ public class CalculateWeight {
         if(secondhand.getItemMeta() != null){
             secondHandWeightCalculator(secondhand);
         }
-        playerweight.put(p.getUniqueId(), weight);
+        playerWeight.put(p.getUniqueId(), weight);
         getWeightsEffect(p);
 
     }
@@ -94,41 +94,41 @@ public class CalculateWeight {
 
     public void getWeightsEffect(Player p) {
         UUID id = p.getUniqueId();
-        if (playerweight.get(id) == null)
+        if (playerWeight.get(id) == null)
             return;
         double weight1 = weightThresholdValues[0];
         double weight2 = weightThresholdValues[1];
         double weight3 = weightThresholdValues[2];
         String message;
 
-        if (playerweight.get(id) <= weight1) {
+        if (playerWeight.get(id) <= weight1) {
             if(p.getWalkSpeed() < 0.2)
                 p.setWalkSpeed(0.2f);
             if(getPlugin().getConfig().getBoolean("message-before-level1-enabled")) {
                 message = getPlugin().getConfig().getString("message-before-level1");
                 messageChooser(message, p, null);
             }
-        } else if(playerweight.get(id) >= weight1 && playerweight.get(id) < weight2){
+        } else if(playerWeight.get(id) >= weight1 && playerWeight.get(id) < weight2){
+            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-1.speed"));
             if(getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
-                p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-1.speed"));
                 message = getPlugin().getConfig().getString("weight-level-1.message");
                 Sound s = null;
                 if (!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-1.sound")).equalsIgnoreCase("none"))
                     s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
                 messageChooser(message, p, s);
             }
-        }else if(playerweight.get(id) >= weight2 && playerweight.get(id) < weight3 && Weight2) {
+        }else if(playerWeight.get(id) >= weight2 && playerWeight.get(id) < weight3 && Weight2) {
+            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-2.speed"));
             if(getPlugin().getConfig().getBoolean("weight-level-2.message-enabled")) {
-                p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-2.speed"));
                 message = getPlugin().getConfig().getString("weight-level-2.message");
                 Sound s = null;
                 if (!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-2.sound")).equalsIgnoreCase("none"))
                     s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
                 messageChooser(message, p, s);
             }
-        }else if(playerweight.get(id) >= weight3 && Weight3) {
+        }else if(playerWeight.get(id) >= weight3 && Weight3) {
+            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-3.speed"));
             if(getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
-                p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-3.speed"));
                 message = getPlugin().getConfig().getString("weight-level-3.message");
                 Sound s = null;
                 if (!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-3.sound")).equalsIgnoreCase("none"))
@@ -142,11 +142,11 @@ public class CalculateWeight {
 
     private void messageChooser(String message, Player p,Sound s) {
         if(!cooldown.containsKey(p.getUniqueId())) {
-            cooldownMessanger(p,s,message);
+            cooldownMessenger(p,s,message);
         }else{
             long timeElapsed = System.currentTimeMillis() - cooldown.get(p.getUniqueId());
             if(timeElapsed >= getPlugin().getConfig().getDouble("messages-cooldown") * 1000){
-                cooldownMessanger(p,s,message);
+                cooldownMessenger(p,s,message);
             }
         }
     }
@@ -165,7 +165,7 @@ public class CalculateWeight {
     }
 
 
-    private void cooldownMessanger(Player p, Sound s, String message) {
+    private void cooldownMessenger(Player p, Sound s, String message) {
         cooldown.put(p.getUniqueId(), System.currentTimeMillis());
         if(getPlugin().getConfig().getBoolean("actionbar-messages"))
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message,p))));
@@ -181,8 +181,8 @@ public class CalculateWeight {
     public String messageSender(String message, Player p){
         message = message.replaceAll("%playername%", p.getName());
         message = message.replaceAll("%displayname%", p.getDisplayName());
-        if(playerweight.get(p.getUniqueId())!= null)
-            message = message.replaceAll("%weight%", String.format("%.2f",playerweight.get(p.getUniqueId())));
+        if(playerWeight.get(p.getUniqueId())!= null)
+            message = message.replaceAll("%weight%", String.format("%.2f", playerWeight.get(p.getUniqueId())));
         else
             message = message.replaceAll("%weight%", "0");
         message = message.replaceAll("%world%", p.getWorld().getName());
@@ -203,9 +203,9 @@ public class CalculateWeight {
     }
 
     public float getPercentage(Player p){
-        if(playerweight.get(p.getUniqueId()) == null)
+        if(playerWeight.get(p.getUniqueId()) == null)
             return 0;
-        float weight = playerweight.get(p.getUniqueId()), maxWeight;
+        float weight = playerWeight.get(p.getUniqueId()), maxWeight;
         if (Weight3)
             maxWeight = weightThresholdValues[2];
         else if (Weight2)
@@ -221,10 +221,10 @@ public class CalculateWeight {
             return "";
         float weight;
         float maxWeight;
-        if(playerweight.get(p.getUniqueId()) == null)
+        if(playerWeight.get(p.getUniqueId()) == null)
             weight = 0;
         else
-            weight = playerweight.get(p.getUniqueId());
+            weight = playerWeight.get(p.getUniqueId());
         if (Weight3)
             maxWeight = weightThresholdValues[2];
         else if (Weight2)

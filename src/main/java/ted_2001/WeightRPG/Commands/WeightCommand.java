@@ -94,7 +94,7 @@ public class WeightCommand implements CommandExecutor {
                 if (arg0.equalsIgnoreCase("reload")) {
                     reloadCommand();
                     if(js.successfullRead)
-                        c.getConsoleSender().sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GRAY + "Config and weight files reloaded succefully.");
+                        c.getConsoleSender().sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GRAY + "Config and weight files reloaded successfully.");
                     else
                         c.getConsoleSender().sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GRAY + "There was an error while reloading.");
                     js.successfullRead = true;

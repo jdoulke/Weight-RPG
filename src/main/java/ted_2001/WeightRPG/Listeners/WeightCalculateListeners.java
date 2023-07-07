@@ -119,7 +119,7 @@ public class WeightCalculateListeners implements Listener {
             } else if(globalitemsweight.get(item.getType()) != null)
                 weight = globalitemsweight.get(item.getType());
             if(!p.hasPermission("weight.bypass")) {
-                if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || isCustomItem) {
+                if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
                     w.calculateWeight(p);
                     message(p,"receive",item,weight, amount);
                 }else{
@@ -157,7 +157,7 @@ public class WeightCalculateListeners implements Listener {
         else if(globalitemsweight.get(item.getType()) != null)
             weight = globalitemsweight.get(item.getType());
         if (!p.hasPermission("weight.bypass")) {
-            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || isCustomItem) {
+            if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
                 w.calculateWeight(p);
                 message(p, "lose", item, weight, amount);
             } else {
@@ -193,7 +193,7 @@ public class WeightCalculateListeners implements Listener {
        else if(globalitemsweight.get(block.getType()) != null)
             weight = globalitemsweight.get(block.getType());
         if (!p.hasPermission("weight.bypass")) {
-            if (playerweight.get(p.getUniqueId()) == 0 || playerweight.get(p.getUniqueId()) == null || isCustomItem) {
+            if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
                 w.calculateWeight(p);
                 message(p, "place", block, weight, 1);
             } else {
@@ -236,8 +236,8 @@ public class WeightCalculateListeners implements Listener {
         }
 
         if(Objects.requireNonNull(e.getTo()).getY() > e.getFrom().getY()) {
-                if(playerweight.get(p.getUniqueId())!= null){
-                    float weight = playerweight.get(p.getUniqueId());
+                if(playerWeight.get(p.getUniqueId())!= null){
+                    float weight = playerWeight.get(p.getUniqueId());
                     boolean disablejump = false;
                     double weight1 = weightThresholdValues[0];
                     double weight2 = weightThresholdValues[1];
@@ -311,14 +311,14 @@ public class WeightCalculateListeners implements Listener {
         if(!isPluginEnabled)
             return;
         float weight = 0;
-        if (playerweight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("place")) {
-            weight = playerweight.get(p.getUniqueId());
+        if (playerWeight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("place")) {
+            weight = playerWeight.get(p.getUniqueId());
             weight -= globalitemsweight.get(item.getType()) * amount;
-        }else if (playerweight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("pick")) {
-            weight = playerweight.get(p.getUniqueId());
+        }else if (playerWeight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("pick")) {
+            weight = playerWeight.get(p.getUniqueId());
             weight += globalitemsweight.get(item.getType()) * amount;
         }
-        playerweight.put(p.getUniqueId(), weight);
+        playerWeight.put(p.getUniqueId(), weight);
 
     }
 
