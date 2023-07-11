@@ -28,6 +28,8 @@ message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1% %perce
 # Permission mode will get the weight values from the player's permission.
 # You need to use permissions like this. weight.level1.(value), weight.level2.(value), weight.level3.(value)
 # If the permission doesn't exist then the value of the weight level will be the value under the weight level on the config.yml file
+# Not recommended the usage of it will be pretty heavy 
+# Max value for level 1 and level 2 is 10000 and for level 3 is 100000
 permission-mode: false
 
 weight-level-1:
