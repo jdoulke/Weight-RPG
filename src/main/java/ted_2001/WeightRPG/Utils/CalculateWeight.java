@@ -101,11 +101,39 @@ public class CalculateWeight {
 
     public void getWeightsEffect(Player p) {
         UUID id = p.getUniqueId();
+
         if (playerWeight.get(id) == null)
             return;
-        double weight1 = weightThresholdValues[0];
-        double weight2 = weightThresholdValues[1];
-        double weight3 = weightThresholdValues[2];
+        double weight1;
+        double weight2;
+        double weight3;
+        if(getPlugin.getConfig.getBoolean("permission-mode")){
+        
+            for(int i = 0; i <= 10000; i--) {
+                if(player.hasPermission("weight.level1." + i)) {
+                    weight1 = i;
+                    break;
+                }
+            }
+
+            for(int i = 0; i <= 10000; i--) {
+                if(player.hasPermission("weight.level2." + i)) {
+                    weight2 = i;
+                    break;
+                }
+            }
+
+            for(int i = 0; i <= 100000; i--) {
+                if(player.hasPermission("weight.level3." + i)) {
+                    weight3 = i;
+                    break;
+                }
+            }
+        }else {
+            weight1 = weightThresholdValues[0];
+            weight2 = weightThresholdValues[1];
+            weight3 = weightThresholdValues[2];
+        }
         String message;
 
         if (playerWeight.get(id) <= weight1) {
