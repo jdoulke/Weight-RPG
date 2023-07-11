@@ -14,7 +14,7 @@
 # %playername% for player's name.
 # %displayname% for player's display name.
 # %weight% for player's weight.
-# %maxweight% for global max weight. (if you have enabled level 3 then level 3 is the maximum if you have disabled level 3 but enabled level 2 then level 2 is the max.
+# %maxweight% for global max weight. (if you have enabled level 3 then level 3 is the maximum if you have disabled level 3 but enabled level 2 then level 2 is the max.)
 # %world% for player's world.
 # %level1% for weight level 1 value %level2% for level 2 and %level3% for level 3.
 # %percentage% for weight percentage (weight * 100 / max weight)
