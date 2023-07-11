@@ -104,9 +104,11 @@ public class CalculateWeight {
 
         if (playerWeight.get(id) == null)
             return;
+            
         double weight1;
         double weight2;
         double weight3;
+
         if(getPlugin.getConfig.getBoolean("permission-mode")){
         
             for(int i = 0; i <= 10000; i--) {
