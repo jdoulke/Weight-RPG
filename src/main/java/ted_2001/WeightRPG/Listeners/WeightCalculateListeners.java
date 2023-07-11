@@ -146,17 +146,14 @@ public class WeightCalculateListeners implements Listener {
         if(getPlugin().getConfig().getBoolean("drop-cooldown.enabled")){
             if(!dropCooldown.containsKey(p.getUniqueId())) {
                 dropCooldown.put(p.getUniqueId(), System.currentTimeMillis());
-                e.setCancelled(true);
-                String message = Messages.getMessages().getString("drop-cooldown-message");
-                assert message != null;
-                p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
             }else {
-                long timeElapsed = System.currentTimeMillis() - placeMessage.get(p.getUniqueId());
+                long timeElapsed = System.currentTimeMillis() - dropCooldown.get(p.getUniqueId());
                 if(timeElapsed < getPlugin().getConfig().getDouble("drop-cooldown.cooldown") * 1000){
                     e.setCancelled(true);
                     String message = Messages.getMessages().getString("drop-cooldown-message");
                     assert message != null;
                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                    return;
                 }
             }
         }
