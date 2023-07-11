@@ -113,22 +113,27 @@ public class CalculateWeight {
                 if(player.hasPermission("weight.level1." + i)) {
                     weight1 = i;
                     break;
-                }
+                }else 
+                    weight1 = weightThresholdValues[0];
             }
 
             for(int i = 0; i <= 10000; i--) {
                 if(player.hasPermission("weight.level2." + i)) {
                     weight2 = i;
                     break;
-                }
+                }else
+                    weight2 = weightThresholdValues[1];
+                
             }
 
             for(int i = 0; i <= 100000; i--) {
                 if(player.hasPermission("weight.level3." + i)) {
                     weight3 = i;
                     break;
-                }
+                }else 
+                    weight3 = weightThresholdValues[2];
             }
+
         }else {
             weight1 = weightThresholdValues[0];
             weight2 = weightThresholdValues[1];

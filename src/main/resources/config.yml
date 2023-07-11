@@ -25,6 +25,11 @@ message-before-level1-enabled: true
 # The message that will send to the player before reach level 1 value.
 message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1% %percentageweight%"
 
+# Permission mode will get the weight values from the player's permission.
+# You need to use permissions like this. weight.level1.(value), weight.level2.(value), weight.level3.(value)
+# If the permission doesn't exist then the value of the weight level will be the value under the weight level on the config.yml file
+permission-mode: false
+
 weight-level-1:
   # when this level will take effect.
   value: 1000
