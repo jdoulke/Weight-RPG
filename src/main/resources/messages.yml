@@ -18,6 +18,7 @@ place-block-message: '%displayname% &aYou placed &e%itemdisplayname% &awhich wei
 place-block-message-cooldown: 2
 place-block-message-enabled: true
 # Message of /weight command. Support all placeholders.
+drop-cooldown-message: "%displayname%: &6I can't drop items so soon. "
 weight-command-message:
   - '%displayname% &eyour weight is &e%weight% &a/ &c%maxweight%.'
   - '&cPercentage %percentage%%'

@@ -49,6 +49,13 @@ public class CalculateWeight {
             if (worldguard.isInRegion(p))
                 return;
         }
+        if(p.hasPermission("weight.bypass")) {
+            playerWeight.put(p.getUniqueId(), 0f);
+            if(p.getWalkSpeed() < 2.0f)
+                p.setWalkSpeed(2.0f);
+            return;
+        }
+
         PlayerInventory inv = p.getInventory();
         ItemStack[] items = inv.getStorageContents();
         ItemStack[] armor = inv.getArmorContents();
@@ -153,9 +160,9 @@ public class CalculateWeight {
 
 
     public static boolean isEnabled(Player p) {
-        List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-        for (String disabledworld : disabledworlds) {
-            if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+        List<String> disabledWorlds = getPlugin().getConfig().getStringList("disabled-worlds");
+        for (String disabledWorld : disabledWorlds) {
+            if (disabledWorld.equalsIgnoreCase((p.getWorld().getName()))) {
                 p.setWalkSpeed((float) 0.2);
                 return false;
             }

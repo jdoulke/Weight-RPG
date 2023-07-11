@@ -64,6 +64,11 @@ messages-cooldown: 30
 # Check everyone's inventory in seconds. Only integers value.
 check-weight: 3
 
+# Cooldown in seconds before player can drop items. (default is 0.5)
+drop-cooldown:
+  enabled: true
+  cooldown: 0.5
+
 # Here add customs items name for custom weight. Don't add space after and before '='. Use '&' for color codes.
 custom-items-weight:
 #  - "customitemname=weight"

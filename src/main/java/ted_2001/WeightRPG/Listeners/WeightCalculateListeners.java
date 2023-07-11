@@ -40,6 +40,8 @@ public class WeightCalculateListeners implements Listener {
     public final HashMap<UUID, Long> placeMessage = new HashMap<>();
     public final HashMap<UUID, Long> dropMessage = new HashMap<>();
 
+    private final HashMap<UUID, Long> dropCooldown = new HashMap<>();
+
     private final String pluginPrefix = org.bukkit.ChatColor.GRAY + "[" + org.bukkit.ChatColor.YELLOW + "Weight-RPG" + org.bukkit.ChatColor.GRAY + "] ";
 
     boolean isPluginEnabled = false;
@@ -50,8 +52,7 @@ public class WeightCalculateListeners implements Listener {
         Player p = (Player) e.getPlayer();
         if(isWorldGuardEnabled(p))
             return;
-        if(!p.hasPermission("weight.bypass"))
-            w.calculateWeight(p);
+        w.calculateWeight(p);
     }
 
 
@@ -62,8 +63,7 @@ public class WeightCalculateListeners implements Listener {
         Player p = e.getPlayer();
         if(isWorldGuardEnabled(p))
             return;
-        if(!p.hasPermission("weight.bypass"))
-            w.calculateWeight(p);
+        w.calculateWeight(p);
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
@@ -71,8 +71,7 @@ public class WeightCalculateListeners implements Listener {
         Player p = e.getPlayer();
         if(isWorldGuardEnabled(p))
             return;
-        if(!p.hasPermission("weight.bypass"))
-            w.calculateWeight(p);
+        w.calculateWeight(p);
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
@@ -83,8 +82,7 @@ public class WeightCalculateListeners implements Listener {
             return;
         if(isWorldGuardEnabled(p))
             return;
-        if(!p.hasPermission("weight.bypass"))
-            w.calculateWeight(p);
+        w.calculateWeight(p);
     }
 
     @EventHandler (priority = EventPriority.LOWEST)
@@ -100,11 +98,13 @@ public class WeightCalculateListeners implements Listener {
         if(e.getEntity() instanceof Player){
             Player p = ((Player) e.getEntity()).getPlayer();
             assert p != null;
+
             isPluginEnabled = checkIfEnable(p);
             if(!isPluginEnabled)
                 return;
             if(isWorldGuardEnabled(p))
                 return;
+
             ItemStack item = e.getItem().getItemStack();
             int amount = e.getItem().getItemStack().getAmount();
             if(globalitemsweight.get(item.getType()) == null){
@@ -118,17 +118,16 @@ public class WeightCalculateListeners implements Listener {
                 isCustomItem = true;
             } else if(globalitemsweight.get(item.getType()) != null)
                 weight = globalitemsweight.get(item.getType());
-            if(!p.hasPermission("weight.bypass")) {
-                if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
-                    w.calculateWeight(p);
-                    message(p,"receive",item,weight, amount);
-                }else{
-                    String s = "pick";
-                    putWeightValue(p, item, amount, s);
-                    message(p,"receive",item,weight, amount);
-                       w.getWeightsEffect(p);
-                }
+            if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
+                w.calculateWeight(p);
+                message(p,"receive",item,weight, amount);
+            }else{
+                String s = "pick";
+                putWeightValue(p, item, amount, s);
+                message(p,"receive",item,weight, amount);
+                w.getWeightsEffect(p);
             }
+
         }
     }
 
@@ -137,36 +136,62 @@ public class WeightCalculateListeners implements Listener {
     @EventHandler (priority = EventPriority.HIGH)
     public void onItemDrop(PlayerDropItemEvent e){
         Player p = e.getPlayer();
+
         isPluginEnabled = checkIfEnable(p);
         if(!isPluginEnabled)
             return;
         if(isWorldGuardEnabled(p))
             return;
+
+        if(getPlugin().getConfig().getBoolean("drop-cooldown.enabled")){
+            if(!dropCooldown.containsKey(p.getUniqueId())) {
+                dropCooldown.put(p.getUniqueId(), System.currentTimeMillis());
+                e.setCancelled(true);
+                String message = Messages.getMessages().getString("drop-cooldown-message");
+                assert message != null;
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+            }else {
+                long timeElapsed = System.currentTimeMillis() - placeMessage.get(p.getUniqueId());
+                if(timeElapsed < getPlugin().getConfig().getDouble("drop-cooldown.cooldown") * 1000){
+                    e.setCancelled(true);
+                    String message = Messages.getMessages().getString("drop-cooldown-message");
+                    assert message != null;
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                }
+            }
+        }
+
+
+
         ItemStack item = e.getItemDrop().getItemStack();
         int amount = e.getItemDrop().getItemStack().getAmount();
+
         if(globalitemsweight.get(item.getType()) == null){
-            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA +item.getType()  + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA +item.getType()  + ChatColor.GRAY +
+                    " isn't in the weight files. You might want to add it manually.");
             return;
         }
+
         boolean isCustomItem = false;
         float weight = 0;
+
         if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
                 weight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
             isCustomItem = true;
-        }
-        else if(globalitemsweight.get(item.getType()) != null)
+        } else if(globalitemsweight.get(item.getType()) != null)
             weight = globalitemsweight.get(item.getType());
-        if (!p.hasPermission("weight.bypass")) {
-            if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
-                w.calculateWeight(p);
-                message(p, "lose", item, weight, amount);
-            } else {
-                String s = "place";
-                putWeightValue(p, item, amount, s);
-                message(p, "lose", item, weight, amount);
-                w.getWeightsEffect(p);
-            }
+
+
+        if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
+            w.calculateWeight(p);
+            message(p, "lose", item, weight, amount);
+        } else {
+            String s = "place";
+            putWeightValue(p, item, amount, s);
+            message(p, "lose", item, weight, amount);
+            w.getWeightsEffect(p);
         }
+
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
@@ -192,29 +217,29 @@ public class WeightCalculateListeners implements Listener {
         }
        else if(globalitemsweight.get(block.getType()) != null)
             weight = globalitemsweight.get(block.getType());
-        if (!p.hasPermission("weight.bypass")) {
-            if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
-                w.calculateWeight(p);
-                message(p, "place", block, weight, 1);
-            } else {
-                String s = "place";
-                putWeightValue(p, block, 1, s);
-                message(p, "place", block, weight, 1);
-                w.getWeightsEffect(p);
-            }
-        }
+       if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
+           w.calculateWeight(p);
+           message(p, "place", block, weight, 1);
+       } else {
+           String s = "place";
+           putWeightValue(p, block, 1, s);
+           message(p, "place", block, weight, 1);
+           w.getWeightsEffect(p);
+       }
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerJump(PlayerMoveEvent e){
         Player p = e.getPlayer();
+
         isPluginEnabled = checkIfEnable(p);
         if(!isPluginEnabled)
             return;
         if(isWorldGuardEnabled(p))
             return;
+
         Location loc = p.getLocation();
-        if(p.hasPermission("weight.bypass.jump"))
+        if(p.hasPermission("weight.bypass"))
             return;
         if(checkBlocks(loc))
             return;
@@ -238,18 +263,18 @@ public class WeightCalculateListeners implements Listener {
         if(Objects.requireNonNull(e.getTo()).getY() > e.getFrom().getY()) {
                 if(playerWeight.get(p.getUniqueId())!= null){
                     float weight = playerWeight.get(p.getUniqueId());
-                    boolean disablejump = false;
+                    boolean disableJump = false;
                     double weight1 = weightThresholdValues[0];
                     double weight2 = weightThresholdValues[1];
                     double weight3 = weightThresholdValues[2];
                     if(weight > weight1 && weight < weight2) {
-                        disablejump = getPlugin().getConfig().getBoolean("weight-level-1.disable-jump");
+                        disableJump = getPlugin().getConfig().getBoolean("weight-level-1.disable-jump");
                     }else if(weight > weight2 && weight < weight3) {
-                        disablejump = getPlugin().getConfig().getBoolean("weight-level-2.disable-jump");
+                        disableJump = getPlugin().getConfig().getBoolean("weight-level-2.disable-jump");
                     }else if(weight > weight3) {
-                    disablejump = getPlugin().getConfig().getBoolean("weight-level-3.disable-jump");
+                        disableJump = getPlugin().getConfig().getBoolean("weight-level-3.disable-jump");
                     }
-                    if(disablejump) {
+                    if(disableJump) {
                     e.getTo().setY(e.getFrom().getY());
                     if(!jumpMessage.containsKey(p.getUniqueId())) {
                         jumpMessage(p);
