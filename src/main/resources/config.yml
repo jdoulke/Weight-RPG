@@ -9,7 +9,8 @@
 #####################################################################
 
 
-# Here set up options for weight levels. The effects will be used when the players have more weight than your type's value.
+
+# Here set up options for weight levels. The effects will be used when the players have more weight than your typed value or permission value.
 # Messages can support placeholders. List of placeholders
 # %playername% for player's name.
 # %displayname% for player's display name.
@@ -22,28 +23,28 @@
 
 
 message-before-level1-enabled: true
-# The message that will send to the player before reach level 1 value.
+# The message that will send to the player before reaching level 1 value.
 message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1% %percentageweight%"
 
 # Permission mode will get the weight values from the player's permission. (default false)
 # You need to use permissions like this. weight.level1.(value), weight.level2.(value), weight.level3.(value)
 # If the permission doesn't exist then the value of the weight level will be the value under the weight level on the config.yml file
 # NOT RECOMMENDED the usage of it will be pretty heavy 
-# Max value for level 1 and level 2 is 10000 and for level 3 is 100000
+# Max value for level 1 and level 2 is 10000 and for level 3 is 100000 on permission mode
 permission-mode: false
 
 weight-level-1:
   # when this level will take effect.
   value: 1000
-  # normal speed is 0.2, accept values 0 between 1.
+  # normal speed is 0.2, accepted values 0 between 1.
   speed: 0.15
   # Disable jump for players in this level when they are carrying too many items. (default is false)
   disable-jump: false
-  # the sound that will play when this level takes effect. Write none for no sound. List of sounds https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+  # the sound that will play when this level takes effect. Write 'none' for no sound. List of sounds https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
   sound: none
   # If the message send to the player when he will reach this level (default is true)
   message-enabled: true
-  # The message that will send to the player when he will be over your typed value.
+  # The message that will send to the player when he will be over the weight value.
   message: "%displayname%: &eI am carrying too many items. &e%weight% &2/ &c%level2% %percentageweight%"
 weight-level-2:
   enabled: true
@@ -62,16 +63,16 @@ weight-level-3:
   message-enabled: true
   message: "%displayname%: &cI am carrying too many items. &4%weight% %percentageweight%"
 
-# Should messages send as actionbar messages? (if false send messages on chat, default is true)
+# Should messages send as actionbar messages? (if you set it in false messages will be sent on chat, default is true)
 actionbar-messages: true
 
 # Couldown in seconds before the next 'level message' and sound sent to the player. (default is 30)
 messages-cooldown: 30
 
-# Check everyone's inventory in seconds. Only integers value.
+# Check everyone's inventory in seconds. Only integers value. (default is 3)
 check-weight: 3
 
-# Cooldown in seconds before player can drop items. (default is 0.5)
+# Cooldown in seconds before the player can drop items. (default is 0.5)
 drop-cooldown:
   enabled: true
   cooldown: 0.5
