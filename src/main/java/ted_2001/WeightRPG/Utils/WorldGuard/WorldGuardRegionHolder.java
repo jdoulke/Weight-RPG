@@ -29,6 +29,6 @@ public class WorldGuardRegionHolder {
                 if (existing instanceof StateFlag) {
                     MY_CUSTOM_FLAG = (StateFlag) existing;
                 }
-            } catch (IllegalStateException ex) {}
+            } catch (IllegalStateException ignored) {}
         }
 }
