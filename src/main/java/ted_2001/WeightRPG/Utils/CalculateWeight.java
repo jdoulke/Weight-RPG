@@ -274,11 +274,11 @@ public class CalculateWeight {
         else
             weight = playerWeight.get(p.getUniqueId());
         if (Weight3)
-            maxWeight = weightThresholdValues[2];
+            maxWeight = calculateWeightLevel3(p);
         else if (Weight2)
-            maxWeight = weightThresholdValues[1];
+            maxWeight = calculateWeightLevel2(p);
         else
-            maxWeight = weightThresholdValues[0];
+            maxWeight = calculateWeightLevel1(p);
 
         float percentage = (weight * 100 / maxWeight);
 
@@ -297,7 +297,7 @@ public class CalculateWeight {
         return ChatColor.translateAlternateColorCodes('&', message.toString());
     }
 
-    public float[] getWeights(Player p, float[] weightValues) {
+    public float[] getWeights(Player p) {
         float[] weights = new float[3];
         weights[0] = weightThresholdValues[0];
         weights[1] = weightThresholdValues[1];
@@ -328,6 +328,45 @@ public class CalculateWeight {
             }
         }
         return weights;
+    }
+
+    public float calculateWeightLevel1(Player p){
+        float weight = weightThresholdValues[0];
+        if(getPlugin().getConfig().getBoolean("permission-mode")){
+            for(int i = 0; i <= 10000; i++) {
+                if(p.hasPermission("weight.level1." + i)) {
+                    weight = i;
+                    return weight;
+                }
+            }
+        }
+        return weight;
+    }
+
+    public float calculateWeightLevel2(Player p){
+        float weight = weightThresholdValues[1];
+        if(getPlugin().getConfig().getBoolean("permission-mode")){
+            for(int i = 0; i <= 10000; i++) {
+                if(p.hasPermission("weight.level2." + i)) {
+                    weight = i;
+                    return weight;
+                }
+            }
+        }
+        return weight;
+    }
+
+    public float calculateWeightLevel3(Player p){
+        float weight = weightThresholdValues[2];
+        if(getPlugin().getConfig().getBoolean("permission-mode")){
+            for(int i = 0; i <= 100000; i++) {
+                if(p.hasPermission("weight.level3." + i)) {
+                    weight = i;
+                    return weight;
+                }
+            }
+        }
+        return weight;
     }
 
 }

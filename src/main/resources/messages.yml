@@ -27,3 +27,4 @@ weight-command-message:
   - '&6Level 2 &avalue is &c%level2%.'
   - '&cLevel 3 &avalue is &c%level3%.'
   #- '&aanything else you want.'
+weight-command-bypass-message: "Weight-RPG is disabled for %displayname%"

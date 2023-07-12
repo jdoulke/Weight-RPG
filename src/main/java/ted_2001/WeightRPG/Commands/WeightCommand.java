@@ -22,7 +22,7 @@ import static ted_2001.WeightRPG.Utils.CalculateWeight.weightThresholdValues;
 public class WeightCommand implements CommandExecutor {
 
     private final JsonFile js = new JsonFile();
-    CalculateWeight w= new CalculateWeight();
+    CalculateWeight w = new CalculateWeight();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -31,20 +31,24 @@ public class WeightCommand implements CommandExecutor {
             Player p = (Player) sender;
             if(p.hasPermission("weight.use")){
                 if(args.length == 0){
-                    List<String> disabledworlds = getPlugin().getConfig().getStringList("disabled-worlds");
-                    for (String disabledworld : disabledworlds) {
-                        if (disabledworld.equalsIgnoreCase((p.getWorld().getName()))) {
+                    List<String> disabledWorlds = getPlugin().getConfig().getStringList("disabled-worlds");
+                    for (String disabledWorld : disabledWorlds) {
+                        if (disabledWorld.equalsIgnoreCase((p.getWorld().getName()))) {
                             p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED +"is disabled in this world.");
                             return false;
                         }
                     }
                     String PlayerGamemode = p.getGameMode().toString();
                     if(PlayerGamemode.equalsIgnoreCase("CREATIVE") ) {
-                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED +"is disabled on "+ ChatColor.GREEN + "Creative Mode.");
+                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED + "is disabled on " + ChatColor.GREEN + "Creative Mode.");
                          return false;
                     }
                     if(PlayerGamemode.equalsIgnoreCase("SPECTATOR") ) {
-                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED +"is disabled on "+ ChatColor.GREEN + "Spectator Mode.");
+                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED + "is disabled on " + ChatColor.GREEN + "Spectator Mode.");
+                        return false;
+                    }
+                    if(p.hasPermission("weight.bypass")){
+                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED + "is disabled on " + ChatColor.GREEN + "Bypass Mode.");
                         return false;
                     }
                     List<String> message = Messages.getMessages().getStringList("weight-command-message");

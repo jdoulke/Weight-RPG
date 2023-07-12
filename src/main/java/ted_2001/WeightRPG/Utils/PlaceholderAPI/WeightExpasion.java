@@ -4,6 +4,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.WeightRPG;
 
 import java.util.Objects;
@@ -16,6 +17,7 @@ import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
 public class WeightExpasion extends PlaceholderExpansion {
 
     private final WeightRPG plugin = WeightRPG.getPlugin();
+    CalculateWeight w= new CalculateWeight();
     @Override
     public String getIdentifier() {
         return "weight-rpg";
@@ -61,25 +63,25 @@ public class WeightExpasion extends PlaceholderExpansion {
         if(params.equals("max_weight")){
             float maxWeight = 0;
             if (Weight3)
-                maxWeight = calculateWeightLevel3(p);
+                maxWeight = w.calculateWeightLevel3(p);
             else if (Weight2)
-                maxWeight = calculateWeightLevel2(p);
+                maxWeight = w.calculateWeightLevel2(p);
             else
-                maxWeight = calculateWeightLevel1(p);
+                maxWeight = w.calculateWeightLevel1(p);
 
             return String.valueOf(maxWeight);
         }
         if(params.equals("weight_level1")) {
-            return String.valueOf(calculateWeightLevel1(p));
+            return String.valueOf(w.calculateWeightLevel1(p));
         }
         if(params.equals("weight_level2"))
             if(Weight2)
-                return String.valueOf(calculateWeightLevel2(p));
+                return String.valueOf(w.calculateWeightLevel2(p));
             else
                 return "Level 2 is disabled";
         if(params.equals("weight_level3"))
             if(Weight3)
-                return String.valueOf(calculateWeightLevel3(p));
+                return String.valueOf(w.calculateWeightLevel3(p));
             else
                 return "Level 3 is disabled";
         if(params.equals("item_in_main_hand")){
@@ -132,42 +134,5 @@ public class WeightExpasion extends PlaceholderExpansion {
         return weight;
     }
 
-    private float calculateWeightLevel1(Player p){
-        float weight = weightThresholdValues[0];
-        if(plugin.getConfig().getBoolean("permission-mode")){
-            for(int i = 0; i <= 10000; i++) {
-                if(p.hasPermission("weight.level1." + i)) {
-                    weight = i;
-                    return weight;
-                }
-            }
-        }
-        return weight;
-    }
 
-    private float calculateWeightLevel2(Player p){
-        float weight = weightThresholdValues[1];
-        if(plugin.getConfig().getBoolean("permission-mode")){
-            for(int i = 0; i <= 10000; i++) {
-                if(p.hasPermission("weight.level2." + i)) {
-                    weight = i;
-                    return weight;
-                }
-            }
-        }
-        return weight;
-    }
-
-    private float calculateWeightLevel3(Player p){
-        float weight = weightThresholdValues[2];
-        if(plugin.getConfig().getBoolean("permission-mode")){
-            for(int i = 0; i <= 100000; i++) {
-                if(p.hasPermission("weight.level3." + i)) {
-                    weight = i;
-                    return weight;
-                }
-            }
-        }
-        return weight;
-    }
 }

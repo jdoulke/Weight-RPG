@@ -268,8 +268,8 @@ public class WeightCalculateListeners implements Listener {
                 if(playerWeight.get(p.getUniqueId())!= null){
                     float weight = playerWeight.get(p.getUniqueId());
                     boolean disableJump = false;
-                    float[] weightArray = new float[3];
-                    weightArray = w.getWeights(p,weightArray);
+                    float[] weightArray ;
+                    weightArray = w.getWeights(p);
                     double weight1 = weightArray[0];
                     double weight2 = weightArray[1];
                     double weight3 = weightArray[2];
