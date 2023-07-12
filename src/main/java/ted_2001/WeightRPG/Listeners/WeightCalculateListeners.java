@@ -142,6 +142,8 @@ public class WeightCalculateListeners implements Listener {
             return;
         if(isWorldGuardEnabled(p))
             return;
+        if(p.hasPermission("weight.bypass"))
+            return;
 
         if(getPlugin().getConfig().getBoolean("drop-cooldown.enabled")){
             if(!dropCooldown.containsKey(p.getUniqueId())) {
@@ -152,7 +154,11 @@ public class WeightCalculateListeners implements Listener {
                     e.setCancelled(true);
                     String message = Messages.getMessages().getString("drop-cooldown-message");
                     assert message != null;
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                    message = w.messageSender(message, p);
+                    if(getPlugin().getConfig().getBoolean("actionbar-messages"))
+                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p))));
+                    else
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p)));
                     return;
                 }
             }
