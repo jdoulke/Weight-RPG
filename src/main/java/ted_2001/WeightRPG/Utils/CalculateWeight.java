@@ -296,4 +296,47 @@ public class CalculateWeight {
 
         return ChatColor.translateAlternateColorCodes('&', message.toString());
     }
+
+    public float[] getWeights(Player p, float[] weightValues) {
+        float[] weights = new float[3];
+        if(getPlugin().getConfig().getBoolean("permission-mode")){
+            if(!p.hasPermission("*") || !p.hasPermission("weight.*")){
+                for(int i = 0; i <= 10000; i++) {
+                    if(p.hasPermission("weight.level1." + i)) {
+                        weights[0] = i;
+                        break;
+                    }else
+                        weights[0] = weightValues[0];
+                }
+
+                for(int i = 0; i <= 10000; i++) {
+                    if(p.hasPermission("weight.level2." + i)) {
+                        weights[1] = i;
+                        break;
+                    }else
+                        weights[1] = weightValues[1];
+
+                }
+
+                for(int i = 0; i <= 100000; i++) {
+                    if(p.hasPermission("weight.level3." + i)) {
+                        weights[2] = i;
+                        break;
+                    }else
+                        weights[2] = weightValues[2];
+                }
+            }else {
+                weights[0] = weightThresholdValues[0];
+                weights[1] = weightThresholdValues[1];
+                weights[2] = weightThresholdValues[2];
+            }
+
+        }else {
+            weights[0] = weightThresholdValues[0];
+            weights[1] = weightThresholdValues[1];
+            weights[2] = weightThresholdValues[2];
+        }
+        return weights;
+    }
+
 }

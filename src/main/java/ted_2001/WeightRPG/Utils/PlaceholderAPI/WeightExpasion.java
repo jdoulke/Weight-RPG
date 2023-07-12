@@ -11,11 +11,11 @@ import java.util.Objects;
 import static ted_2001.WeightRPG.Utils.CalculateWeight.*;
 import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
-import static ted_2001.WeightRPG.WeightRPG.getPlugin;
+
 
 public class WeightExpasion extends PlaceholderExpansion {
 
-    private WeightRPG plugin = WeightRPG.getPlugin();
+    private final WeightRPG plugin = WeightRPG.getPlugin();
     @Override
     public String getIdentifier() {
         return "weight-rpg";
@@ -61,40 +61,42 @@ public class WeightExpasion extends PlaceholderExpansion {
         if(params.equals("max_weight")){
             float maxWeight = 0;
             if (Weight3)
-                maxWeight = weightThresholdValues[2];
+                maxWeight = calculateWeightLevel3(p);
             else if (Weight2)
-                maxWeight = weightThresholdValues[1];
+                maxWeight = calculateWeightLevel2(p);
             else
-                maxWeight = weightThresholdValues[0];
+                maxWeight = calculateWeightLevel1(p);
+
             return String.valueOf(maxWeight);
         }
-        if(params.equals("weight_level1"))
-            return String.valueOf(weightThresholdValues[0]);
+        if(params.equals("weight_level1")) {
+            return String.valueOf(calculateWeightLevel1(p));
+        }
         if(params.equals("weight_level2"))
             if(Weight2)
-                return String.valueOf(weightThresholdValues[1]);
+                return String.valueOf(calculateWeightLevel2(p));
             else
                 return "Level 2 is disabled";
         if(params.equals("weight_level3"))
             if(Weight3)
-                return String.valueOf(weightThresholdValues[2]);
+                return String.valueOf(calculateWeightLevel3(p));
             else
                 return "Level 3 is disabled";
         if(params.equals("item_in_main_hand")){
-            ItemStack mainhand = p.getInventory().getItemInMainHand();
+            ItemStack mainHand = p.getInventory().getItemInMainHand();
             if(isEnabled(p)) {
-                if (mainhand.getType() != Material.AIR)
-                    return itemWeightCalculations(mainhand);
+                if (mainHand.getType() != Material.AIR)
+                    return itemWeightCalculations(mainHand);
                 else
                     return "0";
             }else
                 return "0";
         }
         if(params.equals("item_in_second_hand")){
-            ItemStack secondhand = p.getInventory().getItemInOffHand();
+            ItemStack secondHand = p.getInventory().getItemInOffHand();
             if(isEnabled(p)) {
-                if (secondhand.getType() != Material.AIR)
-                    return itemWeightCalculations(secondhand);
+                if (secondHand.getType() != Material.AIR)
+                    return itemWeightCalculations(secondHand);
                 else
                     return "0";
             }else
@@ -126,6 +128,60 @@ public class WeightExpasion extends PlaceholderExpansion {
         if (globalitemsweight.get(item.getType()) != null && !customItems) {
             itemWeight = globalitemsweight.get(item.getType());
             weight = String.valueOf(itemWeight * item.getAmount());
+        }
+        return weight;
+    }
+
+    private float calculateWeightLevel1(Player p){
+        float weight = 0;
+        if(plugin.getConfig().getBoolean("permission-mode")){
+            for(int i = 0; i <= 10000; i++) {
+                if(p.hasPermission("weight.level1." + i)) {
+                    weight = i;
+                    break;
+                }else {
+                    weight = weightThresholdValues[0];
+                }
+            }
+        }
+        else {
+            weight = weightThresholdValues[0];
+        }
+        return weight;
+    }
+
+    private float calculateWeightLevel2(Player p){
+        float weight = 0;
+        if(plugin.getConfig().getBoolean("permission-mode")){
+            for(int i = 0; i <= 10000; i++) {
+                if(p.hasPermission("weight.level2." + i)) {
+                    weight = i;
+                    break;
+                }else {
+                    weight = weightThresholdValues[1];
+                }
+            }
+        }
+        else {
+            weight = weightThresholdValues[1];
+        }
+        return weight;
+    }
+
+    private float calculateWeightLevel3(Player p){
+        float weight = 0;
+        if(plugin.getConfig().getBoolean("permission-mode")){
+            for(int i = 0; i <= 100000; i++) {
+                if(p.hasPermission("weight.level3." + i)) {
+                    weight = i;
+                    break;
+                }else {
+                    weight = weightThresholdValues[2];
+                }
+            }
+        }
+        else {
+            weight = weightThresholdValues[2];
         }
         return weight;
     }

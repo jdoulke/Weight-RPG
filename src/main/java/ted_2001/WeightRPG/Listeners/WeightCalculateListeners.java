@@ -160,7 +160,8 @@ public class WeightCalculateListeners implements Listener {
                     else
                         p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p)));
                     return;
-                }
+                }else
+                    dropCooldown.put(p.getUniqueId(), System.currentTimeMillis());
             }
         }
 
@@ -267,9 +268,11 @@ public class WeightCalculateListeners implements Listener {
                 if(playerWeight.get(p.getUniqueId())!= null){
                     float weight = playerWeight.get(p.getUniqueId());
                     boolean disableJump = false;
-                    double weight1 = weightThresholdValues[0];
-                    double weight2 = weightThresholdValues[1];
-                    double weight3 = weightThresholdValues[2];
+                    float[] weightArray = new float[3];
+                    weightArray = w.getWeights(p,weightArray);
+                    double weight1 = weightArray[0];
+                    double weight2 = weightArray[1];
+                    double weight3 = weightArray[2];
                     if(weight > weight1 && weight < weight2) {
                         disableJump = getPlugin().getConfig().getBoolean("weight-level-1.disable-jump");
                     }else if(weight > weight2 && weight < weight3) {
@@ -413,6 +416,8 @@ public class WeightCalculateListeners implements Listener {
         message = message.replaceAll("_", " ");
         return message;
     }
+
+
 
 
 }
