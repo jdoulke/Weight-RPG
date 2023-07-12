@@ -234,18 +234,18 @@ public class CalculateWeight {
         else
             message = message.replaceAll("%weight%", "0");
         message = message.replaceAll("%world%", p.getWorld().getName());
-        message = message.replaceAll("%level1%", Objects.requireNonNull(String.valueOf(weightThresholdValues[0])));
-        message = message.replaceAll("%level2%", Objects.requireNonNull(String.valueOf(weightThresholdValues[1])));
-        message = message.replaceAll("%level3%", Objects.requireNonNull(String.valueOf(weightThresholdValues[2])));
+        message = message.replaceAll("%level1%", Objects.requireNonNull(String.valueOf(calculateWeightLevel1(p))));
+        message = message.replaceAll("%level2%", Objects.requireNonNull(String.valueOf(calculateWeightLevel2(p))));
+        message = message.replaceAll("%level3%", Objects.requireNonNull(String.valueOf(calculateWeightLevel3(p))));
         message = message.replaceAll("%percentageweight%", generateProgressBar(p));
         message = message.replaceAll("%percentage%", String.format("%.2f", getPercentage(p)));
 
         if (Weight3)
-            message = message.replaceAll("%maxweight%", String.valueOf(weightThresholdValues[2]));
+            message = message.replaceAll("%maxweight%", String.valueOf(calculateWeightLevel3(p)));
         else if (Weight2)
-            message = message.replaceAll("%maxweight%", String.valueOf(weightThresholdValues[1]));
+            message = message.replaceAll("%maxweight%", String.valueOf(calculateWeightLevel2(p)));
         else
-            message = message.replaceAll("%maxweight%", String.valueOf(weightThresholdValues[0]));
+            message = message.replaceAll("%maxweight%", String.valueOf(calculateWeightLevel1(p)));
 
         return message;
     }
@@ -255,11 +255,11 @@ public class CalculateWeight {
             return 0;
         float weight = playerWeight.get(p.getUniqueId()), maxWeight;
         if (Weight3)
-            maxWeight = weightThresholdValues[2];
+            maxWeight = calculateWeightLevel3(p);
         else if (Weight2)
-            maxWeight = weightThresholdValues[1];
+            maxWeight = calculateWeightLevel2(p);
         else
-            maxWeight = weightThresholdValues[0];
+            maxWeight = calculateWeightLevel1(p);
 
         return weight * 100 / maxWeight;
     }
