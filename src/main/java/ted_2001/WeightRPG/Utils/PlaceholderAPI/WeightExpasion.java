@@ -133,55 +133,40 @@ public class WeightExpasion extends PlaceholderExpansion {
     }
 
     private float calculateWeightLevel1(Player p){
-        float weight = 0;
+        float weight = weightThresholdValues[0];
         if(plugin.getConfig().getBoolean("permission-mode")){
             for(int i = 0; i <= 10000; i++) {
                 if(p.hasPermission("weight.level1." + i)) {
                     weight = i;
-                    break;
-                }else {
-                    weight = weightThresholdValues[0];
+                    return weight;
                 }
             }
-        }
-        else {
-            weight = weightThresholdValues[0];
         }
         return weight;
     }
 
     private float calculateWeightLevel2(Player p){
-        float weight = 0;
+        float weight = weightThresholdValues[1];
         if(plugin.getConfig().getBoolean("permission-mode")){
             for(int i = 0; i <= 10000; i++) {
                 if(p.hasPermission("weight.level2." + i)) {
                     weight = i;
-                    break;
-                }else {
-                    weight = weightThresholdValues[1];
+                    return weight;
                 }
             }
-        }
-        else {
-            weight = weightThresholdValues[1];
         }
         return weight;
     }
 
     private float calculateWeightLevel3(Player p){
-        float weight = 0;
+        float weight = weightThresholdValues[2];
         if(plugin.getConfig().getBoolean("permission-mode")){
             for(int i = 0; i <= 100000; i++) {
                 if(p.hasPermission("weight.level3." + i)) {
                     weight = i;
-                    break;
-                }else {
-                    weight = weightThresholdValues[2];
+                    return weight;
                 }
             }
-        }
-        else {
-            weight = weightThresholdValues[2];
         }
         return weight;
     }

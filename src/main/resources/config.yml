@@ -35,6 +35,8 @@ permission-mode: false
 
 weight-level-1:
   # when this level will take effect.
+  # if you have permission mode on true ignore this option and configure the other options.
+  # but remember this value will be on players that they will not have the weight.level1.x permission
   value: 1000
   # normal speed is 0.2, accepted values 0 between 1.
   speed: 0.15
