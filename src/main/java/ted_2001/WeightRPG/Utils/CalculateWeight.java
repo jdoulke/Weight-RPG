@@ -105,48 +105,11 @@ public class CalculateWeight {
         if (playerWeight.get(id) == null)
             return;
 
-        double weight1 = 0;
-        double weight2 = 0;
-        double weight3 = 0;
+        double weight1 = calculateWeightLevel1(p);
+        double weight2 = calculateWeightLevel2(p);
+        double weight3 = calculateWeightLevel3(p);
 
-        if(getPlugin().getConfig().getBoolean("permission-mode")){
-            if(!p.hasPermission("*") || !p.hasPermission("weight.*")){
 
-                for(int i = 0; i <= 10000; i++) {
-                    if(p.hasPermission("weight.level1." + i)) {
-                        weight1 = i;
-                        break;
-                    }else 
-                        weight1 = weightThresholdValues[0];
-                }
-
-                for(int i = 0; i <= 10000; i++) {
-                    if(p.hasPermission("weight.level2." + i)) {
-                        weight2 = i;
-                        break;
-                    }else
-                        weight2 = weightThresholdValues[1];
-                
-                }
-
-                for(int i = 0; i <= 100000; i++) {
-                    if(p.hasPermission("weight.level3." + i)) {
-                       weight3 = i;
-                       break;
-                    }else 
-                        weight3 = weightThresholdValues[2];
-                }
-            }else {
-                weight1 = weightThresholdValues[0];
-                weight2 = weightThresholdValues[1];
-                weight3 = weightThresholdValues[2];
-            }
-
-        }else {
-            weight1 = weightThresholdValues[0];
-            weight2 = weightThresholdValues[1];
-            weight3 = weightThresholdValues[2];
-        }
         String message;
 
         if (playerWeight.get(id) <= weight1) {
@@ -297,38 +260,6 @@ public class CalculateWeight {
         return ChatColor.translateAlternateColorCodes('&', message.toString());
     }
 
-    public float[] getWeights(Player p) {
-        float[] weights = new float[3];
-        weights[0] = weightThresholdValues[0];
-        weights[1] = weightThresholdValues[1];
-        weights[2] = weightThresholdValues[2];
-        if(getPlugin().getConfig().getBoolean("permission-mode")){
-            if(!p.hasPermission("*") || !p.hasPermission("weight.bypass")){
-                for(int i = 0; i <= 10000; i++) {
-                    if(p.hasPermission("weight.level1." + i)) {
-                        weights[0] = i;
-                        break;
-                    }
-                }
-
-                for(int i = 0; i <= 10000; i++) {
-                    if(p.hasPermission("weight.level2." + i)) {
-                        weights[1] = i;
-                        break;
-                    }
-
-                }
-
-                for(int i = 0; i <= 100000; i++) {
-                    if(p.hasPermission("weight.level3." + i)) {
-                        weights[2] = i;
-                        break;
-                    }
-                }
-            }
-        }
-        return weights;
-    }
 
     public float calculateWeightLevel1(Player p){
         float weight = weightThresholdValues[0];

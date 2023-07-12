@@ -268,11 +268,9 @@ public class WeightCalculateListeners implements Listener {
                 if(playerWeight.get(p.getUniqueId())!= null){
                     float weight = playerWeight.get(p.getUniqueId());
                     boolean disableJump = false;
-                    float[] weightArray ;
-                    weightArray = w.getWeights(p);
-                    double weight1 = weightArray[0];
-                    double weight2 = weightArray[1];
-                    double weight3 = weightArray[2];
+                    double weight1 = w.calculateWeightLevel1(p);
+                    double weight2 = w.calculateWeightLevel2(p);
+                    double weight3 = w.calculateWeightLevel3(p);
                     if(weight > weight1 && weight < weight2) {
                         disableJump = getPlugin().getConfig().getBoolean("weight-level-1.disable-jump");
                     }else if(weight > weight2 && weight < weight3) {
