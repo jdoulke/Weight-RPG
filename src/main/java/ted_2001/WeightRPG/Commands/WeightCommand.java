@@ -120,6 +120,12 @@ public class WeightCommand implements CommandExecutor {
                                 String[] parts = item.split("=");
                                 if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
                                     blockWeightArray.put(i, itemName + "=" + weightValue);
+                                    FileWriter blocksWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
+                                    blockWeightObject.write(blocksWeightWriter);
+                                    blocksWeightWriter.flush();
+                                    blocksWeightWriter.close();
+                                    globalitemsweight.clear();
+                                    js.readJsonFile();
                                     break;
                                 }
                             }
@@ -132,6 +138,12 @@ public class WeightCommand implements CommandExecutor {
                                 String[] parts = item.split("=");
                                 if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
                                     toolsWeightArray.put(i, itemName + "=" + weightValue);
+                                    FileWriter toolsWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
+                                    toolsWeightObject.write(toolsWeightWriter);
+                                    toolsWeightWriter.flush();
+                                    toolsWeightWriter.close();
+                                    globalitemsweight.clear();
+                                    js.readJsonFile();
                                     break;
                                 }
                             }
@@ -144,25 +156,16 @@ public class WeightCommand implements CommandExecutor {
                                 String[] parts = item.split("=");
                                 if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
                                     miscWeightArray.put(i, itemName + "=" + weightValue);
+                                    FileWriter miscWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+                                    miscWeightObject.write(miscWeightWriter);
+                                    miscWeightWriter.flush();
+                                    miscWeightWriter.close();
+                                    globalitemsweight.clear();
+                                    js.readJsonFile();
                                     break;
                                 }
                             }
                         }
-
-                        FileWriter blocksWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
-                        blockWeightObject.write(blocksWeightWriter);
-                        blocksWeightWriter.flush();
-                        blocksWeightWriter.close();
-
-                        FileWriter toolsWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
-                        toolsWeightObject.write(toolsWeightWriter);
-                        toolsWeightWriter.flush();
-                        toolsWeightWriter.close();
-
-                        FileWriter miscWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
-                        miscWeightObject.write(miscWeightWriter);
-                        miscWeightWriter.flush();
-                        miscWeightWriter.close();
 
                     }else
                         noPermMessage(p);
