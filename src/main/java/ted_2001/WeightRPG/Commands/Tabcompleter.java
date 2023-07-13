@@ -21,6 +21,8 @@ public class Tabcompleter implements TabCompleter {
                     results.add("reload");
                 if(sender.hasPermission("weight.get"))
                     results.add("get");
+                if(sender.hasPermission("weight.set"))
+                    results.add("get");
                 return sortedResults(args[0]);
             }
         }else if(args.length ==2) {
@@ -32,6 +34,13 @@ public class Tabcompleter implements TabCompleter {
                         String tempitem = allitem.toString();
                         if (sender.hasPermission("weight.get." + tempitem))
                             results.add(tempitem);
+                    }
+                    return sortedResults(args[1]);
+                }else if(arg0.equalsIgnoreCase("set")){
+                    Material[] allitems = Material.values();
+                    for (Material allitem : allitems) {
+                        String tempitem = allitem.toString();
+                        results.add(tempitem);
                     }
                     return sortedResults(args[1]);
                 }
