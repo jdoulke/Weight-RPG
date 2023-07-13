@@ -40,7 +40,7 @@ public class Tabcompleter implements TabCompleter {
                     if(sender.hasPermission("weight.set")){
                         Material[] allItems = Material.values();
                         for (Material item : allItems) {
-                            String tempitem = allitem.toString();
+                            String tempitem = item.toString();
                             results.add(tempitem);
                         }
                     return sortedResults(args[1]);
