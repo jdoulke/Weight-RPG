@@ -109,18 +109,23 @@ public class CalculateWeight {
         double weight2 = calculateWeightLevel2(p);
         double weight3 = calculateWeightLevel3(p);
 
+        float walkSpeedLevel1 = (float) getPlugin().getConfig().getDouble("weight-level-1.speed");
+        float walkSpeedLevel2 = (float) getPlugin().getConfig().getDouble("weight-level-2.speed");
+        float walkSpeedLevel3 = (float) getPlugin().getConfig().getDouble("weight-level-3.speed");
+
 
         String message;
 
         if (playerWeight.get(id) <= weight1) {
-            if(p.getWalkSpeed() < 0.2)
+            if(p.getWalkSpeed() < 0.2 || p.getWalkSpeed() == walkSpeedLevel2 || p.getWalkSpeed() == walkSpeedLevel3 || p.getWalkSpeed() == walkSpeedLevel1)
                 p.setWalkSpeed(0.2f);
             if(getPlugin().getConfig().getBoolean("message-before-level1-enabled")) {
                 message = getPlugin().getConfig().getString("message-before-level1");
                 messageChooser(message, p, null);
             }
         } else if(playerWeight.get(id) >= weight1 && playerWeight.get(id) < weight2){
-            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-1.speed"));
+            if(p.getWalkSpeed() > walkSpeedLevel1 || p.getWalkSpeed() == walkSpeedLevel2 || p.getWalkSpeed() == walkSpeedLevel3)
+                p.setWalkSpeed(walkSpeedLevel1);
             if(getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
                 message = getPlugin().getConfig().getString("weight-level-1.message");
                 Sound s = null;
@@ -129,7 +134,8 @@ public class CalculateWeight {
                 messageChooser(message, p, s);
             }
         }else if(playerWeight.get(id) >= weight2 && playerWeight.get(id) < weight3 && Weight2) {
-            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-2.speed"));
+            if(p.getWalkSpeed() > walkSpeedLevel2 || p.getWalkSpeed() == walkSpeedLevel1 || p.getWalkSpeed() == walkSpeedLevel3)
+                p.setWalkSpeed(walkSpeedLevel2);
             if(getPlugin().getConfig().getBoolean("weight-level-2.message-enabled")) {
                 message = getPlugin().getConfig().getString("weight-level-2.message");
                 Sound s = null;
@@ -138,7 +144,8 @@ public class CalculateWeight {
                 messageChooser(message, p, s);
             }
         }else if(playerWeight.get(id) >= weight3 && Weight3) {
-            p.setWalkSpeed((float) getPlugin().getConfig().getDouble("weight-level-3.speed"));
+            if(p.getWalkSpeed() > walkSpeedLevel3 || p.getWalkSpeed() == walkSpeedLevel1 || p.getWalkSpeed() == walkSpeedLevel2)
+                p.setWalkSpeed(walkSpeedLevel3);
             if(getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
                 message = getPlugin().getConfig().getString("weight-level-3.message");
                 Sound s = null;
@@ -146,8 +153,6 @@ public class CalculateWeight {
                     s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
                 messageChooser(message, p, s);
             }
-        }else {
-            p.setWalkSpeed(0.2f);
         }
     }
 
