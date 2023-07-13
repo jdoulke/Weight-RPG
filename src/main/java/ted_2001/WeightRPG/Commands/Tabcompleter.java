@@ -25,24 +25,26 @@ public class Tabcompleter implements TabCompleter {
                     results.add("get");
                 return sortedResults(args[0]);
             }
-        }else if(args.length ==2) {
+        }else if(args.length == 2) {
             if(command.getLabel().equalsIgnoreCase("weight")){
                 String arg0 = args[0];
                 if(arg0.equalsIgnoreCase("get")){
-                    Material[] allitems = Material.values();
-                    for (Material allitem : allitems) {
-                        String tempitem = allitem.toString();
+                    Material[] allΙtems = Material.values();
+                    for (Material item : allΙtems) {
+                        String tempitem = item.toString();
                         if (sender.hasPermission("weight.get." + tempitem))
                             results.add(tempitem);
                     }
                     return sortedResults(args[1]);
                 }else if(arg0.equalsIgnoreCase("set")){
-                    Material[] allitems = Material.values();
-                    for (Material allitem : allitems) {
-                        String tempitem = allitem.toString();
-                        results.add(tempitem);
-                    }
+                    if(sender.hasPermission("weight.set")){
+                        Material[] allItems = Material.values();
+                        for (Material item : allItems) {
+                            String tempitem = allitem.toString();
+                            results.add(tempitem);
+                        }
                     return sortedResults(args[1]);
+                    }
                 }
             }
         }
