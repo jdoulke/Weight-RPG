@@ -56,7 +56,7 @@ public class WeightCommand implements CommandExecutor {
                         p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(s, p)));
                 }
             }else
-                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                noPermMessage(p);
             if(args.length == 1) {
                 String arg0 = args[0];
                 if (arg0.equalsIgnoreCase("reload")) {
@@ -68,12 +68,17 @@ public class WeightCommand implements CommandExecutor {
                             p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "There was an error while reloading, check the console.");
                         js.successfullRead = true;
                     }else
-                        p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                        noPermMessage(p);
                 }else if(arg0.equalsIgnoreCase("get")) {
                     if(p.hasPermission("weight.get")) {
                         p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GREEN + "You can see items weight by using the command /weight get <item>.");
                     }else
-                        p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                        noPermMessage(p);
+                }else if(arg0.equalsIgnoreCase("set")){
+                    if(p.hasPermission("weight.set")) {
+                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + "/weight set <item> <value>.");
+                    }else
+                        noPermMessage(p);
                 }else
                     p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
             }if(args.length == 2) {
@@ -143,6 +148,12 @@ public class WeightCommand implements CommandExecutor {
             w.calculateWeight(plist);
         }
         getPlugin().reloadPluginPrefix();
+    }
+
+    private void noPermMessage(Player p ){
+
+        p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+
     }
 
 }
