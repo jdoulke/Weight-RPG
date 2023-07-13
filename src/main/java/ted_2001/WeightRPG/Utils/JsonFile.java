@@ -430,16 +430,16 @@ public class JsonFile {
         for (String item : customitems) {
             String[] item_weight = item.split("=");
             item = ChatColor.translateAlternateColorCodes('&', item_weight[0]);
-            float weight = getWeight(item_weight, item, origin);
+            float weight = getWeight(item_weight[1], item, origin);
             customitemsweight.put(item, weight);
         }
     }
 
 
-    private float getWeight(String[] item_weight, String item, String origin) {
+    private float getWeight(String item_weight, String item, String origin) {
         float weight = 0;
         try {
-            weight = Float.parseFloat(item_weight[1]);
+            weight = Float.parseFloat(item_weight);
         }catch (NumberFormatException | ArrayIndexOutOfBoundsException e){
             if(origin.equalsIgnoreCase("Custom") && e.toString().contains("Number"))
                 getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Custom item " + ChatColor.BLUE + item + ChatColor.GRAY +" in config.yml couldn't be added in the weight list because of an ERROR.");
@@ -452,7 +452,7 @@ public class JsonFile {
                 getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Item " + ChatColor.BLUE + item + ChatColor.GRAY + " in Weight files couldn't be added in the weight list because of an ERROR.");
                 getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may have forgotten to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in json file.");
             }
-            getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED +"ERROR" +ChatColor.GRAY + " Message: " + ChatColor.RED +e.getMessage());
+            getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED +"ERROR" +ChatColor.GRAY + " Message: " + ChatColor.RED + e.getMessage());
 
             successfullRead = false;
         }
