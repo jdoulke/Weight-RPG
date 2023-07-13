@@ -419,7 +419,7 @@ public class JsonFile {
             String[] item_weight = item.split("=");
             item = item_weight[0];
             Material material = Material.getMaterial(item);
-            float weight = getWeight(item_weight, item, origin);
+            float weight = getWeight(item_weight[1], item, origin);
             globalitemsweight.put(material,weight);
         }
     }

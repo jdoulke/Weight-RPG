@@ -29,19 +29,19 @@ public class Tabcompleter implements TabCompleter {
             if(command.getLabel().equalsIgnoreCase("weight")){
                 String arg0 = args[0];
                 if(arg0.equalsIgnoreCase("get")){
-                    Material[] allΙtems = Material.values();
-                    for (Material item : allΙtems) {
-                        String tempitem = item.toString();
-                        if (sender.hasPermission("weight.get." + tempitem))
-                            results.add(tempitem);
+                    Material[] allItems = Material.values();
+                    for (Material item : allItems) {
+                        String tempItem = item.toString();
+                        if (sender.hasPermission("weight.get." + tempItem))
+                            results.add(tempItem);
                     }
                     return sortedResults(args[1]);
                 }else if(arg0.equalsIgnoreCase("set")){
                     if(sender.hasPermission("weight.set")){
                         Material[] allItems = Material.values();
                         for (Material item : allItems) {
-                            String tempitem = item.toString();
-                            results.add(tempitem);
+                            String tempItem = item.toString();
+                            results.add(tempItem);
                         }
                     return sortedResults(args[1]);
                     }

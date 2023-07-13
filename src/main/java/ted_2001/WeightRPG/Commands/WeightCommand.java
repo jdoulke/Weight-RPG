@@ -5,12 +5,16 @@ import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.JsonFile;
 import ted_2001.WeightRPG.Utils.Messages;
 
 
-import java.io.File;
+import java.io.*;
+import java.util.Iterator;
 import java.util.List;
 
 import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
@@ -104,9 +108,18 @@ public class WeightCommand implements CommandExecutor {
                 String weightValue = args[2];
                 if(commandSet.equalsIgnoreCase("set")){
                     if(p.hasPermission("weight.set")) {
-                        FileReader blocksWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
-                        FileReader toolsWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
-                        FileReader miscWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+
+                        FileReader blocksWeightFile;
+                        FileReader toolsWeightFile;
+                        FileReader miscWeightFile;
+                        try {
+                            miscWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+                            toolsWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
+                            blocksWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
+
+                        } catch (FileNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
 
 
                         JSONObject blockWeightObject = new JSONObject(new JSONTokener(blocksWeightFile));
@@ -122,10 +135,23 @@ public class WeightCommand implements CommandExecutor {
                                 String[] parts = item.split("=");
                                 if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
                                     blockWeightArray.put(i, itemName + "=" + weightValue);
-                                    FileWriter blocksWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
+                                    FileWriter blocksWeightWriter = null;
+                                    try {
+                                        blocksWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     blockWeightObject.write(blocksWeightWriter);
-                                    blocksWeightWriter.flush();
-                                    blocksWeightWriter.close();
+                                    try {
+                                        blocksWeightWriter.flush();
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    try {
+                                        blocksWeightWriter.close();
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     globalitemsweight.clear();
                                     customitemsweight.clear();
                                     js.readJsonFile();
@@ -143,10 +169,23 @@ public class WeightCommand implements CommandExecutor {
                                 String[] parts = item.split("=");
                                 if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
                                     toolsWeightArray.put(i, itemName + "=" + weightValue);
-                                    FileWriter toolsWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
+                                    FileWriter toolsWeightWriter = null;
+                                    try {
+                                        toolsWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     toolsWeightObject.write(toolsWeightWriter);
-                                    toolsWeightWriter.flush();
-                                    toolsWeightWriter.close();
+                                    try {
+                                        toolsWeightWriter.flush();
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    try {
+                                        toolsWeightWriter.close();
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     globalitemsweight.clear();
                                     customitemsweight.clear();
                                     js.readJsonFile();
@@ -164,10 +203,23 @@ public class WeightCommand implements CommandExecutor {
                                 String[] parts = item.split("=");
                                 if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
                                     miscWeightArray.put(i, itemName + "=" + weightValue);
-                                    FileWriter miscWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+                                    FileWriter miscWeightWriter = null;
+                                    try {
+                                        miscWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     miscWeightObject.write(miscWeightWriter);
-                                    miscWeightWriter.flush();
-                                    miscWeightWriter.close();
+                                    try {
+                                        miscWeightWriter.flush();
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    try {
+                                        miscWeightWriter.close();
+                                    } catch (IOException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                     globalitemsweight.clear();
                                     customitemsweight.clear();
                                     js.readJsonFile();
