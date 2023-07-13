@@ -113,8 +113,10 @@ public class WeightCommand implements CommandExecutor {
                         JSONObject toolsWeightObject = new JSONObject(new JSONTokener(toolsWeightFile));
                         JSONObject miscWeightObject = new JSONObject(new JSONTokener(miscWeightFile));
 
-                        if (blockWeightObject.has(itemName)) {
-                            JSONArray blockWeightArray = blockWeightObject.getJSONArray(itemName);
+                        Iterator<String> keys = blockWeightObject.keys();
+                        while (keys.hasNext()) {
+                            String key = keys.next();
+                            JSONArray blockWeightArray = blockWeightObject.getJSONArray(key);
                             for (int i = 0; i < blockWeightArray.length(); i++) {
                                 String item = blockWeightArray.getString(i);
                                 String[] parts = item.split("=");
@@ -127,13 +129,15 @@ public class WeightCommand implements CommandExecutor {
                                     globalitemsweight.clear();
                                     customitemsweight.clear();
                                     js.readJsonFile();
-                                    break;
+                                    return false;
                                 }
                             }
                         }
 
-                        if (toolsWeightObject.has(itemName)) {
-                            JSONArray toolsWeightArray = toolsWeightObject.getJSONArray(itemName);
+                        Iterator<String> toolsKeys = toolsWeightObject.keys();
+                        while (toolsKeys.hasNext()) {
+                            String toolsKey = toolsKeys.next();
+                            JSONArray toolsWeightArray = toolsWeightObject.getJSONArray(toolsKey);
                             for (int i = 0; i < toolsWeightArray.length(); i++) {
                                 String item = toolsWeightArray.getString(i);
                                 String[] parts = item.split("=");
@@ -146,13 +150,15 @@ public class WeightCommand implements CommandExecutor {
                                     globalitemsweight.clear();
                                     customitemsweight.clear();
                                     js.readJsonFile();
-                                    break;
+                                    return false;
                                 }
                             }
                         }
 
-                        if (miscWeightObject.has(itemName)) {
-                            JSONArray miscWeightArray = miscWeightObject.getJSONArray(itemName);
+                        Iterator<String> miscKeys = miscWeightObject.keys();
+                        while (miscKeys.hasNext()) {
+                            String miscKey = miscKeys.next();
+                            JSONArray miscWeightArray = miscWeightObject.getJSONArray(miscKey);
                             for (int i = 0; i < miscWeightArray.length(); i++) {
                                 String item = miscWeightArray.getString(i);
                                 String[] parts = item.split("=");
@@ -165,7 +171,7 @@ public class WeightCommand implements CommandExecutor {
                                     globalitemsweight.clear();
                                     customitemsweight.clear();
                                     js.readJsonFile();
-                                    break;
+                                    return false;
                                 }
                             }
                         }
