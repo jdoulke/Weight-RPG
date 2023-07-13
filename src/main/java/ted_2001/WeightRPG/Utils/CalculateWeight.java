@@ -269,7 +269,7 @@ public class CalculateWeight {
     public float calculateWeightLevel1(Player p){
         float weight = weightThresholdValues[0];
         if(getPlugin().getConfig().getBoolean("permission-mode")){
-            for(int i = 0; i <= 10000; i++) {
+            for(int i = 10000; i > 0; i--) {
                 if(p.hasPermission("weight.level1." + i)) {
                     weight = i;
                     return weight;
@@ -282,7 +282,7 @@ public class CalculateWeight {
     public float calculateWeightLevel2(Player p){
         float weight = weightThresholdValues[1];
         if(getPlugin().getConfig().getBoolean("permission-mode")){
-            for(int i = 0; i <= 10000; i++) {
+            for(int i = 10000; i > 0; i--) {
                 if(p.hasPermission("weight.level2." + i)) {
                     weight = i;
                     return weight;
@@ -295,7 +295,7 @@ public class CalculateWeight {
     public float calculateWeightLevel3(Player p){
         float weight = weightThresholdValues[2];
         if(getPlugin().getConfig().getBoolean("permission-mode")){
-            for(int i = 0; i <= 100000; i++) {
+            for(int i = 20000; i > 0; i--) {
                 if(p.hasPermission("weight.level3." + i)) {
                     weight = i;
                     return weight;
