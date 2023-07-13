@@ -92,6 +92,80 @@ public class WeightCommand implements CommandExecutor {
                         else
                             p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find " + ChatColor.YELLOW + arg1 + ChatColor.RED + " in the weight files.");
                     }
+                }else if(arg0.equalsIgnoreCase("set")){
+                    if(p.hasPermission("weight.set")) {
+                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + "/weight set <item> <value>.");
+                    }else
+                        noPermMessage(p);
+                }
+            }if(args.length == 3){
+                String commandSet = args[0];
+                String itemName = args[1].toUpperCase();
+                String weightValue = args[2];
+                if(commandSet.equalsIgnoreCase("set")){
+                    if(p.hasPermission("weight.set")) {
+                        FileReader blocksWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
+                        FileReader toolsWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
+                        FileReader miscWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+
+
+                        JSONObject blockWeightObject = new JSONObject(new JSONTokener(blocksWeightFile));
+                        JSONObject toolsWeightObject = new JSONObject(new JSONTokener(toolsWeightFile));
+                        JSONObject miscWeightObject = new JSONObject(new JSONTokener(miscWeightFile));
+
+                        if (blockWeightObject.has(itemName)) {
+                            JSONArray blockWeightArray = blockWeightObject.getJSONArray(itemName);
+                            for (int i = 0; i < blockWeightArray.length(); i++) {
+                                String item = blockWeightArray.getString(i);
+                                String[] parts = item.split("=");
+                                if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
+                                    blockWeightArray.put(i, itemName + "=" + weightValue);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (toolsWeightObject.has(itemName)) {
+                            JSONArray toolsWeightArray = toolsWeightObject.getJSONArray(itemName);
+                            for (int i = 0; i < toolsWeightArray.length(); i++) {
+                                String item = toolsWeightArray.getString(i);
+                                String[] parts = item.split("=");
+                                if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
+                                    toolsWeightArray.put(i, itemName + "=" + weightValue);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (miscWeightObject.has(itemName)) {
+                            JSONArray miscWeightArray = miscWeightObject.getJSONArray(itemName);
+                            for (int i = 0; i < miscWeightArray.length(); i++) {
+                                String item = miscWeightArray.getString(i);
+                                String[] parts = item.split("=");
+                                if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
+                                    miscWeightArray.put(i, itemName + "=" + weightValue);
+                                    break;
+                                }
+                            }
+                        }
+
+                        FileWriter blocksWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
+                        blockWeightObject.write(blocksWeightWriter);
+                        blocksWeightWriter.flush();
+                        blocksWeightWriter.close();
+
+                        FileWriter toolsWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
+                        toolsWeightObject.write(toolsWeightWriter);
+                        toolsWeightWriter.flush();
+                        toolsWeightWriter.close();
+
+                        FileWriter miscWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
+                        miscWeightObject.write(miscWeightWriter);
+                        miscWeightWriter.flush();
+                        miscWeightWriter.close();
+
+                    }else
+                        noPermMessage(p);
                 }
             }
         }else if(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) {
