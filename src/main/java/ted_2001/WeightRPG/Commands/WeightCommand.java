@@ -125,6 +125,7 @@ public class WeightCommand implements CommandExecutor {
                                     blocksWeightWriter.flush();
                                     blocksWeightWriter.close();
                                     globalitemsweight.clear();
+                                    customitemsweight.clear();
                                     js.readJsonFile();
                                     break;
                                 }
@@ -143,6 +144,7 @@ public class WeightCommand implements CommandExecutor {
                                     toolsWeightWriter.flush();
                                     toolsWeightWriter.close();
                                     globalitemsweight.clear();
+                                    customitemsweight.clear();
                                     js.readJsonFile();
                                     break;
                                 }
@@ -161,6 +163,7 @@ public class WeightCommand implements CommandExecutor {
                                     miscWeightWriter.flush();
                                     miscWeightWriter.close();
                                     globalitemsweight.clear();
+                                    customitemsweight.clear();
                                     js.readJsonFile();
                                     break;
                                 }
