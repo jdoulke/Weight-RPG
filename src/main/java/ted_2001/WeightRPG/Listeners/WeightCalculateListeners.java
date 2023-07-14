@@ -431,7 +431,7 @@ public class WeightCalculateListeners implements Listener {
                             " You can use the /weight add command.");
                     notifyMessage.put(player.getUniqueId(), System.currentTimeMillis());
                 } else {
-                    long timeElapsed = System.currentTimeMillis() - pickMessage.get(player.getUniqueId());
+                    long timeElapsed = System.currentTimeMillis() - notifyMessage.get(player.getUniqueId());
                     if (timeElapsed >= getPlugin().getConfig().getLong("notify-permission-cooldown") * 1000) {
                         player.sendMessage(pluginPrefix + ChatColor.AQUA + item.getType() + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually." +
                                 " You can use the /weight add command.");
