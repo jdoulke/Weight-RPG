@@ -210,30 +210,36 @@ public class WeightCommand implements CommandExecutor {
                         noPermMessage(p);
                 }else if(weightCommand.equalsIgnoreCase("add")) {
                     if (p.hasPermission("weight.add")) {
-                        FileReader miscWeightFile;
+                        FileReader miscWeightFileReader;
+                        FileWriter miscWeightFileWriter;
                         if(globalItemsWeight.get(Material.getMaterial(itemName)) != null) {
                             p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.RED + "This item already exists in the weight files and it's weight value is " + ChatColor.YELLOW +
                                     globalItemsWeight.get(Material.getMaterial(itemName)) + ChatColor.RED + ".");
                             return false;
                         }
                         try {
-                            miscWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+                            miscWeightFileReader = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
                         } catch (FileNotFoundException e) {
                             throw new RuntimeException(e);
                         }
-                        JSONObject miscWeightObject = new JSONObject(new JSONTokener(miscWeightFile));
+                        JSONObject miscWeightObject = new JSONObject(new JSONTokener(miscWeightFileReader));
                         JSONArray addedItems;
                         if (miscWeightObject.has("Additional Items")) {
                             addedItems = miscWeightObject.getJSONArray("Additional Items");
+                            addedItems.put(itemName + "=" + weightValue);
                         } else {
                             addedItems = new JSONArray();
+                            addedItems.put(itemName + "=" + weightValue);
                             miscWeightObject.put("Additional Items", addedItems);
                         }
-
-                        addedItems.put(itemName + "=" + weightValue);
-                        globalItemsWeight.clear();
-                        customItemsWeight.clear();
-                        js.readJsonFile();
+                        try {
+                            miscWeightFileWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        writeAndCloseJsonFile(miscWeightObject, miscWeightFileWriter);
+                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully added " + ChatColor.YELLOW + itemName +
+                                ChatColor.GREEN + " to the weight files with a weight value of " + ChatColor.AQUA + weightValue + ChatColor.GREEN + ".");
                         return false;
                     }else
                         noPermMessage(p);
