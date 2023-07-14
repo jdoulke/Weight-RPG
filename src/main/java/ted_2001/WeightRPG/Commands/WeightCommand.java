@@ -142,6 +142,7 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
+                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ".");
                                     return writeAndCloseJsonFile(blockWeightObject, blocksWeightWriter);
                                 }
                             }
@@ -162,6 +163,7 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
+                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ".");
                                     return writeAndCloseJsonFile(toolsWeightObject, toolsWeightWriter);
                                 }
                             }
@@ -182,10 +184,13 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
+                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ".");
                                     return writeAndCloseJsonFile(miscWeightObject, miscWeightWriter);
                                 }
                             }
                         }
+                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.RED + "Couldn't find " + ChatColor.YELLOW + itemName + ChatColor.RED + " in the weight files.");
+
 
                     }else
                         noPermMessage(p);
