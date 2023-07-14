@@ -76,12 +76,12 @@ public class WeightCommand implements CommandExecutor {
                         noPermMessage(p);
                 }else if(arg0.equalsIgnoreCase("get")) {
                     if(p.hasPermission("weight.get")) {
-                        p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GREEN + "You can see items weight by using the command /weight get <item>.");
+                        p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GREEN + "You can see items weight by using the command " + ChatColor.YELLOW + "/weight get <item>.");
                     }else
                         noPermMessage(p);
                 }else if(arg0.equalsIgnoreCase("set")){
                     if(p.hasPermission("weight.set")) {
-                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + "/weight set <item> <value>.");
+                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + " /weight set <item> <value>.");
                     }else
                         noPermMessage(p);
                 }else
@@ -99,7 +99,7 @@ public class WeightCommand implements CommandExecutor {
                     }
                 }else if(arg0.equalsIgnoreCase("set")){
                     if(p.hasPermission("weight.set")) {
-                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + "/weight set <item> <value>.");
+                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + " /weight set <item> <value>.");
                     }else
                         noPermMessage(p);
                 }
