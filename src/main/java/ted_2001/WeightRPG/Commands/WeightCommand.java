@@ -135,7 +135,7 @@ public class WeightCommand implements CommandExecutor {
                                 String[] parts = item.split("=");
                                 if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
                                     blockWeightArray.put(i, itemName + "=" + weightValue);
-                                    FileWriter blocksWeightWriter = null;
+                                    FileWriter blocksWeightWriter;
                                     try {
                                         blocksWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
                                     } catch (IOException e) {
@@ -169,7 +169,7 @@ public class WeightCommand implements CommandExecutor {
                                 String[] parts = item.split("=");
                                 if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
                                     toolsWeightArray.put(i, itemName + "=" + weightValue);
-                                    FileWriter toolsWeightWriter = null;
+                                    FileWriter toolsWeightWriter;
                                     try {
                                         toolsWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
                                     } catch (IOException e) {
@@ -203,7 +203,7 @@ public class WeightCommand implements CommandExecutor {
                                 String[] parts = item.split("=");
                                 if (parts.length == 2 && parts[0].equalsIgnoreCase(itemName)) {
                                     miscWeightArray.put(i, itemName + "=" + weightValue);
-                                    FileWriter miscWeightWriter = null;
+                                    FileWriter miscWeightWriter;
                                     try {
                                         miscWeightWriter = new FileWriter(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
                                     } catch (IOException e) {
