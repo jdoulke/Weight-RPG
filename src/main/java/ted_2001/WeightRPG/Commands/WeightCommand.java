@@ -210,15 +210,13 @@ public class WeightCommand implements CommandExecutor {
         return false;
     }
 
-    private boolean writeAndCloseJsonFile(JSONObject miscWeightObject, FileWriter miscWeightWriter) {
-        miscWeightObject.write(miscWeightWriter);
+    private boolean writeAndCloseJsonFile(JSONObject jsonObject, FileWriter fileWriter) {
+
+        PrintWriter output = new PrintWriter(fileWriter);
+        output.write(jsonObject.toString(2));
+
         try {
-            miscWeightWriter.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            miscWeightWriter.close();
+            fileWriter.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
