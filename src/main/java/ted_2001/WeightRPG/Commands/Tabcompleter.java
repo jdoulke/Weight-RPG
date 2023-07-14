@@ -22,7 +22,7 @@ public class Tabcompleter implements TabCompleter {
                 if(sender.hasPermission("weight.get"))
                     results.add("get");
                 if(sender.hasPermission("weight.set"))
-                    results.add("get");
+                    results.add("set");
                 return sortedResults(args[0]);
             }
         }else if(args.length == 2) {
