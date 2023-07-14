@@ -26,8 +26,8 @@ import java.util.UUID;
 
 import static org.bukkit.Bukkit.getServer;
 import static ted_2001.WeightRPG.Utils.CalculateWeight.*;
-import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
-import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
+import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -107,17 +107,17 @@ public class WeightCalculateListeners implements Listener {
 
             ItemStack item = e.getItem().getItemStack();
             int amount = e.getItem().getItemStack().getAmount();
-            if(globalitemsweight.get(item.getType()) == null){
+            if(globalItemsWeight.get(item.getType()) == null){
                 getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA +item.getType()  + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
                 return;
             }
             float weight = 0;
             boolean isCustomItem = false;
-            if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
-                weight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+            if(customItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
+                weight = customItemsWeight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
                 isCustomItem = true;
-            } else if(globalitemsweight.get(item.getType()) != null)
-                weight = globalitemsweight.get(item.getType());
+            } else if(globalItemsWeight.get(item.getType()) != null)
+                weight = globalItemsWeight.get(item.getType());
             if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
                 w.calculateWeight(p);
                 message(p,"receive",item,weight, amount);
@@ -170,7 +170,7 @@ public class WeightCalculateListeners implements Listener {
         ItemStack item = e.getItemDrop().getItemStack();
         int amount = e.getItemDrop().getItemStack().getAmount();
 
-        if(globalitemsweight.get(item.getType()) == null){
+        if(globalItemsWeight.get(item.getType()) == null){
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA +item.getType()  + ChatColor.GRAY +
                     " isn't in the weight files. You might want to add it manually.");
             return;
@@ -179,11 +179,11 @@ public class WeightCalculateListeners implements Listener {
         boolean isCustomItem = false;
         float weight = 0;
 
-        if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
-                weight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+        if(customItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
+                weight = customItemsWeight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
             isCustomItem = true;
-        } else if(globalitemsweight.get(item.getType()) != null)
-            weight = globalitemsweight.get(item.getType());
+        } else if(globalItemsWeight.get(item.getType()) != null)
+            weight = globalItemsWeight.get(item.getType());
 
 
         if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
@@ -207,7 +207,7 @@ public class WeightCalculateListeners implements Listener {
         if(isWorldGuardEnabled(p))
             return;
         ItemStack block = new ItemStack(e.getBlock().getType());
-        if(globalitemsweight.get(block.getType()) == null){
+        if(globalItemsWeight.get(block.getType()) == null){
             if(block.getType().toString().equalsIgnoreCase("FIRE"))
                 return;
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + block.getType()  + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
@@ -215,12 +215,12 @@ public class WeightCalculateListeners implements Listener {
         }
         float weight = 0;
         boolean isCustomItem = false;
-        if(customitemsweight.containsKey(Objects.requireNonNull(block.getItemMeta()).getDisplayName())) {
-            weight = customitemsweight.get(Objects.requireNonNull(block.getItemMeta()).getDisplayName());
+        if(customItemsWeight.containsKey(Objects.requireNonNull(block.getItemMeta()).getDisplayName())) {
+            weight = customItemsWeight.get(Objects.requireNonNull(block.getItemMeta()).getDisplayName());
             isCustomItem = true;
         }
-       else if(globalitemsweight.get(block.getType()) != null)
-            weight = globalitemsweight.get(block.getType());
+       else if(globalItemsWeight.get(block.getType()) != null)
+            weight = globalItemsWeight.get(block.getType());
        if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
            w.calculateWeight(p);
            message(p, "place", block, weight, 1);
@@ -342,10 +342,10 @@ public class WeightCalculateListeners implements Listener {
         float weight = 0;
         if (playerWeight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("place")) {
             weight = playerWeight.get(p.getUniqueId());
-            weight -= globalitemsweight.get(item.getType()) * amount;
+            weight -= globalItemsWeight.get(item.getType()) * amount;
         }else if (playerWeight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("pick")) {
             weight = playerWeight.get(p.getUniqueId());
-            weight += globalitemsweight.get(item.getType()) * amount;
+            weight += globalItemsWeight.get(item.getType()) * amount;
         }
         playerWeight.put(p.getUniqueId(), weight);
 

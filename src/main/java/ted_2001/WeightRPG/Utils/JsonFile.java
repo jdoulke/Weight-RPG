@@ -24,11 +24,11 @@ public class JsonFile {
 
 
 
-    public static HashMap<Material, Float> globalitemsweight = new HashMap<>();
-    public static HashMap<String, Float> customitemsweight = new HashMap<>();
+    public static HashMap<Material, Float> globalItemsWeight = new HashMap<>();
+    public static HashMap<String, Float> customItemsWeight = new HashMap<>();
     private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" +ChatColor.GRAY + "] ";
 
-    public boolean successfullRead = true;
+    public boolean successfullyRead = true;
     public void saveJsonFile(){
         JSONObject ItemsWeight = new JSONObject();
         JSONObject ArmorAndWeaponsWeight = new JSONObject();
@@ -75,179 +75,179 @@ public class JsonFile {
         if(getPlugin().getDataFolder().exists()) {
             if (!blocksWeight.exists() || !toolsWeight.exists() || !miscWeight.exists()) {
                 getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Weights files don't exist. Creating them...");
-                Material[] allΙtems = Material.values();
-                for(int i =1;i < allΙtems.length;i++){
-                    String tempΙtem = allΙtems[i].toString();
-                    if(allΙtems[i].isRecord()) {
-                        records.put(rcount, tempΙtem + "=0.5");
+                Material[] allItems = Material.values();
+                for(int i =1;i < allItems.length;i++){
+                    String tempItem = allItems[i].toString();
+                    if(allItems[i].isRecord()) {
+                        records.put(rcount, tempItem + "=0.5");
                         rcount++;
-                    }else if(tempΙtem.contains("ARROW")) {
-                        arrow.put(arrowcount, tempΙtem + "=0.1");
+                    }else if(tempItem.contains("ARROW")) {
+                        arrow.put(arrowcount, tempItem + "=0.1");
                         arrowcount++;
-                    }else if(tempΙtem.contains("LEAVES")) {
-                        leaves.put(leavescount, tempΙtem + "=0.01");
+                    }else if(tempItem.contains("LEAVES")) {
+                        leaves.put(leavescount, tempItem + "=0.01");
                         leavescount++;
-                    }else if(tempΙtem.contains("WOOL")) {
-                        wools.put(woolscount, tempΙtem + "=1");
+                    }else if(tempItem.contains("WOOL")) {
+                        wools.put(woolscount, tempItem + "=1");
                         woolscount++;
-                    }else if(tempΙtem.contains("BED")) {
-                        bed.put(bedcount, tempΙtem + "=8");
+                    }else if(tempItem.contains("BED")) {
+                        bed.put(bedcount, tempItem + "=8");
                         bedcount++;
-                    }else if(tempΙtem.contains("GLASS") && !tempΙtem.contains("SPYGLASS")) {
-                        if(tempΙtem.contains("PANE"))
-                            glass.put(glasscount, tempΙtem + "=0.4");
+                    }else if(tempItem.contains("GLASS") && !tempItem.contains("SPYGLASS")) {
+                        if(tempItem.contains("PANE"))
+                            glass.put(glasscount, tempItem + "=0.4");
                         else
-                            glass.put(glasscount, tempΙtem + "=1");
+                            glass.put(glasscount, tempItem + "=1");
                         glasscount++;
-                    }else if(tempΙtem.contains("CONCRETE")) {
-                        concrete.put(concretecount, tempΙtem + "=3");
+                    }else if(tempItem.contains("CONCRETE")) {
+                        concrete.put(concretecount, tempItem + "=3");
                         concretecount++;
-                    }else if(tempΙtem.contains("TERRACOTTA")) {
-                        terracotta.put(terracottacount, tempΙtem + "=3");
+                    }else if(tempItem.contains("TERRACOTTA")) {
+                        terracotta.put(terracottacount, tempItem + "=3");
                         terracottacount++;
-                    }else if(tempΙtem.contains("CARPET")) {
-                        carpet.put(carpetcount, tempΙtem + "=0.5");
+                    }else if(tempItem.contains("CARPET")) {
+                        carpet.put(carpetcount, tempItem + "=0.5");
                         carpetcount++;
-                    }else if(tempΙtem.contains("BUTTON")) {
-                        button.put(buttoncount, tempΙtem + "=0.1");
+                    }else if(tempItem.contains("BUTTON")) {
+                        button.put(buttoncount, tempItem + "=0.1");
                         buttoncount++;
-                    }else if(tempΙtem.contains("BOAT")) {
-                        boat.put(boatcount, tempΙtem + "=15");
+                    }else if(tempItem.contains("BOAT")) {
+                        boat.put(boatcount, tempItem + "=15");
                         boatcount++;
-                    }else if(tempΙtem.contains("PLATE") && !tempΙtem.contains("CHESTPLATE")) {
-                        plate.put(platecount, tempΙtem + "=0.3");
+                    }else if(tempItem.contains("PLATE") && !tempItem.contains("CHESTPLATE")) {
+                        plate.put(platecount, tempItem + "=0.3");
                         platecount++;
-                    }else if(tempΙtem.contains("BANNER") && !tempΙtem.contains("WALL")) {
-                        banner.put(bannercount, tempΙtem + "=1.5");
+                    }else if(tempItem.contains("BANNER") && !tempItem.contains("WALL")) {
+                        banner.put(bannercount, tempItem + "=1.5");
                         bannercount++;
-                    }else if(tempΙtem.contains("SHULKER_BOX")) {
-                        shulker.put(shulkercount, tempΙtem + "=8");
+                    }else if(tempItem.contains("SHULKER_BOX")) {
+                        shulker.put(shulkercount, tempItem + "=8");
                         shulkercount++;
-                    }else if(tempΙtem.contains("DOOR")) {
-                        if(tempΙtem.contains("TRAP"))
-                            door.put(doorcount, tempΙtem + "=4");
+                    }else if(tempItem.contains("DOOR")) {
+                        if(tempItem.contains("TRAP"))
+                            door.put(doorcount, tempItem + "=4");
                         else
-                            door.put(doorcount, tempΙtem + "=8");
+                            door.put(doorcount, tempItem + "=8");
                         doorcount++;
-                    }else if(tempΙtem.contains("EGG") && !tempΙtem.contains("LEGGINGS")) {
-                        egg.put(eggcount, tempΙtem + "=0.1");
+                    }else if(tempItem.contains("EGG") && !tempItem.contains("LEGGINGS")) {
+                        egg.put(eggcount, tempItem + "=0.1");
                         eggcount++;
-                    }else if(tempΙtem.contains("DYE")) {
-                        dyes.put(dyescount, tempΙtem + "=0.01");
+                    }else if(tempItem.contains("DYE")) {
+                        dyes.put(dyescount, tempItem + "=0.01");
                         dyescount++;
-                    }else if(tempΙtem.contains("FENCE")) {
-                        fence.put(fencecount, tempΙtem + "=1");
+                    }else if(tempItem.contains("FENCE")) {
+                        fence.put(fencecount, tempItem + "=1");
                         fencecount++;
-                    }else if(tempΙtem.contains("HORSE_ARMOR")) {
-                        horse.put(horsecount, tempΙtem + "=30");
+                    }else if(tempItem.contains("HORSE_ARMOR")) {
+                        horse.put(horsecount, tempItem + "=30");
                         horsecount++;
-                    }else if(tempΙtem.contains("CANDLE") && !tempΙtem.contains("CAKE")) {
-                        candle.put(candlecount, tempΙtem + "=0.2");
+                    }else if(tempItem.contains("CANDLE") && !tempItem.contains("CAKE")) {
+                        candle.put(candlecount, tempItem + "=0.2");
                         candlecount++;
-                    }else if(tempΙtem.contains("SIGN") && !tempΙtem.contains("WALL")) {
-                        sign.put(signcount, tempΙtem + "=4");
+                    }else if(tempItem.contains("SIGN") && !tempItem.contains("WALL")) {
+                        sign.put(signcount, tempItem + "=4");
                         signcount++;
-                    }else if(tempΙtem.contains("HEAD") || tempΙtem.contains("SKULL")) {
-                        head.put(headcount, tempΙtem + "=7");
+                    }else if(tempItem.contains("HEAD") || tempItem.contains("SKULL")) {
+                        head.put(headcount, tempItem + "=7");
                         headcount++;
-                    }else if(tempΙtem.contains("BOOTS") || tempΙtem.contains("LEGGINGS") || tempΙtem.contains("CHESTPLATE") || tempΙtem.contains("HELMET")) {
-                        if(tempΙtem.contains("DIAMOND"))
-                            armor.put(armorcount, tempΙtem + "=20");
-                        else if(tempΙtem.contains("GOLD"))
-                            armor.put(armorcount, tempΙtem + "=18");
-                        else if(tempΙtem.contains("NETHERITE"))
-                            armor.put(armorcount, tempΙtem + "=25");
-                        else if(tempΙtem.contains("IRON") || tempΙtem.contains("CHAINMAIL"))
-                            armor.put(armorcount, tempΙtem + "=15");
+                    }else if(tempItem.contains("BOOTS") || tempItem.contains("LEGGINGS") || tempItem.contains("CHESTPLATE") || tempItem.contains("HELMET")) {
+                        if(tempItem.contains("DIAMOND"))
+                            armor.put(armorcount, tempItem + "=20");
+                        else if(tempItem.contains("GOLD"))
+                            armor.put(armorcount, tempItem + "=18");
+                        else if(tempItem.contains("NETHERITE"))
+                            armor.put(armorcount, tempItem + "=25");
+                        else if(tempItem.contains("IRON") || tempItem.contains("CHAINMAIL"))
+                            armor.put(armorcount, tempItem + "=15");
                         else
-                            armor.put(armorcount, tempΙtem + "=5");
+                            armor.put(armorcount, tempItem + "=5");
                         armorcount++;
-                    }else if((tempΙtem.contains("REDSTONE") || tempΙtem.contains("RAIL") || tempΙtem.contains("PISTON") || tempΙtem.contains("DETECTOR") || tempΙtem.contains("DROPPER") ||
-                                tempΙtem.contains("DISPENSER") || tempΙtem.contains("OBSERVER") || tempΙtem.contains("HOPPER") || tempΙtem.contains("MINECART") || tempΙtem.contains("REPEATER")||
-                                tempΙtem.contains("COMPARATOR")|| tempΙtem.contains("TARGET") || tempΙtem.contains("HOOK"))&& !tempΙtem.contains("WALL") && !tempΙtem.contains("MOVING") &&
-                                !tempΙtem.contains("ORE")) {
-                            redstone.put(redstonecount, tempΙtem + "=1");
+                    }else if((tempItem.contains("REDSTONE") || tempItem.contains("RAIL") || tempItem.contains("PISTON") || tempItem.contains("DETECTOR") || tempItem.contains("DROPPER") ||
+                                tempItem.contains("DISPENSER") || tempItem.contains("OBSERVER") || tempItem.contains("HOPPER") || tempItem.contains("MINECART") || tempItem.contains("REPEATER")||
+                                tempItem.contains("COMPARATOR")|| tempItem.contains("TARGET") || tempItem.contains("HOOK"))&& !tempItem.contains("WALL") && !tempItem.contains("MOVING") &&
+                                !tempItem.contains("ORE")) {
+                            redstone.put(redstonecount, tempItem + "=1");
                             redstonecount++;
-                    }else if((tempΙtem.contains("TABLE") && !tempΙtem.contains("BOOK")) || tempΙtem.contains("FURNACE") || tempΙtem.contains("SMOKER") || tempΙtem.contains("ANVIL") ||
-                            (tempΙtem.contains("CHEST") && !tempΙtem.contains("PLATE")) || tempΙtem.contains("JUKEBOX") || tempΙtem.contains("LOOM") ||
-                            tempΙtem.contains("COMPOSTER") || tempΙtem.contains("BARREL") || tempΙtem.contains("GRIDSTONE") || tempΙtem.contains("STONECUTTER") ||
-                            tempΙtem.contains("STAND") || tempΙtem.equalsIgnoreCase("CAULDRON")) {
-                        work.put(workcount, tempΙtem + "=12");
+                    }else if((tempItem.contains("TABLE") && !tempItem.contains("BOOK")) || tempItem.contains("FURNACE") || tempItem.contains("SMOKER") || tempItem.contains("ANVIL") ||
+                            (tempItem.contains("CHEST") && !tempItem.contains("PLATE")) || tempItem.contains("JUKEBOX") || tempItem.contains("LOOM") ||
+                            tempItem.contains("COMPOSTER") || tempItem.contains("BARREL") || tempItem.contains("GRIDSTONE") || tempItem.contains("STONECUTTER") ||
+                            tempItem.contains("STAND") || tempItem.equalsIgnoreCase("CAULDRON")) {
+                        work.put(workcount, tempItem + "=12");
                         workcount++;
-                    }else if(tempΙtem.contains("COOK") || tempΙtem.contains("APPLE") || (tempΙtem.contains("CARROT") && !tempΙtem.contains("STICK")  )|| tempΙtem.contains("BERRIES") ||
-                            tempΙtem.contains("STEW") || tempΙtem.contains("BEETROOT") || tempΙtem.contains("MUTTON") || tempΙtem.contains("POTATO") || tempΙtem.contains("CHICKEN") ||
-                            tempΙtem.contains("BEEF") || tempΙtem.contains("MELON") || (tempΙtem.contains("CAKE") && !tempΙtem.contains("CANDLE"))  || tempΙtem.equalsIgnoreCase("TROPICAL_FISH") || tempΙtem.equalsIgnoreCase("PUFFERFISH") ||
-                            tempΙtem.equalsIgnoreCase("SALMON") || tempΙtem.equalsIgnoreCase("COD") || tempΙtem.contains("BREAD") || tempΙtem.contains("PORKCHOP") ||
-                            tempΙtem.equalsIgnoreCase("RABBIT")) {
-                        food.put(foodcount, tempΙtem + "=0.5");
+                    }else if(tempItem.contains("COOK") || tempItem.contains("APPLE") || (tempItem.contains("CARROT") && !tempItem.contains("STICK")  )|| tempItem.contains("BERRIES") ||
+                            tempItem.contains("STEW") || tempItem.contains("BEETROOT") || tempItem.contains("MUTTON") || tempItem.contains("POTATO") || tempItem.contains("CHICKEN") ||
+                            tempItem.contains("BEEF") || tempItem.contains("MELON") || (tempItem.contains("CAKE") && !tempItem.contains("CANDLE"))  || tempItem.equalsIgnoreCase("TROPICAL_FISH") || tempItem.equalsIgnoreCase("PUFFERFISH") ||
+                            tempItem.equalsIgnoreCase("SALMON") || tempItem.equalsIgnoreCase("COD") || tempItem.contains("BREAD") || tempItem.contains("PORKCHOP") ||
+                            tempItem.equalsIgnoreCase("RABBIT")) {
+                        food.put(foodcount, tempItem + "=0.5");
                         foodcount++;
-                    }else if((!tempΙtem.contains("COPPER") && tempΙtem.contains("AXE") )|| tempΙtem.contains("SWORD") || tempΙtem.contains("SHOVEL") || tempΙtem.contains("HOE") || tempΙtem.contains("SPYGLASS") ||
-                            tempΙtem.contains("FISHING") || tempΙtem.contains("COMPASS") || tempΙtem.contains("FLINT_AND_STEEL") || tempΙtem.equalsIgnoreCase("BOW") || tempΙtem.contains("NAME_TAG")
-                            || tempΙtem.contains("CROSSBOW") || tempΙtem.contains("CLOCK") || (tempΙtem.contains("BOOK") && !tempΙtem.contains("SHELF"))|| tempΙtem.contains("PAPER") || tempΙtem.contains("BUCKET") ||
-                            tempΙtem.contains("SHIELD") || tempΙtem.contains("TRIDENT") || tempΙtem.contains("SHEARS") || tempΙtem.contains("LEAD") || tempΙtem.contains("MAP")) {
-                        if(tempΙtem.contains("DIAMOND"))
-                            tools.put(tcount, tempΙtem + "=8");
-                        else if (tempΙtem.contains("WOODEN"))
-                            tools.put(tcount, tempΙtem + "=4");
-                        else if (tempΙtem.contains("STONE"))
-                            tools.put(tcount, tempΙtem + "=5");
-                        else if (tempΙtem.contains("IRON"))
-                            tools.put(tcount, tempΙtem + "=6");
-                        else if (tempΙtem.contains("NETHERITE"))
-                            tools.put(tcount, tempΙtem + "=10");
-                        else if (tempΙtem.contains("GOLD"))
-                            tools.put(tcount, tempΙtem + "=7");
-                        else if (tempΙtem.contains("BOW"))
-                            tools.put(tcount, tempΙtem + "=12");
-                        else if (tempΙtem.contains("PAPER") || tempΙtem.contains("MAP"))
-                            tools.put(tcount, tempΙtem + "=0.2");
-                        else if (tempΙtem.contains("BOOK"))
-                            tools.put(tcount, tempΙtem + "=1");
+                    }else if((!tempItem.contains("COPPER") && tempItem.contains("AXE") )|| tempItem.contains("SWORD") || tempItem.contains("SHOVEL") || tempItem.contains("HOE") || tempItem.contains("SPYGLASS") ||
+                            tempItem.contains("FISHING") || tempItem.contains("COMPASS") || tempItem.contains("FLINT_AND_STEEL") || tempItem.equalsIgnoreCase("BOW") || tempItem.contains("NAME_TAG")
+                            || tempItem.contains("CROSSBOW") || tempItem.contains("CLOCK") || (tempItem.contains("BOOK") && !tempItem.contains("SHELF"))|| tempItem.contains("PAPER") || tempItem.contains("BUCKET") ||
+                            tempItem.contains("SHIELD") || tempItem.contains("TRIDENT") || tempItem.contains("SHEARS") || tempItem.contains("LEAD") || tempItem.contains("MAP")) {
+                        if(tempItem.contains("DIAMOND"))
+                            tools.put(tcount, tempItem + "=8");
+                        else if (tempItem.contains("WOODEN"))
+                            tools.put(tcount, tempItem + "=4");
+                        else if (tempItem.contains("STONE"))
+                            tools.put(tcount, tempItem + "=5");
+                        else if (tempItem.contains("IRON"))
+                            tools.put(tcount, tempItem + "=6");
+                        else if (tempItem.contains("NETHERITE"))
+                            tools.put(tcount, tempItem + "=10");
+                        else if (tempItem.contains("GOLD"))
+                            tools.put(tcount, tempItem + "=7");
+                        else if (tempItem.contains("BOW"))
+                            tools.put(tcount, tempItem + "=12");
+                        else if (tempItem.contains("PAPER") || tempItem.contains("MAP"))
+                            tools.put(tcount, tempItem + "=0.2");
+                        else if (tempItem.contains("BOOK"))
+                            tools.put(tcount, tempItem + "=1");
                         else
-                            tools.put(tcount, tempΙtem + "=5");
+                            tools.put(tcount, tempItem + "=5");
                         tcount++;
-                    }else if(tempΙtem.contains("LOG") || tempΙtem.contains("PLANKS") || tempΙtem.contains("SAPLING") || tempΙtem.contains("WOOD")) {
-                        if(tempΙtem.contains("LOG") || tempΙtem.contains("WOOD"))
-                            wood.put(woodcount, tempΙtem + "=4");
-                        else if(tempΙtem.contains("PLANKS"))
-                            wood.put(woodcount, tempΙtem + "=1");
+                    }else if(tempItem.contains("LOG") || tempItem.contains("PLANKS") || tempItem.contains("SAPLING") || tempItem.contains("WOOD")) {
+                        if(tempItem.contains("LOG") || tempItem.contains("WOOD"))
+                            wood.put(woodcount, tempItem + "=4");
+                        else if(tempItem.contains("PLANKS"))
+                            wood.put(woodcount, tempItem + "=1");
                         else
-                            wood.put(woodcount, tempΙtem + "=0.2");
+                            wood.put(woodcount, tempItem + "=0.2");
                         woodcount++;
-                    }else if((tempΙtem.contains("CORAL") && !tempΙtem.contains("BLOCK")) || tempΙtem.contains("POTTED") || tempΙtem.contains("KELP") || tempΙtem.contains("VINES") ||
-                            tempΙtem.contains("ROOTS") || tempΙtem.contains("TULIP") || tempΙtem.contains("DAISY") || tempΙtem.contains("FUNGUS") || (tempΙtem.contains("MUSHROOM") && !tempΙtem.contains("BLOCK"))||
-                            tempΙtem.contains("BLUET") || tempΙtem.contains("ORCHID") || tempΙtem.contains("POPPY") || tempΙtem.contains("SEAGRASS") || tempΙtem.contains("AZALEA") ||
-                            (tempΙtem.contains("GRASS") && !tempΙtem.contains("BLOCK")) || tempΙtem.contains("BUSH") || tempΙtem.contains("FERN") || tempΙtem.contains("ALLIUM") || tempΙtem.contains("DANDELION") ||
-                            tempΙtem.contains("CORNFLOWER") || tempΙtem.contains("LILY") || tempΙtem.contains("ROSE") || tempΙtem.equalsIgnoreCase("SUGAR_CANE") || tempΙtem.contains("SPROUTS") || tempΙtem.contains("DRIPLEAF") ||
-                            tempΙtem.contains("BAMBOO") || tempΙtem.equalsIgnoreCase("GLOW_LICHEN") || tempΙtem.contains("PEONY")  || tempΙtem.contains("SEEDS") || tempΙtem.contains("PLANT") || tempΙtem.contains("FLOWER") || tempΙtem.contains("VINE") || tempΙtem.contains("LILAC"))  {
-                        flowers.put(flowerscount, tempΙtem + "=0.05");
+                    }else if((tempItem.contains("CORAL") && !tempItem.contains("BLOCK")) || tempItem.contains("POTTED") || tempItem.contains("KELP") || tempItem.contains("VINES") ||
+                            tempItem.contains("ROOTS") || tempItem.contains("TULIP") || tempItem.contains("DAISY") || tempItem.contains("FUNGUS") || (tempItem.contains("MUSHROOM") && !tempItem.contains("BLOCK"))||
+                            tempItem.contains("BLUET") || tempItem.contains("ORCHID") || tempItem.contains("POPPY") || tempItem.contains("SEAGRASS") || tempItem.contains("AZALEA") ||
+                            (tempItem.contains("GRASS") && !tempItem.contains("BLOCK")) || tempItem.contains("BUSH") || tempItem.contains("FERN") || tempItem.contains("ALLIUM") || tempItem.contains("DANDELION") ||
+                            tempItem.contains("CORNFLOWER") || tempItem.contains("LILY") || tempItem.contains("ROSE") || tempItem.equalsIgnoreCase("SUGAR_CANE") || tempItem.contains("SPROUTS") || tempItem.contains("DRIPLEAF") ||
+                            tempItem.contains("BAMBOO") || tempItem.equalsIgnoreCase("GLOW_LICHEN") || tempItem.contains("PEONY")  || tempItem.contains("SEEDS") || tempItem.contains("PLANT") || tempItem.contains("FLOWER") || tempItem.contains("VINE") || tempItem.contains("LILAC"))  {
+                        flowers.put(flowerscount, tempItem + "=0.05");
                         flowerscount++;
-                    }else if(tempΙtem.contains("BLOCK") || tempΙtem.contains("GRANITE") || tempΙtem.contains("DIORITE") || tempΙtem.contains("ANDESITE") ||
-                            tempΙtem.contains("DEEPSLATE") || tempΙtem.contains("STONE") || tempΙtem.contains("SLAB") || tempΙtem.contains("BRICK") ||
-                            tempΙtem.contains("STAIRS") || tempΙtem.contains("WAXED") || tempΙtem.contains("DIRT") || tempΙtem.contains("SAND") ||
-                            (tempΙtem.contains("COPPER") && !tempΙtem.contains("INGOT")) || tempΙtem.contains("ORE") || tempΙtem.contains("PODZOL") ||
-                            tempΙtem.contains("NYLIUM") || tempΙtem.contains("GRAVEL") || tempΙtem.contains("SPONGE") || tempΙtem.contains("HYPHAE") ||
-                            tempΙtem.contains("OBSIDIAN") || tempΙtem.contains("BEEHIVE") || tempΙtem.contains("BEE_NEST") || tempΙtem.contains("BUD") ||
-                            tempΙtem.contains("PILLAR") || tempΙtem.contains("FARMLAND") || tempΙtem.contains("CACTUS") || tempΙtem.contains("PUMPKIN") ||
-                            tempΙtem.contains("BASALT") || tempΙtem.contains("JACK_O") || tempΙtem.contains("NETHERRACK") || tempΙtem.contains("SOUL_SOIL") ||
-                            (tempΙtem.contains("PRISMARINE") && tempΙtem.contains("SHARD") && tempΙtem.contains("CRYSTALS")) || tempΙtem.contains("ICE") ||
-                            tempΙtem.contains("SEA_LANTERN") || tempΙtem.contains("SCAFFOLDING") || (tempΙtem.contains("STEM") && !tempΙtem.contains("MELON")) ||  tempΙtem.contains("ANCHOR") ||
-                            tempΙtem.contains("CAMPFIRE") || tempΙtem.contains("SHROOMLIGHT") || tempΙtem.equalsIgnoreCase("MYCELIUM") || tempΙtem.contains("BOOKSHELF") ||
-                            tempΙtem.contains("CALCITE") || tempΙtem.contains("TUFF") || tempΙtem.contains("ANCIENT") || tempΙtem.contains("QUARTZ") ||
-                            (tempΙtem.contains("CLAY") && !tempΙtem.contains("BALL")) || tempΙtem.contains("MUD") || tempΙtem.contains("SCULK") || tempΙtem.contains("FROGLIGHT") ){
-                        blocks.put(bcount, tempΙtem + "=2");
+                    }else if(tempItem.contains("BLOCK") || tempItem.contains("GRANITE") || tempItem.contains("DIORITE") || tempItem.contains("ANDESITE") ||
+                            tempItem.contains("DEEPSLATE") || tempItem.contains("STONE") || tempItem.contains("SLAB") || tempItem.contains("BRICK") ||
+                            tempItem.contains("STAIRS") || tempItem.contains("WAXED") || tempItem.contains("DIRT") || tempItem.contains("SAND") ||
+                            (tempItem.contains("COPPER") && !tempItem.contains("INGOT")) || tempItem.contains("ORE") || tempItem.contains("PODZOL") ||
+                            tempItem.contains("NYLIUM") || tempItem.contains("GRAVEL") || tempItem.contains("SPONGE") || tempItem.contains("HYPHAE") ||
+                            tempItem.contains("OBSIDIAN") || tempItem.contains("BEEHIVE") || tempItem.contains("BEE_NEST") || tempItem.contains("BUD") ||
+                            tempItem.contains("PILLAR") || tempItem.contains("FARMLAND") || tempItem.contains("CACTUS") || tempItem.contains("PUMPKIN") ||
+                            tempItem.contains("BASALT") || tempItem.contains("JACK_O") || tempItem.contains("NETHERRACK") || tempItem.contains("SOUL_SOIL") ||
+                            (tempItem.contains("PRISMARINE") && tempItem.contains("SHARD") && tempItem.contains("CRYSTALS")) || tempItem.contains("ICE") ||
+                            tempItem.contains("SEA_LANTERN") || tempItem.contains("SCAFFOLDING") || (tempItem.contains("STEM") && !tempItem.contains("MELON")) ||  tempItem.contains("ANCHOR") ||
+                            tempItem.contains("CAMPFIRE") || tempItem.contains("SHROOMLIGHT") || tempItem.equalsIgnoreCase("MYCELIUM") || tempItem.contains("BOOKSHELF") ||
+                            tempItem.contains("CALCITE") || tempItem.contains("TUFF") || tempItem.contains("ANCIENT") || tempItem.contains("QUARTZ") ||
+                            (tempItem.contains("CLAY") && !tempItem.contains("BALL")) || tempItem.contains("MUD") || tempItem.contains("SCULK") || tempItem.contains("FROGLIGHT") ){
+                        blocks.put(bcount, tempItem + "=2");
                         bcount++;
-                    }else if(tempΙtem.contains("INGOT") || tempΙtem.equalsIgnoreCase("DIAMOND") || tempΙtem.equalsIgnoreCase("EMERALD") ||
-                            tempΙtem.contains("COAL") || tempΙtem.contains("LAPIS_LAZULI") || tempΙtem.contains("RAW_IRON") ||
-                            tempΙtem.contains("RAW_GOLD") || tempΙtem.contains("RAW_COPPER") || tempΙtem.contains("NETHERITE_SCRAP") ) {
-                        ingots.put(ingotscount, tempΙtem + "=1.5");
+                    }else if(tempItem.contains("INGOT") || tempItem.equalsIgnoreCase("DIAMOND") || tempItem.equalsIgnoreCase("EMERALD") ||
+                            tempItem.contains("COAL") || tempItem.contains("LAPIS_LAZULI") || tempItem.contains("RAW_IRON") ||
+                            tempItem.contains("RAW_GOLD") || tempItem.contains("RAW_COPPER") || tempItem.contains("NETHERITE_SCRAP") ) {
+                        ingots.put(ingotscount, tempItem + "=1.5");
                         ingotscount++;
                     }else{
-                        if(!tempΙtem.contains("AIR") && !tempΙtem.contains("WALL") && !tempΙtem.equalsIgnoreCase("FIRE") && !tempΙtem.equalsIgnoreCase("SOUL_FIRE")
-                            && !tempΙtem.equalsIgnoreCase("LAVA") && !tempΙtem.equalsIgnoreCase("WATER")  && !tempΙtem.contains("POWDER_SNOW") && !tempΙtem.contains("CAKE") &&
-                            !tempΙtem.contains("COLUMN")  && !tempΙtem.contains("GATEWAY")  && !tempΙtem.contains("PORTAL")  && !tempΙtem.contains("STEM") && !tempΙtem.contains("LIGHT") && !tempΙtem.contains("VOID") &&
-                            !tempΙtem.contains("BUNDLE") && !tempΙtem.contains("CAULDRON") ) {
-                            items.put(icount, tempΙtem + "=1");
+                        if(!tempItem.contains("AIR") && !tempItem.contains("WALL") && !tempItem.equalsIgnoreCase("FIRE") && !tempItem.equalsIgnoreCase("SOUL_FIRE")
+                            && !tempItem.equalsIgnoreCase("LAVA") && !tempItem.equalsIgnoreCase("WATER")  && !tempItem.contains("POWDER_SNOW") && !tempItem.contains("CAKE") &&
+                            !tempItem.contains("COLUMN")  && !tempItem.contains("GATEWAY")  && !tempItem.contains("PORTAL")  && !tempItem.contains("STEM") && !tempItem.contains("LIGHT") && !tempItem.contains("VOID") &&
+                            !tempItem.contains("BUNDLE") && !tempItem.contains("CAULDRON") ) {
+                            items.put(icount, tempItem + "=1");
                             icount++;
                         }
                     }
@@ -420,7 +420,7 @@ public class JsonFile {
             item = item_weight[0];
             Material material = Material.getMaterial(item);
             float weight = getWeight(item_weight[1], item, origin);
-            globalitemsweight.put(material,weight);
+            globalItemsWeight.put(material,weight);
         }
     }
 
@@ -431,7 +431,7 @@ public class JsonFile {
             String[] item_weight = item.split("=");
             item = ChatColor.translateAlternateColorCodes('&', item_weight[0]);
             float weight = getWeight(item_weight[1], item, origin);
-            customitemsweight.put(item, weight);
+            customItemsWeight.put(item, weight);
         }
     }
 
@@ -454,7 +454,7 @@ public class JsonFile {
             }
             getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED +"ERROR" +ChatColor.GRAY + " Message: " + ChatColor.RED + e.getMessage());
 
-            successfullRead = false;
+            successfullyRead = false;
         }
         return weight;
     }

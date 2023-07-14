@@ -18,8 +18,8 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 
-import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
-import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
+import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 import static ted_2001.WeightRPG.Utils.CalculateWeight.weightThresholdValues;
 
@@ -67,11 +67,11 @@ public class WeightCommand implements CommandExecutor {
                 if (arg0.equalsIgnoreCase("reload")) {
                     if(p.hasPermission("weight.reload")) {
                         reloadCommand();
-                        if(js.successfullRead)
+                        if(js.successfullyRead)
                             p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "Config and weight files reloaded successfully.");
                         else
                             p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "There was an error while reloading, check the console.");
-                        js.successfullRead = true;
+                        js.successfullyRead = true;
                     }else
                         noPermMessage(p);
                 }else if(arg0.equalsIgnoreCase("get")) {
@@ -92,8 +92,8 @@ public class WeightCommand implements CommandExecutor {
                 if(arg0.equalsIgnoreCase("get")) {
                     if(p.hasPermission("weight.get." + arg1)) {
                         Material item = Material.getMaterial(arg1);
-                        if(globalitemsweight.get(item) != null)
-                            p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weighs " + ChatColor.RED + String.format("%.1f", globalitemsweight.get(item)));
+                        if(globalItemsWeight.get(item) != null)
+                            p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weighs " + ChatColor.RED + String.format("%.1f", globalItemsWeight.get(item)));
                         else
                             p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find " + ChatColor.YELLOW + arg1 + ChatColor.RED + " in the weight files.");
                     }
@@ -199,11 +199,11 @@ public class WeightCommand implements CommandExecutor {
                 String arg0 = args[0];
                 if (arg0.equalsIgnoreCase("reload")) {
                     reloadCommand();
-                    if(js.successfullRead)
+                    if(js.successfullyRead)
                         c.getConsoleSender().sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GRAY + "Config and weight files reloaded successfully.");
                     else
                         c.getConsoleSender().sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GRAY + "There was an error while reloading.");
-                    js.successfullRead = true;
+                    js.successfullyRead = true;
                 }
             }
         }
@@ -220,8 +220,8 @@ public class WeightCommand implements CommandExecutor {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        globalitemsweight.clear();
-        customitemsweight.clear();
+        globalItemsWeight.clear();
+        customItemsWeight.clear();
         js.readJsonFile();
         return false;
     }
@@ -233,8 +233,8 @@ public class WeightCommand implements CommandExecutor {
         File blocksWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + separator + "Weights" + separator + "Blocks Weight.json");
         File toolsWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + separator + "Weights" + separator + "Tools And Weapons Weight.json");
         File miscWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + separator + "Weights" + separator + "Misc Items Weight.json");
-        customitemsweight.clear();
-        globalitemsweight.clear();
+        customItemsWeight.clear();
+        globalItemsWeight.clear();
         if(config.exists()) {
             getPlugin().reloadConfig();
         }else{

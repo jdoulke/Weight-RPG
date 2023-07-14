@@ -2,8 +2,6 @@ package ted_2001.WeightRPG;
 
 
 import org.bstats.bukkit.Metrics;
-import org.bstats.charts.CustomChart;
-import org.bstats.json.JsonObjectBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.TabCompleter;
@@ -53,7 +51,7 @@ public final class WeightRPG extends JavaPlugin {
         js.saveJsonFile();
         Messages.create();
         js.readJsonFile();
-        if(js.successfullRead) {
+        if(js.successfullyRead) {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY+"Reading weight files completed" + ChatColor.GREEN + " SUCCESSFULLY.");
         }else{
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "ERROR" + ChatColor.GRAY+" Weight or Config files have ERROR(s).");

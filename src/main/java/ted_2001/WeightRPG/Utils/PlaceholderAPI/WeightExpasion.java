@@ -10,8 +10,8 @@ import ted_2001.WeightRPG.WeightRPG;
 import java.util.Objects;
 
 import static ted_2001.WeightRPG.Utils.CalculateWeight.*;
-import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
-import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
+import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
 
 
 public class WeightExpasion extends PlaceholderExpansion {
@@ -122,13 +122,13 @@ public class WeightExpasion extends PlaceholderExpansion {
         float itemWeight;
         String weight = "0";
         customItems = false;
-        if(customitemsweight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())){
-            itemWeight = customitemsweight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+        if(customItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())){
+            itemWeight = customItemsWeight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
             weight = String.valueOf(itemWeight * item.getAmount());
             customItems = true;
         }
-        if (globalitemsweight.get(item.getType()) != null && !customItems) {
-            itemWeight = globalitemsweight.get(item.getType());
+        if (globalItemsWeight.get(item.getType()) != null && !customItems) {
+            itemWeight = globalItemsWeight.get(item.getType());
             weight = String.valueOf(itemWeight * item.getAmount());
         }
         return weight;

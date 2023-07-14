@@ -16,8 +16,8 @@ import java.util.UUID;
 
 
 import static org.bukkit.Bukkit.getServer;
-import static ted_2001.WeightRPG.Utils.JsonFile.customitemsweight;
-import static ted_2001.WeightRPG.Utils.JsonFile.globalitemsweight;
+import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -83,13 +83,13 @@ public class CalculateWeight {
         boolean customItems;
         float itemWeight;
         customItems = false;
-        if(customitemsweight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName())){
-            itemWeight = customitemsweight.get(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
+        if(customItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName())){
+            itemWeight = customItemsWeight.get(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
             weight += itemWeight * itemStack.getAmount();
             customItems = true;
         }
-        if (globalitemsweight.get(itemStack.getType()) != null && !customItems) {
-            itemWeight = globalitemsweight.get(itemStack.getType());
+        if (globalItemsWeight.get(itemStack.getType()) != null && !customItems) {
+            itemWeight = globalItemsWeight.get(itemStack.getType());
             weight += itemWeight * itemStack.getAmount();
         }
     }
