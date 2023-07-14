@@ -114,9 +114,9 @@ public class WeightCommand implements CommandExecutor {
                                 ChatColor.GREEN + " You will find the record on the Misc Items Weight file under Additional Items section.");
                     }else
                         noPermMessage(p);
-                }
-            }else
-                p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+                }else
+                    p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+            }
             if(args.length == 3){
                 String weightCommand = args[0];
                 String itemName = args[1].toUpperCase();
@@ -237,9 +237,9 @@ public class WeightCommand implements CommandExecutor {
                         return false;
                     }else
                         noPermMessage(p);
-                }
-            }else
-                p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+                }else
+                    p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+            }
             if(args.length > 3)
                 p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
         }else if(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) {
