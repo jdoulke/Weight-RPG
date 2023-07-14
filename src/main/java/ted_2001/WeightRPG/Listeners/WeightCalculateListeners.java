@@ -21,6 +21,7 @@ import ted_2001.WeightRPG.Utils.Messages;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -39,6 +40,7 @@ public class WeightCalculateListeners implements Listener {
     public final HashMap<UUID, Long> pickMessage = new HashMap<>();
     public final HashMap<UUID, Long> placeMessage = new HashMap<>();
     public final HashMap<UUID, Long> dropMessage = new HashMap<>();
+    private final HashMap<UUID, Long> notifyMessage = new HashMap<>();
 
     private final HashMap<UUID, Long> dropCooldown = new HashMap<>();
 
@@ -109,6 +111,7 @@ public class WeightCalculateListeners implements Listener {
             int amount = e.getItem().getItemStack().getAmount();
             if(globalItemsWeight.get(item.getType()) == null){
                 getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA +item.getType()  + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
+                notifyAdmins(item);
                 return;
             }
             float weight = 0;
@@ -171,8 +174,9 @@ public class WeightCalculateListeners implements Listener {
         int amount = e.getItemDrop().getItemStack().getAmount();
 
         if(globalItemsWeight.get(item.getType()) == null){
-            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA +item.getType()  + ChatColor.GRAY +
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + item.getType()  + ChatColor.GRAY +
                     " isn't in the weight files. You might want to add it manually.");
+            notifyAdmins(item);
             return;
         }
 
@@ -198,6 +202,8 @@ public class WeightCalculateListeners implements Listener {
 
     }
 
+
+
     @EventHandler (priority = EventPriority.NORMAL)
     public void onPlayerBlockPlace(BlockPlaceEvent e){
         Player p = e.getPlayer();
@@ -211,6 +217,7 @@ public class WeightCalculateListeners implements Listener {
             if(block.getType().toString().equalsIgnoreCase("FIRE"))
                 return;
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + block.getType()  + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
+            notifyAdmins(block);
             return;
         }
         float weight = 0;
@@ -413,6 +420,27 @@ public class WeightCalculateListeners implements Listener {
         message = message.replaceAll("%totalweight%", String.format("%.2f", weight*amount));
         message = message.replaceAll("_", " ");
         return message;
+    }
+
+    private void notifyAdmins(ItemStack item) {
+        List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
+        for (Player player : players) {
+            if (player.hasPermission("weight.notify")) {
+                if (!notifyMessage.containsKey(player.getUniqueId())) {
+                    player.sendMessage(pluginPrefix + ChatColor.AQUA + item.getType() + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually." +
+                            " You can use the /weight add command.");
+                    notifyMessage.put(player.getUniqueId(), System.currentTimeMillis());
+                } else {
+                    long timeElapsed = System.currentTimeMillis() - pickMessage.get(player.getUniqueId());
+                    if (timeElapsed >= getPlugin().getConfig().getLong("notify-permission-cooldown") * 1000) {
+                        player.sendMessage(pluginPrefix + ChatColor.AQUA + item.getType() + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually." +
+                                " You can use the /weight add command.");
+                        notifyMessage.put(player.getUniqueId(), System.currentTimeMillis());
+                    }
+                }
+
+            }
+        }
     }
 
 
