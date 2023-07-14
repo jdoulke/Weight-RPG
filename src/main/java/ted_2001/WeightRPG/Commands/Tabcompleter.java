@@ -23,6 +23,8 @@ public class Tabcompleter implements TabCompleter {
                     results.add("get");
                 if(sender.hasPermission("weight.set"))
                     results.add("set");
+                if(sender.hasPermission("weight.add"))
+                    results.add("add");
                 return sortedResults(args[0]);
             }
         }else if(args.length == 2) {
@@ -36,8 +38,8 @@ public class Tabcompleter implements TabCompleter {
                             results.add(tempItem);
                     }
                     return sortedResults(args[1]);
-                }else if(arg0.equalsIgnoreCase("set")){
-                    if(sender.hasPermission("weight.set")){
+                }else if(arg0.equalsIgnoreCase("set") || arg0.equalsIgnoreCase("add")){
+                    if(sender.hasPermission("weight.set") || sender.hasPermission("weight.add")){
                         Material[] allItems = Material.values();
                         for (Material item : allItems) {
                             String tempItem = item.toString();

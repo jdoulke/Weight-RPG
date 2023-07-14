@@ -211,6 +211,11 @@ public class WeightCommand implements CommandExecutor {
                 }else if(weightCommand.equalsIgnoreCase("add")) {
                     if (p.hasPermission("weight.add")) {
                         FileReader miscWeightFile;
+                        if(globalItemsWeight.get(Material.getMaterial(itemName)) != null) {
+                            p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.RED + "This item already exists in the weight files and it's weight value is " + ChatColor.YELLOW +
+                                    globalItemsWeight.get(Material.getMaterial(itemName)) + ChatColor.RED + ".");
+                            return false;
+                        }
                         try {
                             miscWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
                         } catch (FileNotFoundException e) {
