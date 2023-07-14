@@ -84,6 +84,12 @@ public class WeightCommand implements CommandExecutor {
                         p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + " /weight set <item> <value>.");
                     }else
                         noPermMessage(p);
+                }else if(arg0.equalsIgnoreCase("add")){
+                    if(p.hasPermission("weight.add")) {
+                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can add an item on the weight files using the command" + ChatColor.YELLOW + " /weight add <item> <value>. " +
+                                ChatColor.GREEN + " You will find the record on the Misc Items Weight file under Additional Items section.");
+                    }else
+                        noPermMessage(p);
                 }else
                     p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
             }if(args.length == 2) {
@@ -102,12 +108,20 @@ public class WeightCommand implements CommandExecutor {
                         p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + " /weight set <item> <value>.");
                     }else
                         noPermMessage(p);
+                }else if(arg0.equalsIgnoreCase("add")){
+                    if(p.hasPermission("weight.add")) {
+                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can add an item on the weight files using the command" + ChatColor.YELLOW + " /weight add <item> <value>. " +
+                                ChatColor.GREEN + " You will find the record on the Misc Items Weight file under Additional Items section.");
+                    }else
+                        noPermMessage(p);
                 }
-            }if(args.length == 3){
-                String commandSet = args[0];
+            }else
+                p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+            if(args.length == 3){
+                String weightCommand = args[0];
                 String itemName = args[1].toUpperCase();
                 String weightValue = args[2];
-                if(commandSet.equalsIgnoreCase("set")){
+                if(weightCommand.equalsIgnoreCase("set")){
                     if(p.hasPermission("weight.set")) {
 
                         FileReader blocksWeightFile;
@@ -142,7 +156,7 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ".");
+                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ChatColor.GREEN + ".");
                                     return writeAndCloseJsonFile(blockWeightObject, blocksWeightWriter);
                                 }
                             }
@@ -163,7 +177,7 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ".");
+                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ChatColor.GREEN + ".");
                                     return writeAndCloseJsonFile(toolsWeightObject, toolsWeightWriter);
                                 }
                             }
@@ -184,7 +198,7 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ".");
+                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ChatColor.GREEN + ".");
                                     return writeAndCloseJsonFile(miscWeightObject, miscWeightWriter);
                                 }
                             }
@@ -194,8 +208,35 @@ public class WeightCommand implements CommandExecutor {
 
                     }else
                         noPermMessage(p);
+                }else if(weightCommand.equalsIgnoreCase("add")) {
+                    if (p.hasPermission("weight.add")) {
+                        FileReader miscWeightFile;
+                        try {
+                            miscWeightFile = new FileReader(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+                        } catch (FileNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                        JSONObject miscWeightObject = new JSONObject(new JSONTokener(miscWeightFile));
+                        JSONArray addedItems;
+                        if (miscWeightObject.has("Additional Items")) {
+                            addedItems = miscWeightObject.getJSONArray("Additional Items");
+                        } else {
+                            addedItems = new JSONArray();
+                            miscWeightObject.put("Additional Items", addedItems);
+                        }
+
+                        addedItems.put(itemName + "=" + weightValue);
+                        globalItemsWeight.clear();
+                        customItemsWeight.clear();
+                        js.readJsonFile();
+                        return false;
+                    }else
+                        noPermMessage(p);
                 }
-            }
+            }else
+                p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+            if(args.length > 3)
+                p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
         }else if(sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) {
             Server c = sender.getServer();
             if (args.length == 0)

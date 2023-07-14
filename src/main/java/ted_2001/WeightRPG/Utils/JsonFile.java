@@ -341,19 +341,23 @@ public class JsonFile {
         addGlobalItemsWeight(armorw);
     }
 
-    private void addWeightForItems(JSONObject miscweight) {
+    private void addWeightForItems(JSONObject miscWeightObject) {
         try {
-            JSONArray heads = miscweight.getJSONArray("Heads Weight");
-            JSONArray misc = miscweight.getJSONArray("Misc Items Weight");
-            JSONArray banners = miscweight.getJSONArray("Banners Weight");
-            JSONArray eggs = miscweight.getJSONArray("Eggs Weight");
-            JSONArray ingots = miscweight.getJSONArray("Ingots and Ores Weight");
-            JSONArray food = miscweight.getJSONArray("Food Items Weight");
-            JSONArray flowers = miscweight.getJSONArray("Flowers Weight");
-            JSONArray records = miscweight.getJSONArray("Records Weight");
-            JSONArray candles = miscweight.getJSONArray("Candles Weight");
-            JSONArray redstone = miscweight.getJSONArray("Redstone Items Weight");
-            JSONArray dyes = miscweight.getJSONArray("Dyes Weight");
+            JSONArray heads = miscWeightObject.getJSONArray("Heads Weight");
+            JSONArray misc = miscWeightObject.getJSONArray("Misc Items Weight");
+            JSONArray banners = miscWeightObject.getJSONArray("Banners Weight");
+            JSONArray eggs = miscWeightObject.getJSONArray("Eggs Weight");
+            JSONArray ingots = miscWeightObject.getJSONArray("Ingots and Ores Weight");
+            JSONArray food = miscWeightObject.getJSONArray("Food Items Weight");
+            JSONArray flowers = miscWeightObject.getJSONArray("Flowers Weight");
+            JSONArray records = miscWeightObject.getJSONArray("Records Weight");
+            JSONArray candles = miscWeightObject.getJSONArray("Candles Weight");
+            JSONArray redstone = miscWeightObject.getJSONArray("Redstone Items Weight");
+            JSONArray dyes = miscWeightObject.getJSONArray("Dyes Weight");
+            if (miscWeightObject.has("Additional Items")) {
+                JSONArray addedItems = miscWeightObject.getJSONArray("Additional Items");
+                addGlobalItemsWeight(addedItems);
+            }
             addGlobalItemsWeight(heads);
             addGlobalItemsWeight(misc);
             addGlobalItemsWeight(banners);
