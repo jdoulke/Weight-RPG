@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -29,7 +30,7 @@ public class WeightCommand implements CommandExecutor {
     CalculateWeight w = new CalculateWeight();
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
 
         if(sender instanceof Player ){
             Player p = (Player) sender;
@@ -67,7 +68,7 @@ public class WeightCommand implements CommandExecutor {
                     if(p.hasPermission("weight.reload")) {
                         reloadCommand();
                         if(js.successfullRead)
-                            p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "Config and weight files reloaded succefully.");
+                            p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "Config and weight files reloaded successfully.");
                         else
                             p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "There was an error while reloading, check the console.");
                         js.successfullRead = true;
@@ -141,21 +142,7 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    blockWeightObject.write(blocksWeightWriter);
-                                    try {
-                                        blocksWeightWriter.flush();
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                    try {
-                                        blocksWeightWriter.close();
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                    globalitemsweight.clear();
-                                    customitemsweight.clear();
-                                    js.readJsonFile();
-                                    return false;
+                                    return writeAndCloseJsonFile(blockWeightObject, blocksWeightWriter);
                                 }
                             }
                         }
@@ -175,21 +162,7 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    toolsWeightObject.write(toolsWeightWriter);
-                                    try {
-                                        toolsWeightWriter.flush();
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                    try {
-                                        toolsWeightWriter.close();
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                    globalitemsweight.clear();
-                                    customitemsweight.clear();
-                                    js.readJsonFile();
-                                    return false;
+                                    return writeAndCloseJsonFile(toolsWeightObject, toolsWeightWriter);
                                 }
                             }
                         }
@@ -209,21 +182,7 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    miscWeightObject.write(miscWeightWriter);
-                                    try {
-                                        miscWeightWriter.flush();
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                    try {
-                                        miscWeightWriter.close();
-                                    } catch (IOException e) {
-                                        throw new RuntimeException(e);
-                                    }
-                                    globalitemsweight.clear();
-                                    customitemsweight.clear();
-                                    js.readJsonFile();
-                                    return false;
+                                    return writeAndCloseJsonFile(miscWeightObject, miscWeightWriter);
                                 }
                             }
                         }
@@ -248,6 +207,24 @@ public class WeightCommand implements CommandExecutor {
                 }
             }
         }
+        return false;
+    }
+
+    private boolean writeAndCloseJsonFile(JSONObject miscWeightObject, FileWriter miscWeightWriter) {
+        miscWeightObject.write(miscWeightWriter);
+        try {
+            miscWeightWriter.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            miscWeightWriter.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        globalitemsweight.clear();
+        customitemsweight.clear();
+        js.readJsonFile();
         return false;
     }
 
