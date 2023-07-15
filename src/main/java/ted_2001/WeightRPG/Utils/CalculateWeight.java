@@ -172,7 +172,7 @@ public class CalculateWeight {
         List<String> disabledWorlds = getPlugin().getConfig().getStringList("disabled-worlds");
         for (String disabledWorld : disabledWorlds) {
             if (disabledWorld.equalsIgnoreCase((p.getWorld().getName()))) {
-                p.setWalkSpeed((float) 0.2);
+                p.setWalkSpeed(0.2f);
                 return false;
             }
         }
