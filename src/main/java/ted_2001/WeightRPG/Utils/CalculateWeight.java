@@ -51,8 +51,8 @@ public class CalculateWeight {
         }
         if(p.hasPermission("weight.bypass")) {
             playerWeight.put(p.getUniqueId(), 0f);
-            if(p.getWalkSpeed() < 2.0f)
-                p.setWalkSpeed(2.0f);
+            if(p.getWalkSpeed() < 0.2f)
+                p.setWalkSpeed(0.2f);
             return;
         }
 
