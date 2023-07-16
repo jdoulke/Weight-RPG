@@ -45,15 +45,18 @@ public class WeightCommand implements CommandExecutor {
                     }
                     String PlayerGamemode = p.getGameMode().toString();
                     if(PlayerGamemode.equalsIgnoreCase("CREATIVE") ) {
-                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED + "is disabled on " + ChatColor.GREEN + "Creative Mode.");
+                        String creativeMessage = Messages.getMessages().getString("weight-command-creative-message");
+                        p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(creativeMessage, p));
                          return false;
                     }
                     if(PlayerGamemode.equalsIgnoreCase("SPECTATOR") ) {
-                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED + "is disabled on " + ChatColor.GREEN + "Spectator Mode.");
+                        String spectatorMessage = Messages.getMessages().getString("weight-command-spectator-message");
+                        p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(spectatorMessage, p));
                         return false;
                     }
                     if(p.hasPermission("weight.bypass")){
-                        p.sendMessage(ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED + "is disabled on " + ChatColor.GREEN + "Bypass Mode.");
+                        String bypassMessage = Messages.getMessages().getString("weight-command-bypass-message");
+                        p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(bypassMessage, p));
                         return false;
                     }
                     List<String> message = Messages.getMessages().getStringList("weight-command-message");

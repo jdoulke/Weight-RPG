@@ -1,4 +1,4 @@
-# The message that will send to the player when he is carrying too many items to jump. (if disable-jump is enabled
+# The message that will send to the player when he is carrying too many items to jump. (if disable-jump is enabled)
 disable-jump-message: '%displayname%: &cI am carrying too many items to &2jump. %percentageweight%'
 # Couldown in seconds before the next message will send to the player. (default is 3)
 disable-jump-message-cooldown: 3
@@ -27,4 +27,6 @@ weight-command-message:
   - '&6Level 2 &avalue is &c%level2%.'
   - '&cLevel 3 &avalue is &c%level3%.'
   #- '&aanything else you want.'
-weight-command-bypass-message: "Weight-RPG is disabled for %displayname%"
+weight-command-bypass-message: "%pluginprefix% Weight-RPG is disabled for %displayname%"
+weight-command-creative-message: "%pluginprefix% is disabled for %displayname%"
+weight-command-spectator-message: "%pluginprefix% is disabled for %displayname%"

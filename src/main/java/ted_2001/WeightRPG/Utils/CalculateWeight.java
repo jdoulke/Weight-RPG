@@ -209,6 +209,7 @@ public class CalculateWeight {
         message = message.replaceAll("%level3%", Objects.requireNonNull(String.valueOf(calculateWeightLevel3(p))));
         message = message.replaceAll("%percentageweight%", generateProgressBar(p));
         message = message.replaceAll("%percentage%", String.format("%.2f", getPercentage(p)));
+        message = message.replaceAll("%pluginprefix%", getPluginPrefix());
 
         if (Weight3)
             message = message.replaceAll("%maxweight%", String.valueOf(calculateWeightLevel3(p)));

@@ -20,6 +20,7 @@
 # %level1% for weight level 1 value %level2% for level 2 and %level3% for level 3.
 # %percentage% for weight percentage (weight * 100 / max weight)
 # %percentageweight% for percentage animation.
+# %pluginprefix% for plugin's prefix.
 
 
 message-before-level1-enabled: true
