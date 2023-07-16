@@ -87,9 +87,9 @@ public final class WeightRPG extends JavaPlugin {
         task = scheduler.runTaskTimer(this, () -> {
             List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
             CalculateWeight weightCalculator= new CalculateWeight();
-            for (Player plist : players)
-                if(!plist.hasPermission("weight.bypass"))
-                    weightCalculator.calculateWeight(plist);
+            for (Player player : players)
+                if(!player.hasPermission("weight.bypass"))
+                    weightCalculator.calculateWeight(player);
         },0, timer * 20L);
     }
 

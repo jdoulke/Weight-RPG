@@ -60,7 +60,7 @@ public class WeightCalculateListeners implements Listener {
 
 
 
-    @EventHandler (priority = EventPriority.LOWEST)
+    @EventHandler (priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent e){
         Player p = e.getPlayer();
         if(isWorldGuardEnabled(p))
