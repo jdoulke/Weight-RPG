@@ -182,13 +182,15 @@ public class CalculateWeight {
 
 
     private void cooldownMessenger(Player p, Sound s, String message) {
-        cooldown.put(p.getUniqueId(), System.currentTimeMillis());
-        if(getPlugin().getConfig().getBoolean("actionbar-messages"))
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message,p))));
-        else
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
-        if(s != null)
-            p.playSound(p.getLocation(),s,1,1);
+        if(!p.hasPermission("weight.bypass")){
+            cooldown.put(p.getUniqueId(), System.currentTimeMillis());
+            if(getPlugin().getConfig().getBoolean("actionbar-messages"))
+                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', messageSender(message,p))));
+            else
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageSender(message,p)));
+            if(s != null)
+                p.playSound(p.getLocation(),s,1,1);
+        }
     }
 
 

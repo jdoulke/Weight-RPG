@@ -359,6 +359,8 @@ public class WeightCalculateListeners implements Listener {
     }
 
     private void message(Player p, String action, ItemStack item, float weight, int amount){
+        if(p.hasPermission("weight.bypass"))
+            return;
         String message = "";
         if (action.equalsIgnoreCase("receive"))
             message = Messages.getMessages().getString("receive-item-message");
