@@ -35,7 +35,7 @@ import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 public class WeightCalculateListeners implements Listener {
 
 
-    CalculateWeight w= new CalculateWeight();
+    CalculateWeight weightCalculation = new CalculateWeight();
     public final HashMap<UUID, Long> jumpMessage = new HashMap<>();
     public final HashMap<UUID, Long> pickMessage = new HashMap<>();
     public final HashMap<UUID, Long> placeMessage = new HashMap<>();
@@ -54,7 +54,7 @@ public class WeightCalculateListeners implements Listener {
         Player p = (Player) e.getPlayer();
         if(isWorldGuardEnabled(p))
             return;
-        w.calculateWeight(p);
+        weightCalculation.calculateWeight(p);
     }
 
 
@@ -65,7 +65,7 @@ public class WeightCalculateListeners implements Listener {
         Player p = e.getPlayer();
         if(isWorldGuardEnabled(p))
             return;
-        w.calculateWeight(p);
+        weightCalculation.calculateWeight(p);
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
@@ -73,7 +73,7 @@ public class WeightCalculateListeners implements Listener {
         Player p = e.getPlayer();
         if(isWorldGuardEnabled(p))
             return;
-        w.calculateWeight(p);
+        weightCalculation.calculateWeight(p);
     }
 
     @EventHandler (priority = EventPriority.NORMAL)
@@ -84,7 +84,7 @@ public class WeightCalculateListeners implements Listener {
             return;
         if(isWorldGuardEnabled(p))
             return;
-        w.calculateWeight(p);
+        weightCalculation.calculateWeight(p);
     }
 
     @EventHandler (priority = EventPriority.LOWEST)
@@ -122,13 +122,13 @@ public class WeightCalculateListeners implements Listener {
             } else if(globalItemsWeight.get(item.getType()) != null)
                 weight = globalItemsWeight.get(item.getType());
             if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
-                w.calculateWeight(p);
+                weightCalculation.calculateWeight(p);
                 message(p,"receive",item,weight, amount);
             }else{
                 String s = "pick";
                 putWeightValue(p, item, amount, s);
                 message(p,"receive",item,weight, amount);
-                w.getWeightsEffect(p);
+                weightCalculation.getWeightsEffect(p);
             }
 
         }
@@ -157,11 +157,11 @@ public class WeightCalculateListeners implements Listener {
                     e.setCancelled(true);
                     String message = Messages.getMessages().getString("drop-cooldown-message");
                     assert message != null;
-                    message = w.messageSender(message, p);
+                    message = weightCalculation.messageSender(message, p);
                     if(getPlugin().getConfig().getBoolean("actionbar-messages"))
-                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p))));
+                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message,p))));
                     else
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p)));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message,p)));
                     return;
                 }else
                     dropCooldown.put(p.getUniqueId(), System.currentTimeMillis());
@@ -191,13 +191,13 @@ public class WeightCalculateListeners implements Listener {
 
 
         if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
-            w.calculateWeight(p);
+            weightCalculation.calculateWeight(p);
             message(p, "lose", item, weight, amount);
         } else {
             String s = "place";
             putWeightValue(p, item, amount, s);
             message(p, "lose", item, weight, amount);
-            w.getWeightsEffect(p);
+            weightCalculation.getWeightsEffect(p);
         }
 
     }
@@ -229,13 +229,13 @@ public class WeightCalculateListeners implements Listener {
        else if(globalItemsWeight.get(block.getType()) != null)
             weight = globalItemsWeight.get(block.getType());
        if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
-           w.calculateWeight(p);
+           weightCalculation.calculateWeight(p);
            message(p, "place", block, weight, 1);
        } else {
            String s = "place";
            putWeightValue(p, block, 1, s);
            message(p, "place", block, weight, 1);
-           w.getWeightsEffect(p);
+           weightCalculation.getWeightsEffect(p);
        }
     }
 
@@ -275,9 +275,9 @@ public class WeightCalculateListeners implements Listener {
                 if(playerWeight.get(p.getUniqueId())!= null){
                     float weight = playerWeight.get(p.getUniqueId());
                     boolean disableJump = false;
-                    double weight1 = w.calculateWeightLevel1(p);
-                    double weight2 = w.calculateWeightLevel2(p);
-                    double weight3 = w.calculateWeightLevel3(p);
+                    double weight1 = weightCalculation.calculateWeightLevel1(p);
+                    double weight2 = weightCalculation.calculateWeightLevel2(p);
+                    double weight3 = weightCalculation.calculateWeightLevel3(p);
                     if(weight > weight1 && weight < weight2) {
                         disableJump = getPlugin().getConfig().getBoolean("weight-level-1.disable-jump");
                     }else if(weight > weight2 && weight < weight3) {
@@ -297,7 +297,7 @@ public class WeightCalculateListeners implements Listener {
                     }
                 }
             }else{
-                w.calculateWeight(p);
+                weightCalculation.calculateWeight(p);
             }
         }
     }
@@ -306,9 +306,9 @@ public class WeightCalculateListeners implements Listener {
         jumpMessage.put(p.getUniqueId(), System.currentTimeMillis());
         String message = Messages.getMessages().getString("disable-jump-message");
         if(getPlugin().getConfig().getBoolean("actionbar-messages"))
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p))));
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message,p))));
         else
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message,p)));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message,p)));
     }
 
     //check if the player is on a disabled world or is on creative or spectator mode
@@ -404,10 +404,10 @@ public class WeightCalculateListeners implements Listener {
             return;
         if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
             message = getPlaceholders(message, item, weight, amount);
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p))));
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message, p))));
         }else {
             message = getPlaceholders(message, item, weight, amount);
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(message, p)));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message, p)));
         }
     }
 

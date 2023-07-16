@@ -23,7 +23,7 @@ import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 public class CalculateWeight {
 
-    float weight;
+    float PlayerWeight;
     public static HashMap<UUID,Float> playerWeight = new HashMap<>();
     public static HashMap<UUID, Long> cooldown = new HashMap<>();
     boolean Weight2 = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
@@ -41,17 +41,17 @@ public class CalculateWeight {
     private static final String darkRedColor = "&4&l";
     private static final String[] colorCodes = {"&a&l", "&2&l", "&e&l", "&6&l", "&c&l"}; // Light Green, Green, Yellow, Orange, Red
 
-    public void calculateWeight(Player p){
-        if(!isEnabled(p))
+    public void calculateWeight(Player p) {
+        if (!isEnabled(p))
             return;
-        if(isWorldGuardEnabled) {
+        if (isWorldGuardEnabled) {
             WorldGuardRegion worldguard = new WorldGuardRegion();
             if (worldguard.isInRegion(p))
                 return;
         }
-        if(p.hasPermission("weight.bypass")) {
+        if (p.hasPermission("weight.bypass")) {
             playerWeight.put(p.getUniqueId(), 0f);
-            if(p.getWalkSpeed() < 0.2f)
+            if (p.getWalkSpeed() < 0.2f)
                 p.setWalkSpeed(0.2f);
             return;
         }
@@ -60,42 +60,36 @@ public class CalculateWeight {
         ItemStack[] items = inv.getStorageContents();
         ItemStack[] armor = inv.getArmorContents();
         ItemStack secondhand = inv.getItemInOffHand();
-        weight = 0;
+        PlayerWeight = 0;
         for (ItemStack item : items) {
-            if (item != null) {
-                secondHandWeightCalculator(item);
-            }
+            if (item != null)
+                itemWeightCalculations(item);
         }
+
         for (ItemStack itemStack : armor) {
-            if(itemStack != null) {
+            if (itemStack != null)
                 itemWeightCalculations(itemStack);
-            }
         }
-        if(secondhand.getItemMeta() != null){
-            secondHandWeightCalculator(secondhand);
-        }
-        playerWeight.put(p.getUniqueId(), weight);
+
+        if(secondhand.getItemMeta() != null)
+            itemWeightCalculations(secondhand);
+
+        playerWeight.put(p.getUniqueId(), PlayerWeight);
         getWeightsEffect(p);
 
     }
 
     private void itemWeightCalculations(ItemStack itemStack) {
-        boolean customItems;
         float itemWeight;
-        customItems = false;
+
         if(customItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName())){
             itemWeight = customItemsWeight.get(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName());
-            weight += itemWeight * itemStack.getAmount();
-            customItems = true;
-        }
-        if (globalItemsWeight.get(itemStack.getType()) != null && !customItems) {
-            itemWeight = globalItemsWeight.get(itemStack.getType());
-            weight += itemWeight * itemStack.getAmount();
-        }
-    }
+            PlayerWeight += itemWeight * itemStack.getAmount();
 
-    private void secondHandWeightCalculator(ItemStack secondhand) {
-        itemWeightCalculations(secondhand);
+        }else if (globalItemsWeight.get(itemStack.getType()) != null ) {
+            itemWeight = globalItemsWeight.get(itemStack.getType());
+            PlayerWeight += itemWeight * itemStack.getAmount();
+        }
     }
 
 
@@ -209,7 +203,7 @@ public class CalculateWeight {
         message = message.replaceAll("%level3%", Objects.requireNonNull(String.valueOf(calculateWeightLevel3(p))));
         message = message.replaceAll("%percentageweight%", generateProgressBar(p));
         message = message.replaceAll("%percentage%", String.format("%.2f", getPercentage(p)));
-        message = message.replaceAll("%pluginprefix%", getPluginPrefix());
+        message = message.replaceAll("%pluginprefix%", getPlugin().getPluginPrefix());
 
         if (Weight3)
             message = message.replaceAll("%maxweight%", String.valueOf(calculateWeightLevel3(p)));
