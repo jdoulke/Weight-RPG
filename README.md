@@ -11,13 +11,20 @@ Features
     Assign weight value to every item.
     Custom weight for custom items by their names.
     Three weight levels so you can ‘punish’ players differently in each one. You can disable any level you want.
+    You can use permissions for weight level.
+    You can set item's weight using the command /weight set <item> <weight value>
+    Players with permission weight.notify get a message for items that aren't in weight files. You can add them manually or you can use the command /weight add <item> <weight value>.
     Custom weight values and penalties for every weight level before it takes effect.
     You can disable jump and movement at any level you want for the player.
     100% customizable messages in messages.yml file.
     Messages for pick-up, drop, or place items.
-    15 custom placeholders to use in messages.
+    16 custom placeholders to use in messages.
     Messages can be sent via action-bar or chat.
     You can disable the plugin in certain worlds.
+    Players can have a cooldown for dropping items. This is to prevent players from throwing items to have maximum speed. You can disable this feature and modify the cooldown in seconds in the config file.
+    You can view item's weight using /weight get <item> command.
+    WorldGuard support. You can use the 'weight-rpg' flag to deny using the plugin in certain regions. (WorldGuard version 7.0 or later).
+    PlaceholderAPI support. you can use all these placeholders in any plugin that supports PlaceholderAPI (2.10.0 version or above).
 
 How it works
 
@@ -38,11 +45,23 @@ After you configure the config file and assign all the weight values to items, u
 Command and Permissions
 
     /weight
-    Description: show player weight and other info from messages.yml.
     Permission: weight.use
+    Description: show player weight and other info from messages.yml.
     /weight reload
-    Description: reload all files and apply changes to the server.
     Permission: weight.reload
+    Description: reload all files and apply changes to the server.
+    /weight get <item>
+    Permission: weight.get and weight.get.<item> or weight.get.*
+    Description: show the item's weight.
+    /weight set <item> <weight value>
+    Permission: weight.set
+    Description: set the item's weight.
+    /weight add <item> <weight value>
+    Permission: weight.add
+    Description: add item to the weight files. The item will be on Misc Items Weight file on Additional Items section.
+    Permission: weight.notify
+    Description: Players with this permission will be notified when an item isn't on the weight files.
+    You can use permission mode to calculate the weight of players. You need to add these 3 permissions. weight.level1.x, weight.level2.x, weight.level3.x . Where x is your amount of weight in the level.
 
-Use the ‘weight.bypass’ permission to exclude a player from the weight calculations.
+    Use the ‘weight.bypass’ permission to exclude a player from the weight calculations.
 
