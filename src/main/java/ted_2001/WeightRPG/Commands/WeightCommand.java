@@ -46,22 +46,22 @@ public class WeightCommand implements CommandExecutor {
                     String PlayerGamemode = p.getGameMode().toString();
                     if(PlayerGamemode.equalsIgnoreCase("CREATIVE") ) {
                         String creativeMessage = Messages.getMessages().getString("weight-command-creative-message");
-                        p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(creativeMessage, p));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(creativeMessage, p)));
                          return false;
                     }
                     if(PlayerGamemode.equalsIgnoreCase("SPECTATOR") ) {
                         String spectatorMessage = Messages.getMessages().getString("weight-command-spectator-message");
-                        p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(spectatorMessage, p));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(spectatorMessage, p)));
                         return false;
                     }
                     if(p.hasPermission("weight.bypass")){
                         String bypassMessage = Messages.getMessages().getString("weight-command-bypass-message");
-                        p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(bypassMessage, p));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(bypassMessage, p)));
                         return false;
                     }
                     List<String> message = Messages.getMessages().getStringList("weight-command-message");
                     for (String s : message)
-                        p.sendMessage(net.md_5.bungee.api.ChatColor.translateAlternateColorCodes('&', w.messageSender(s, p)));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(s, p)));
                 }
             }else
                 noPermMessage(p);
