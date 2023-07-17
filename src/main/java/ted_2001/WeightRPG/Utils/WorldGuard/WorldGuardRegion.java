@@ -11,30 +11,44 @@ import com.sk89q.worldguard.protection.regions.RegionContainer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import static ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder.MY_CUSTOM_FLAG;
+import static ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder.WEIGHT-RPG-FLAG;
 
 public class WorldGuardRegion {
 
-    //check if the player is in a worldguard plugin's region
+    // Method to check if the player is in a WorldGuard region
     public boolean isInRegion(Player p) {
         try {
+            // Get the WorldGuard region container for the player's world
             RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
             RegionManager regions = container.get(BukkitAdapter.adapt(p.getWorld()));
+
             if (regions != null) {
+                // Get the player's current location
                 Location location = p.getLocation();
                 int x = location.getBlockX();
                 int y = location.getBlockY();
                 int z = location.getBlockZ();
+                
+                // Get the set of regions applicable to the player's current location
                 ApplicableRegionSet reg = regions.getApplicableRegions(BlockVector3.at(x, y, z));
+
                 if (reg.size() > 0) {
+                    // Wrap the Bukkit player in a WorldGuard LocalPlayer instance
                     LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
-                    if (!reg.testState(localPlayer, MY_CUSTOM_FLAG)) {
+                    
+                    // Check if the custom flag is set in any of the applicable regions for the player
+                    if (!reg.testState(localPlayer, WEIGHT-RPG-FLAG)) {
+                        // Set the player's walk speed to 0.2f and return true if the flag is not set
                         p.setWalkSpeed(0.2f);
                         return true;
                     }
                 }
             }
-        } catch (NoClassDefFoundError ignored ) {}
+        } catch (NoClassDefFoundError ignored) {
+            // Catch any errors that might occur if WorldGuard classes are not found
+        }
+        
+        // Return false if the player is not in any WorldGuard region or an error occurred
         return false;
     }
 }
