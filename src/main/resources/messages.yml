@@ -25,8 +25,8 @@ place-block-message-enabled: true
 drop-cooldown-message: "%displayname%: &6I can't drop items so soon. "
 
 weight-command-bypass-message: "%pluginprefix% &4Weight-RPG is disabled for you because you have weight.bypass permission."
-weight-command-creative-message: "%pluginprefix% &4Weight-RPG is disabled for &aCreative Mode &4."
-weight-command-spectator-message: "%pluginprefix% &4Weight-RPG is disabled for &aSpectator Mode &4."
+weight-command-creative-message: "%pluginprefix% &4Weight-RPG is disabled for &aCreative Mode&4."
+weight-command-spectator-message: "%pluginprefix% &4Weight-RPG is disabled for &aSpectator Mode&4."
 
 weight-command-message:
   - '%displayname% &eyour weight is &e%weight% &a/ &c%maxweight%.'
