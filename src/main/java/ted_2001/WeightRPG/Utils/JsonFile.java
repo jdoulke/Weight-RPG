@@ -29,6 +29,7 @@ public class JsonFile {
     private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" +ChatColor.GRAY + "] ";
 
     public boolean successfullyRead = true;
+
     public void saveJsonFile(){
         JSONObject ItemsWeight = new JSONObject();
         JSONObject ArmorAndWeaponsWeight = new JSONObject();
@@ -65,13 +66,16 @@ public class JsonFile {
         JSONArray boat = new JSONArray();
         JSONArray food = new JSONArray();
         JSONArray work = new JSONArray();
+        
         int bcount = 0, icount = 0, rcount = 0, armorcount = 0, tcount = 0, arrowcount = 0 ,woolscount = 0, terracottacount = 0, glasscount = 0, concretecount = 0;
         int flowerscount = 0, carpetcount = 0, candlecount = 0, headcount = 0, bannercount = 0, bedcount = 0, woodcount = 0 , leavescount = 0, shulkercount = 0;
         int ingotscount = 0, buttoncount = 0, platecount = 0, doorcount = 0, fencecount = 0, eggcount = 0, dyescount = 0, signcount = 0, horsecount = 0, redstonecount = 0;
         int boatcount = 0, workcount = 0, foodcount = 0;
+
         File blocksWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Blocks Weight.json");
         File toolsWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Tools And Weapons Weight.json");
         File miscWeight = new File(getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Weights" + File.separator + "Misc Items Weight.json");
+
         if(getPlugin().getDataFolder().exists()) {
             if (!blocksWeight.exists() || !toolsWeight.exists() || !miscWeight.exists()) {
                 getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Weights files don't exist. Creating them...");
