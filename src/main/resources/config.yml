@@ -32,7 +32,7 @@ message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1% %perce
 # If the permission doesn't exist then the value of the weight level will be the value under the weight level on the config.yml file
 # NOT RECOMMENDED the usage of it will be pretty heavy.
 # Max value for level 1 and level 2 is 10000 and for level 3 is 20000 on permission mode
-# permission mode will only work with multiples of 100. For example (1000, 1500, 2300 etc).
+# permission mode will only work with multiples of 100. For example (1000, 1500, 2300, etc).
 # This is for performance reasons.
 permission-mode: false
 
