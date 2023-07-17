@@ -90,12 +90,11 @@ public final class WeightRPG extends JavaPlugin {
      * Schedules the weight calculation task to run at a configurable interval.
      */
     public void scheduler() {
-        int timer;
-        if (this.getConfig().getDouble("check-weight") <= 0) 
-            timer = 2;
-        else 
-            timer = (int) this.getConfig().getDouble("check-weight");
+
+        int timer = 2;
         
+        if (this.getConfig().getInt("check-weight") > 2) 
+            timer = this.getConfig().getInt("check-weight");
 
         task = scheduler.runTaskTimer(this, () -> {
             List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
