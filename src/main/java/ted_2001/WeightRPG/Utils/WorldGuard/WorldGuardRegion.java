@@ -11,7 +11,7 @@ import com.sk89q.worldguard.protection.regions.RegionContainer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import static ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder.WEIGHT-RPG-FLAG;
+import static ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder.WEIGHT_RPG_FLAG;
 
 public class WorldGuardRegion {
 
@@ -37,7 +37,7 @@ public class WorldGuardRegion {
                     LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(p);
                     
                     // Check if the custom flag is set in any of the applicable regions for the player
-                    if (!reg.testState(localPlayer, WEIGHT-RPG-FLAG)) {
+                    if (!reg.testState(localPlayer, WEIGHT_RPG_FLAG)) {
                         // Set the player's walk speed to 0.2f and return true if the flag is not set
                         p.setWalkSpeed(0.2f);
                         return true;

@@ -25,8 +25,8 @@ import java.util.Objects;
 public final class WeightRPG extends JavaPlugin {
 
     private static WeightRPG plugin;
-    private BukkitScheduler scheduler = this.getServer().getScheduler();
-    private BukkitTask task;
+    private final BukkitScheduler scheduler = this.getServer().getScheduler();
+    public BukkitTask task;
     private String pluginPrefix;
 
     @Override
@@ -92,8 +92,8 @@ public final class WeightRPG extends JavaPlugin {
     public void scheduler() {
 
         int timer = 2;
-        
-        if (this.getConfig().getInt("check-weight") > 2) 
+
+        if (this.getConfig().getInt("check-weight") > 2)
             timer = this.getConfig().getInt("check-weight");
 
         task = scheduler.runTaskTimer(this, () -> {

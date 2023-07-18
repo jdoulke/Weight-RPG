@@ -12,7 +12,7 @@ import static org.bukkit.Bukkit.getServer;
 public class WorldGuardRegionHolder {
 
     // The custom flag used by this plugin
-    public static StateFlag WEIGHT-RPG-FLAG;
+    public static StateFlag WEIGHT_RPG_FLAG;
 
     // The plugin's prefix used in console messages
     private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" + ChatColor.GRAY + "] ";
@@ -33,7 +33,7 @@ public class WorldGuardRegionHolder {
             registry.register(flag);
 
             // Set the plugin's custom flag to the newly created flag
-            WEIGHT-RPG-FLAG = flag;
+            WEIGHT_RPG_FLAG = flag;
 
             // Inform the console that the "weight-rpg" flag has been enabled
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "weight-rpg" + ChatColor.GRAY + " flag enabled.");
@@ -42,7 +42,7 @@ public class WorldGuardRegionHolder {
             // attempt to use the existing flag, but be cautious of potential conflicts
             Flag<?> existing = registry.get("weight-rpg");
             if (existing instanceof StateFlag) {
-                WEIGHT-RPG-FLAG = (StateFlag) existing;
+                WEIGHT_RPG_FLAG = (StateFlag) existing;
             }
         } catch (IllegalStateException ignored) {
             // Catch any other illegal state exceptions that might occur during flag registration

@@ -300,8 +300,8 @@ public class WeightCalculateListeners implements Listener {
                 return;
 
             // The item is not in the weight files. Notify the console and administrators (players with weight.notify permission).
-            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + item.getType() + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
-            notifyAdmins(item);
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + block.getType() + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
+            notifyAdmins(block);
             return;
         }
 
@@ -349,6 +349,12 @@ public class WeightCalculateListeners implements Listener {
         // Check if the player has the "weight.bypass" permission, exempting them from weight restrictions.
         if(p.hasPermission("weight.bypass"))
             return;
+
+        // Check if the player's walk speed is 0.
+        if(p.getWalkSpeed() == 0)
+            // If the player's walk speed is 0, player can't move.
+            if(Objects.requireNonNull(e.getTo()).getX() != e.getFrom().getX() || Objects.requireNonNull(e.getTo()).getZ() != e.getFrom().getZ())
+                e.setCancelled(true);
 
         // Get the player's location.
         Location loc = p.getLocation();
@@ -482,42 +488,61 @@ public class WeightCalculateListeners implements Listener {
         return loc.getBlock().getType().toString().contains("STAIRS") || loc.getBlock().getType().toString().contains("SLAB");
     }
 
+    // Updates the weight of a player based on the action (place or drop and pick) and the item's weight.
     private void putWeightValue(Player p, ItemStack item, int amount,String s) {
+
+        // Check if the plugin is enabled for the player's world or if the player is in Creative or Spectator mode.
         isPluginEnabled = checkIfEnable(p);
-        if(!isPluginEnabled)
+        if (!isPluginEnabled)
             return;
+
         float weight = 0;
+        // Check the action type (place or pick) and update the player's weight accordingly.
         if (playerWeight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("place")) {
+            // If the action is 'place', subtract the weight of the item multiplied by the quantity from the player's weight.
             weight = playerWeight.get(p.getUniqueId());
             weight -= globalItemsWeight.get(item.getType()) * amount;
-        }else if (playerWeight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("pick")) {
+        } else if (playerWeight.get(p.getUniqueId()) != null && s.equalsIgnoreCase("pick")) {
+            // If the action is 'pick', add the weight of the item multiplied by the quantity to the player's weight.
             weight = playerWeight.get(p.getUniqueId());
             weight += globalItemsWeight.get(item.getType()) * amount;
         }
+        // Update the player's weight in the playerWeight map.
         playerWeight.put(p.getUniqueId(), weight);
 
     }
 
+    // Sends weight-related messages to the player based on the given action (receive, lose, place) and item information.
     private void message(Player p, String action, ItemStack item, float weight, int amount){
-        if(p.hasPermission("weight.bypass"))
+
+        // Check if the player has the 'weight.bypass' permission, which allows skipping messages.
+        if (p.hasPermission("weight.bypass"))
             return;
+
         String message = "";
+
+        // Determine the appropriate message type based on the action.
         if (action.equalsIgnoreCase("receive"))
             message = Messages.getMessages().getString("receive-item-message");
-        else if(action.equalsIgnoreCase("lose"))
+        else if (action.equalsIgnoreCase("lose"))
             message = Messages.getMessages().getString("lost-item-message");
-        else if(action.equalsIgnoreCase("place"))
+        else if (action.equalsIgnoreCase("place"))
             message = Messages.getMessages().getString("place-block-message");
-        if(!pickMessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("receive") && Messages.getMessages().getBoolean("receive-item-message-enabled")) {
+
+        // Handle the cooldown for each message type to prevent spamming.
+        // Receive item message
+        if (!pickMessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("receive") && Messages.getMessages().getBoolean("receive-item-message-enabled")) {
             pickMessage.put(p.getUniqueId(), System.currentTimeMillis());
             messageSender(message, p, item, weight, amount);
-        }else if(action.equalsIgnoreCase("receive") && Messages.getMessages().getBoolean("receive-item-message-enabled")){
+        } else if (action.equalsIgnoreCase("receive") && Messages.getMessages().getBoolean("receive-item-message-enabled")) {
             long timeElapsed = System.currentTimeMillis() - pickMessage.get(p.getUniqueId());
-            if(timeElapsed >= Messages.getMessages().getDouble("receive-item-message-cooldown") * 1000){
+            if (timeElapsed >= Messages.getMessages().getDouble("receive-item-message-cooldown") * 1000) {
                 pickMessage.put(p.getUniqueId(), System.currentTimeMillis());
                 messageSender(message, p, item, weight, amount);
             }
         }
+
+        // Place block message
         if(!placeMessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("place") && Messages.getMessages().getBoolean("place-block-message-enabled")) {
             placeMessage.put(p.getUniqueId(), System.currentTimeMillis());
             messageSender(message, p, item, weight, amount);
@@ -527,7 +552,9 @@ public class WeightCalculateListeners implements Listener {
                 placeMessage.put(p.getUniqueId(), System.currentTimeMillis());
                 messageSender(message, p, item, weight, amount);
             }
-        }if(!dropMessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("lose") && Messages.getMessages().getBoolean("lost-item-message-enabled")) {
+        }
+        // Lose item message
+        if(!dropMessage.containsKey(p.getUniqueId()) && action.equalsIgnoreCase("lose") && Messages.getMessages().getBoolean("lost-item-message-enabled")) {
             dropMessage.put(p.getUniqueId(), System.currentTimeMillis());
             messageSender(message, p, item, weight, amount);
         }else if(action.equalsIgnoreCase("lose") && Messages.getMessages().getBoolean("lost-item-message-enabled")){
@@ -551,36 +578,62 @@ public class WeightCalculateListeners implements Listener {
         }
     }
 
+    // Replaces placeholders in the given message with actual item-related information.
     private String getPlaceholders(String message, ItemStack item, float weight, int amount) {
+
         message = message.replaceAll("%block%", String.valueOf(item.getType()));
+
+        // Replace the %itemdisplayname% placeholder with the display name of the item if available, or the material type otherwise.
         if(!Objects.requireNonNull(item.getItemMeta()).getDisplayName().equalsIgnoreCase(""))
             message = message.replaceAll("%itemdisplayname%", item.getItemMeta().getDisplayName());
         else
             message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
+
         message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
         message = message.replaceAll("%amount%", String.valueOf(amount));
+
+        // Replace the %totalweight% placeholder with the total weight (weight * amount) of the items, formatted to two decimal places.
         message = message.replaceAll("%totalweight%", String.format("%.2f", weight*amount));
+
+        // Replace underscores with spaces to make the message more readable.
         message = message.replaceAll("_", " ");
         return message;
     }
 
+    // Notifies online admins with "weight.notify" permission that the specified item is not present in the weight files.
+    // Administrators are informed through a message about the missing item and are provided with a command to add it manually.
     private void notifyAdmins(ItemStack item) {
+
+        // Get a list of all online players on the server.
         List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
+
+        // Loop through each player to check for "weight.notify" permission.
         for (Player player : players) {
+
             if (player.hasPermission("weight.notify")) {
+                // If the player has "weight.notify" permission and hasn't been notified recently, send the notification.
                 if (!notifyMessage.containsKey(player.getUniqueId())) {
+
                     player.sendMessage(pluginPrefix + ChatColor.AQUA + item.getType() + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually." +
                             " You can use the /weight add command.");
+
+                    // Store the current time to keep track of the notification cooldown for this player.
                     notifyMessage.put(player.getUniqueId(), System.currentTimeMillis());
+
                 } else {
+                    // If the player has "weight.notify" permission but was already notified, check if enough time has passed to notify them again.
                     long timeElapsed = System.currentTimeMillis() - notifyMessage.get(player.getUniqueId());
-                    if (timeElapsed >= getPlugin().getConfig().getLong("notify-permission-cooldown") * 1000) {
+                    long cooldown = getPlugin().getConfig().getLong("notify-permission-cooldown") * 1000;
+
+                    // If the cooldown has passed, send the notification again and update the notification time.
+                    if (timeElapsed >= cooldown) {
                         player.sendMessage(pluginPrefix + ChatColor.AQUA + item.getType() + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually." +
                                 " You can use the /weight add command.");
+
+                        // Store the current time to reset the notification cooldown for this player.
                         notifyMessage.put(player.getUniqueId(), System.currentTimeMillis());
                     }
                 }
-
             }
         }
     }
