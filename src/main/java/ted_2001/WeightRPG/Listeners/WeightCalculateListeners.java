@@ -161,14 +161,17 @@ public class WeightCalculateListeners implements Listener {
                 return;
             }
 
-            float weight = 0;
+            float weight = 0.0f;
             boolean isCustomItem = false;
+            ItemMeta itemMeta = item.getItemMeta();
 
             // Check if the item is a custom-named item with weight defined in the config file.
-            if (customItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
-                weight = customItemsWeight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+            if (itemMeta != null && customItemsWeight.containsKey(itemMeta.getDisplayName())) {
+                weight = customItemsWeight.get(itemMeta.getDisplayName());
                 isCustomItem = true;
-            } else if (globalItemsWeight.get(item.getType()) != null) 
+            } else if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
+                weight = 0.0f;
+            }else if (globalItemsWeight.get(item.getType()) != null) 
                 weight = globalItemsWeight.get(item.getType());
             
             // Check if the player's weight is not being tracked yet or if the item is a custom item.
@@ -251,14 +254,17 @@ public class WeightCalculateListeners implements Listener {
         }
 
 
+        float weight = 0.0f;
         boolean isCustomItem = false;
-        float weight = 0;
+        ItemMeta itemMeta = item.getItemMeta();
 
-        // Check if the dropped item is defined in the weight files or if it's a custom item.
-        if(customItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())) {
-                weight = customItemsWeight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+        // Check if the item is a custom-named item with weight defined in the config file.
+        if (itemMeta != null && customItemsWeight.containsKey(itemMeta.getDisplayName())) {
+            weight = customItemsWeight.get(itemMeta.getDisplayName());
             isCustomItem = true;
-        } else if(globalItemsWeight.get(item.getType()) != null)
+        } else if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
+            weight = 0.0f;
+        }else if(globalItemsWeight.get(item.getType()) != null)
             weight = globalItemsWeight.get(item.getType());
 
         // Handle weight calculation and weight effects for the player based on the dropped item.
@@ -305,15 +311,17 @@ public class WeightCalculateListeners implements Listener {
             return;
         }
 
-        float weight = 0;
+        float weight = 0.0f;
         boolean isCustomItem = false;
+        ItemMeta itemMeta = item.getItemMeta();
 
-        // Calculate the weight of the placed block.
-        if(customItemsWeight.containsKey(Objects.requireNonNull(block.getItemMeta()).getDisplayName())) {
-            weight = customItemsWeight.get(Objects.requireNonNull(block.getItemMeta()).getDisplayName());
+        // Check if the item is a custom-named item with weight defined in the config file.
+        if (itemMeta != null && customItemsWeight.containsKey(itemMeta.getDisplayName())) {
+            weight = customItemsWeight.get(itemMeta.getDisplayName());
             isCustomItem = true;
-        }
-        else if(globalItemsWeight.get(block.getType()) != null)
+        } else if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
+            weight = 0.0f;
+        }else if(globalItemsWeight.get(block.getType()) != null)
             weight = globalItemsWeight.get(block.getType());
 
         // Handle weight calculation and weight effects for the player based on the placed block.
