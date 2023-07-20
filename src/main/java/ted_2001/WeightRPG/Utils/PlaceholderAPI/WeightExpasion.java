@@ -118,18 +118,26 @@ public class WeightExpasion extends PlaceholderExpansion {
     }
 
     private String itemWeightCalculations(ItemStack item) {
-        float itemWeight;
-        String weight = "0";
-        if(customItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName())){
 
-            itemWeight = customItemsWeight.get(Objects.requireNonNull(item.getItemMeta()).getDisplayName());
+        float itemWeight = 0.0f;
+        String weight = "0";
+        ItemMeta itemMeta = item.getItemMeta();
+
+        if(itemMeta != null && customItemsWeight.containsKey(itemMeta.getDisplayName())){
+
+            itemWeight = customItemsWeight.get(itemMeta.getDisplayName());
             weight = String.valueOf(itemWeight * item.getAmount());
-            
-        }else if (globalItemsWeight.get(item.getType()) != null) {
+            return weight;
+        }
+        // Boost Items don't have weight.
+        if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
+            return weight;
+        }
+        if (globalItemsWeight.get(item.getType()) != null) {
 
             itemWeight = globalItemsWeight.get(item.getType());
             weight = String.valueOf(itemWeight * item.getAmount());
-
+            return weight;
         }
         
         return weight;
