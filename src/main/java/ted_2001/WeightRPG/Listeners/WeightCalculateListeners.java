@@ -104,8 +104,7 @@ public class WeightCalculateListeners implements Listener {
         Player p = e.getPlayer();
 
         // Check if the plugin is enabled for the player's world or if the player is in Creative or Spectator mode.
-        isPluginEnabled = checkIfEnable(p);
-        if (!isPluginEnabled)
+        if (checkIfEnable(p))
             return;
 
         // Check if WorldGuard protection is enabled and if the player is in a protected region.
@@ -141,8 +140,7 @@ public class WeightCalculateListeners implements Listener {
             assert p != null;
 
             // Check if the plugin is enabled for the player's world or if the player is in Creative or Spectator mode.
-            isPluginEnabled = checkIfEnable(p);
-            if (!isPluginEnabled)
+            if (!checkIfEnable(p))
                 return;
 
             // Check if WorldGuard protection is enabled and if the player is in a protected region.
@@ -158,6 +156,17 @@ public class WeightCalculateListeners implements Listener {
                 // The item is not in the weight files. Notify the console and administrators (players with weight.notify permission).
                 getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + item.getType() + ChatColor.GRAY + " isn't in the weight files. You might want to add it manually.");
                 notifyAdmins(item);
+                return;
+            }
+
+            boolean disablePickUpLevel1 = getPlugin().getConfig().getBoolean("weight-level-1.disable-pick-up", false);
+            boolean disablePickUpLevel2 = getPlugin().getConfig().getBoolean("weight-level-2.disable-pick-up", false);
+            boolean disablePickUpLevel3 = getPlugin().getConfig().getBoolean("weight-level-3.disable-pick-up", false);
+
+            if ((disablePickUpLevel1 && playerWeight >= weightCalculation.calculateWeightLevel1(p))
+            || (disablePickUpLevel2 && playerWeight >= weightCalculation.calculateWeightLevel2(p))
+            || (disablePickUpLevel3 && playerWeight >= weightCalculation.calculateWeightLevel3(p))) {
+                e.setCancelled(true);
                 return;
             }
 

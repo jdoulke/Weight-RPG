@@ -45,6 +45,8 @@ weight-level-1:
   speed: 0.15
   # Disable jump for players in this level when they are carrying too many items. (default is false)
   disable-jump: false
+  # Prevent the player from picking up items when his weight reaches this level.
+  disable-pick-up: false
   # the sound that will play when this level takes effect. Write 'none' for no sound. List of sounds https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
   sound: none
   # If the message send to the player when he will reach this level (default is true)
@@ -56,6 +58,7 @@ weight-level-2:
   value: 1500
   speed: 0.1
   disable-jump: false
+  disable-pick-up: false
   sound: ENTITY_PLAYER_HURT
   message-enabled: true
   message: "%displayname%: &6I am carrying too many items. &e%weight% &2/ &c%level3% %percentageweight%"
@@ -64,6 +67,7 @@ weight-level-3:
   value: 2000
   speed: 0.05
   disable-jump: true
+  disable-pick-up: false
   sound: ENTITY_PLAYER_HURT
   message-enabled: true
   message: "%displayname%: &cI am carrying too many items. &4%weight% %percentageweight%"
