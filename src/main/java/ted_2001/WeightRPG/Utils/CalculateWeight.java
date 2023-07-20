@@ -7,6 +7,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
 import java.util.HashMap;
@@ -16,8 +17,7 @@ import java.util.UUID;
 
 
 import static org.bukkit.Bukkit.getServer;
-import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
-import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.*;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -366,19 +366,18 @@ public class CalculateWeight {
 
         float totalExtraWeight = 0.0f;
 
-        // Calculate weight for each item in player's inventory and armor slots
         for (ItemStack item : items) {
-             if (item != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))   
-                totalExtraWeight += boostItemsWeight.get(itemMeta.getDisplayName());
+             if (item != null && boostItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName()))
+                totalExtraWeight += boostItemsWeight.get(item.getItemMeta().getDisplayName());
         }
 
         for (ItemStack itemStack : armor) {
             if (itemStack != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))
-                totalExtraWeight += boostItemsWeight.get(itemMeta.getDisplayName());
+                totalExtraWeight += boostItemsWeight.get(itemStack.getItemMeta().getDisplayName());
         }
 
-        if(secondhand.getItemMeta() != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))
-            totalExtraWeight += boostItemsWeight.get(itemMeta.getDisplayName());
+        if(secondhand.getItemMeta() != null && boostItemsWeight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName()))
+            totalExtraWeight += boostItemsWeight.get(secondhand.getItemMeta().getDisplayName());
 
         if (!getPlugin().getConfig().getBoolean("permission-mode")) {
         // If permission-mode is disabled, return the weight threshold value from the 'config.yml' file
@@ -410,19 +409,18 @@ public class CalculateWeight {
 
         float totalExtraWeight = 0.0f;
 
-        // Calculate weight for each item in player's inventory and armor slots
         for (ItemStack item : items) {
-             if (item != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))   
-                totalExtraWeight += boostItemsWeight.get(itemMeta.getDisplayName());
+            if (item != null && boostItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName()))
+                totalExtraWeight += boostItemsWeight.get(item.getItemMeta().getDisplayName());
         }
 
         for (ItemStack itemStack : armor) {
             if (itemStack != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))
-                totalExtraWeight += boostItemsWeight.get(itemMeta.getDisplayName());
+                totalExtraWeight += boostItemsWeight.get(itemStack.getItemMeta().getDisplayName());
         }
 
-        if(secondhand.getItemMeta() != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))
-            totalExtraWeight += boostItemsWeight.get(itemMeta.getDisplayName());
+        if(secondhand.getItemMeta() != null && boostItemsWeight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName()))
+            totalExtraWeight += boostItemsWeight.get(secondhand.getItemMeta().getDisplayName());
 
         if (!getPlugin().getConfig().getBoolean("permission-mode")) {
             // If permission-mode is disabled, return the weight threshold value from the 'config.yml' file
@@ -454,19 +452,18 @@ public class CalculateWeight {
 
         float totalExtraWeight = 0.0f;
 
-        // Calculate weight for each item in player's inventory and armor slots
         for (ItemStack item : items) {
-             if (item != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))   
-                totalExtraWeight += boostItemsWeight.get(itemMeta.getDisplayName());
+            if (item != null && boostItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName()))
+                totalExtraWeight += boostItemsWeight.get(item.getItemMeta().getDisplayName());
         }
 
         for (ItemStack itemStack : armor) {
             if (itemStack != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))
-                totalExtraWeight += boostItemsWeight.get(itemMeta.getDisplayName());
+                totalExtraWeight += boostItemsWeight.get(itemStack.getItemMeta().getDisplayName());
         }
 
-        if(secondhand.getItemMeta() != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))
-            totalExtraWeight += boostItemsWeight.get(itemMeta.getDisplayName());
+        if(secondhand.getItemMeta() != null && boostItemsWeight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName()))
+            totalExtraWeight += boostItemsWeight.get(secondhand.getItemMeta().getDisplayName());
 
         if (!getPlugin().getConfig().getBoolean("permission-mode")) {
             // If permission-mode is disabled, return the weight threshold value from the 'config.yml' file

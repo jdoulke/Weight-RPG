@@ -334,6 +334,7 @@ public class JsonFile {
         JSONObject armor = new JSONObject(tokener);
         addWeightForArmor(armor);
         addCustomItemsWeight();
+        addBoostItemsWeight();
     }
 
     private void addWeightForArmor(JSONObject armor) {

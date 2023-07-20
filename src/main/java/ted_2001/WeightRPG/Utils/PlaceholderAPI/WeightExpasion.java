@@ -4,14 +4,14 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.WeightRPG;
 
 import java.util.Objects;
 
 import static ted_2001.WeightRPG.Utils.CalculateWeight.*;
-import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
-import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.*;
 
 
 public class WeightExpasion extends PlaceholderExpansion {
@@ -119,7 +119,7 @@ public class WeightExpasion extends PlaceholderExpansion {
 
     private String itemWeightCalculations(ItemStack item) {
 
-        float itemWeight = 0.0f;
+        float itemWeight;
         String weight = "0";
         ItemMeta itemMeta = item.getItemMeta();
 

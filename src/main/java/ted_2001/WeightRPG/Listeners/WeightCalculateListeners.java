@@ -16,6 +16,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.Messages;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
@@ -27,8 +28,7 @@ import java.util.UUID;
 
 import static org.bukkit.Bukkit.getServer;
 import static ted_2001.WeightRPG.Utils.CalculateWeight.*;
-import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
-import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.*;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 
@@ -163,9 +163,9 @@ public class WeightCalculateListeners implements Listener {
             boolean disablePickUpLevel2 = getPlugin().getConfig().getBoolean("weight-level-2.disable-pick-up", false);
             boolean disablePickUpLevel3 = getPlugin().getConfig().getBoolean("weight-level-3.disable-pick-up", false);
 
-            if ((disablePickUpLevel1 && playerWeight >= weightCalculation.calculateWeightLevel1(p))
-            || (disablePickUpLevel2 && playerWeight >= weightCalculation.calculateWeightLevel2(p))
-            || (disablePickUpLevel3 && playerWeight >= weightCalculation.calculateWeightLevel3(p))) {
+            if ((disablePickUpLevel1 && playerWeight.get(p.getUniqueId()) >= weightCalculation.calculateWeightLevel1(p))
+            || (disablePickUpLevel2 && playerWeight.get(p.getUniqueId()) >= weightCalculation.calculateWeightLevel2(p))
+            || (disablePickUpLevel3 && playerWeight.get(p.getUniqueId()) >= weightCalculation.calculateWeightLevel3(p))) {
                 e.setCancelled(true);
                 return;
             }
@@ -322,7 +322,7 @@ public class WeightCalculateListeners implements Listener {
 
         float weight = 0.0f;
         boolean isCustomItem = false;
-        ItemMeta itemMeta = item.getItemMeta();
+        ItemMeta itemMeta = block.getItemMeta();
 
         // Check if the item is a custom-named item with weight defined in the config file.
         if (itemMeta != null && customItemsWeight.containsKey(itemMeta.getDisplayName())) {
