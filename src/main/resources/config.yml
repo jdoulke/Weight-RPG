@@ -92,6 +92,7 @@ custom-items-weight:
 
 # Here add boost items' names and their respective weight to increase the player's carrying capacity.
 # Don't add space after and before '='. Use '&' for color codes
+# Weight items don't have any weight. 
 boost-items:
 # - "itemname=boost_weight"
   - "&aSuper Backpack=50"
