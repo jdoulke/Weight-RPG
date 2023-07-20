@@ -26,6 +26,8 @@ public class JsonFile {
 
     public static HashMap<Material, Float> globalItemsWeight = new HashMap<>();
     public static HashMap<String, Float> customItemsWeight = new HashMap<>();
+    public static HashMap<String, Float> boostItemsWeight = new HashMap<>();
+
     private final String pluginPrefix = ChatColor.GRAY + "[" + ChatColor.YELLOW + "Weight-RPG" +ChatColor.GRAY + "] ";
 
     public boolean successfullyRead = true;
@@ -421,10 +423,14 @@ public class JsonFile {
     }
 
     private void addGlobalItemsWeight(JSONArray array) {
+
         String origin = "Vanilla";
+
         for(int i = 0; i < array.length(); i++){
+
             String item = array.get(i).toString();
             String[] item_weight = item.split("=");
+
             item = item_weight[0];
             Material material = Material.getMaterial(item);
             float weight = getWeight(item_weight[1], item, origin);
@@ -432,15 +438,35 @@ public class JsonFile {
         }
     }
 
+
     private void addCustomItemsWeight() {
+
         String origin = "Custom";
-        List<String> customitems = getPlugin().getConfig().getStringList("custom-items-weight");
-        for (String item : customitems) {
+        List<String> customItems = getPlugin().getConfig().getStringList("custom-items-weight");
+
+        for (String item : customItems) {
+
             String[] item_weight = item.split("=");
             item = ChatColor.translateAlternateColorCodes('&', item_weight[0]);
             float weight = getWeight(item_weight[1], item, origin);
             customItemsWeight.put(item, weight);
+
         }
+    }
+
+    private void addBoostItemsWeight(){
+
+        String origin = "Boost";
+        List<String> boostItems = getPlugin().getConfig().getStringList("boost-items-weight");
+
+        for (String item : boostItems) {
+            String[] item_weight = item.split("=");
+            item = ChatColor.translateAlternateColorCodes('&', item_weight[0]);
+            float weight = getWeight(item_weight[1], item, origin);
+            boostItemsWeight.put(item, weight);
+
+        }
+
     }
 
 
