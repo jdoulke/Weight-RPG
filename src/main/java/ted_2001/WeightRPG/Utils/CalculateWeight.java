@@ -467,7 +467,7 @@ public class CalculateWeight {
     }
 
 
-    private int getEnabledWeightLevel() {
+    public int getEnabledWeightLevel() {
         if (Weight3) {
             return 3;
         } else if (Weight2) {

@@ -61,27 +61,20 @@ public class WeightExpasion extends PlaceholderExpansion {
                 return "0";
         }
         if(params.equals("max_weight")){
-            float maxWeight = 0;
-            if (Weight3)
-                maxWeight = w.calculateWeightLevel3(p);
-            else if (Weight2)
-                maxWeight = w.calculateWeightLevel2(p);
-            else
-                maxWeight = w.calculateWeightLevel1(p);
-
+            float maxWeight = w.calculateWeightThreshold(p, getEnabledWeightLevel());
             return String.valueOf(maxWeight);
         }
         if(params.equals("weight_level1")) {
-            return String.valueOf(w.calculateWeightLevel1(p));
+            return String.valueOf(w.calculateWeightThreshold(p,1));
         }
         if(params.equals("weight_level2"))
             if(Weight2)
-                return String.valueOf(w.calculateWeightLevel2(p));
+                return String.valueOf(w.calculateWeightThreshold(p,2));
             else
                 return "Level 2 is disabled";
         if(params.equals("weight_level3"))
             if(Weight3)
-                return String.valueOf(w.calculateWeightLevel3(p));
+                return String.valueOf(w.calculateWeightThreshold(p,3));
             else
                 return "Level 3 is disabled";
         if(params.equals("item_in_main_hand")){
