@@ -472,25 +472,34 @@ public class JsonFile {
 
 
     private float getWeight(String item_weight, String item, String origin) {
+
         float weight = 0;
+
         try {
             weight = Float.parseFloat(item_weight);
-        }catch (NumberFormatException | ArrayIndexOutOfBoundsException e){
-            if(origin.equalsIgnoreCase("Custom") && e.toString().contains("Number"))
-                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Custom item " + ChatColor.BLUE + item + ChatColor.GRAY +" in config.yml couldn't be added in the weight list because of an ERROR.");
-            else if(origin.equalsIgnoreCase("Vanilla") && e.toString().contains("Number"))
-                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Item " + item + ChatColor.GRAY+" in Weight files couldn't be added in the weight list because of an ERROR.");
-            else if(origin.equalsIgnoreCase("Custom") && e.toString().contains("Array")) {
-                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Custom item " + item + ChatColor.GRAY + " in config.yml couldn't be added in the weight list because of an ERROR.");
-                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may have forgotten to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in custom-items-weight.");
-            }else{
-                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Item " + ChatColor.BLUE + item + ChatColor.GRAY + " in Weight files couldn't be added in the weight list because of an ERROR.");
-                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may have forgotten to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in json file.");
+        } catch (NumberFormatException e) {
+            String itemOrigin = "";
+
+            if (origin.equalsIgnoreCase("Custom")) {
+                itemOrigin = "Custom item " + ChatColor.BLUE + item + ChatColor.GRAY;
+            } else if (origin.equalsIgnoreCase("Vanilla")) {
+                itemOrigin = "Item " + item + ChatColor.GRAY;
+            } else if (origin.equalsIgnoreCase("Boost")) {
+                itemOrigin = "Boost item " + ChatColor.BLUE + item + ChatColor.GRAY;
             }
-            getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED +"ERROR" +ChatColor.GRAY + " Message: " + ChatColor.RED + e.getMessage());
+
+            if (e.toString().contains("Number")) {
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + itemOrigin + " in " + origin + " config.yml couldn't be added in the weight list because of an ERROR.");
+            } else if (e.toString().contains("Array")) {
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + itemOrigin + " in config.yml couldn't be added in the weight list because of an ERROR.");
+                getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You may have forgotten to write the '" + ChatColor.RED + "=" + ChatColor.GRAY + "' in " + (origin.equalsIgnoreCase("Custom") ? "custom-items-weight" : (origin.equalsIgnoreCase("Boost") ? "boost-items" : "json file.")));
+            }
+
+            getPlugin().getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "ERROR" + ChatColor.GRAY + " Message: " + ChatColor.RED + e.getMessage());
 
             successfullyRead = false;
         }
+
         return weight;
     }
 
