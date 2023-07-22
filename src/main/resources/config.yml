@@ -88,14 +88,16 @@ drop-cooldown:
 
 # Here add customs items name for custom weight. 
 # Don't add space after and before '='. Use '&' for color codes.
+# Υou can use RGB colors by specifying them in the format "#RRGGBB"
 custom-items-weight:
 # - "customitemname=weight"
   - "&c&lThunder Sword=20"
-  - "&6Amazing Pickaxe=14"
+  - "#FFD700&lAmazing Pickaxe=14"
 
 
 # Here add boost items' names and their respective weight to increase the player's carrying capacity.
 # Don't add space after and before '='. Use '&' for color codes.
+# Υou can use RGB colors by specifying them in the format "#RRGGBB"
 # Weight items don't have any weight. 
 boost-items:
 # - "itemname=boost_weight"

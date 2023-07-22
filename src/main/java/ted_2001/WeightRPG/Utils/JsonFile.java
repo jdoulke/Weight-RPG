@@ -446,23 +446,26 @@ public class JsonFile {
         List<String> customItems = getPlugin().getConfig().getStringList("custom-items-weight");
 
         for (String item : customItems) {
-
             String[] item_weight = item.split("=");
-            item = ChatColor.translateAlternateColorCodes('&', item_weight[0]);
-            float weight = getWeight(item_weight[1], item, origin);
-            customItemsWeight.put(item, weight);
+            String itemName = item_weight[0];
+            float weight = getWeight(item_weight[1], itemName, origin);
 
+            // Translate classic color codes
+            itemName =  ColorUtils.translateColorCodes(itemName);
+
+            customItemsWeight.put(itemName, weight);
         }
     }
 
     private void addBoostItemsWeight(){
 
         String origin = "Boost";
-        List<String> boostItems = getPlugin().getConfig().getStringList("boost-items-weight");
+        List<String> boostItems = getPlugin().getConfig().getStringList("boost-items");
 
         for (String item : boostItems) {
             String[] item_weight = item.split("=");
-            item = ChatColor.translateAlternateColorCodes('&', item_weight[0]);
+            String itemName = item_weight[0];
+            item = ColorUtils.translateColorCodes(itemName);
             float weight = getWeight(item_weight[1], item, origin);
             boostItemsWeight.put(item, weight);
 
