@@ -163,9 +163,9 @@ public class WeightCalculateListeners implements Listener {
             boolean disablePickUpLevel2 = getPlugin().getConfig().getBoolean("weight-level-2.disable-pick-up", false);
             boolean disablePickUpLevel3 = getPlugin().getConfig().getBoolean("weight-level-3.disable-pick-up", false);
 
-            if ((disablePickUpLevel1 && playerWeight.get(p.getUniqueId()) >= weightCalculation.calculateWeightLevel1(p))
-            || (disablePickUpLevel2 && playerWeight.get(p.getUniqueId()) >= weightCalculation.calculateWeightLevel2(p))
-            || (disablePickUpLevel3 && playerWeight.get(p.getUniqueId()) >= weightCalculation.calculateWeightLevel3(p))) {
+            if ((disablePickUpLevel1 && playerWeight.get(p.getUniqueId()) >= weightCalculation.calculateWeightThreshold(p, 1))
+            || (disablePickUpLevel2 && playerWeight.get(p.getUniqueId()) >= weightCalculation.calculateWeightThreshold(p, 2))
+            || (disablePickUpLevel3 && playerWeight.get(p.getUniqueId()) >= weightCalculation.calculateWeightThreshold(p, 3))) {
                 e.setCancelled(true);
                 return;
             }
@@ -193,7 +193,7 @@ public class WeightCalculateListeners implements Listener {
                 String s = "pick";
                 putWeightValue(p, item, amount, s);
                 message(p, "receive", item, weight, amount);
-                weightCalculation.getWeightsEffect(p);
+                weightCalculation.applyWeightEffects(p);
             }
         }
     }
@@ -233,15 +233,15 @@ public class WeightCalculateListeners implements Listener {
 
                     String message = Messages.getMessages().getString("drop-cooldown-message");
                     assert message != null;
-                    message = weightCalculation.messageSender(message, p);
+                    message = weightCalculation.formatMessage(message, p);
 
                     // Check if action bar messages are enabled in the plugin's configuration
                     if(getPlugin().getConfig().getBoolean("actionbar-messages"))
                         // Send the formatted message to the player's action bar if action bar messages are enabled
-                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message,p))));
+                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
                     else
                         // Send the formatted message as a regular chat message if action bar messages are not enabled
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message,p)));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
 
                     return;
 
@@ -249,6 +249,7 @@ public class WeightCalculateListeners implements Listener {
                     dropCooldown.put(p.getUniqueId(), System.currentTimeMillis());
             }
         }
+
 
         // Retrieve the item being dropped and its amount.
         ItemStack item = e.getItemDrop().getItemStack();
@@ -286,7 +287,7 @@ public class WeightCalculateListeners implements Listener {
             String s = "place";
             putWeightValue(p, item, amount, s);
             message(p, "lose", item, weight, amount);
-            weightCalculation.getWeightsEffect(p);
+            weightCalculation.applyWeightEffects(p);
         }
     }
 
@@ -343,7 +344,7 @@ public class WeightCalculateListeners implements Listener {
             String s = "place";
             putWeightValue(p, block, 1, s);
             message(p, "place", block, weight, 1);
-            weightCalculation.getWeightsEffect(p);
+            weightCalculation.applyWeightEffects(p);
         }
     }
 
@@ -415,9 +416,9 @@ public class WeightCalculateListeners implements Listener {
                 boolean disableJump = false;
 
                 // Calculate the weight levels used for jump restriction configuration.
-                double weight1 = weightCalculation.calculateWeightLevel1(p);
-                double weight2 = weightCalculation.calculateWeightLevel2(p);
-                double weight3 = weightCalculation.calculateWeightLevel3(p);
+                double weight1 = weightCalculation.calculateWeightThreshold(p,1);
+                double weight2 = weightCalculation.calculateWeightThreshold(p,2);
+                double weight3 = weightCalculation.calculateWeightThreshold(p,3);
 
                 // Check if the player's weight falls within specific weight levels and disable jumping if needed.
                 if (weight > weight1 && weight < weight2) 
@@ -459,10 +460,10 @@ public class WeightCalculateListeners implements Listener {
         // Check if action bar messages are enabled in the plugin's configuration
         if(getPlugin().getConfig().getBoolean("actionbar-messages"))
             // Send the formatted message to the player's action bar if action bar messages are enabled
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message,p))));
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.formatMessage(message,p))));
         else
             // Send the formatted message as a regular chat message if action bar messages are not enabled
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message,p)));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.formatMessage(message,p)));
     }
 
     // Checks if the player is in an enabled world and not in Creative or Spectator mode.
@@ -588,10 +589,10 @@ public class WeightCalculateListeners implements Listener {
             return;
         if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
             message = getPlaceholders(message, item, weight, amount);
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message, p))));
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.formatMessage(message, p))));
         }else {
             message = getPlaceholders(message, item, weight, amount);
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.messageSender(message, p)));
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.formatMessage(message, p)));
         }
     }
 

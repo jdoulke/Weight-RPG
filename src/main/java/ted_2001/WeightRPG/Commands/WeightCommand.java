@@ -56,21 +56,21 @@ public class WeightCommand implements CommandExecutor {
                     if(PlayerGamemode.equalsIgnoreCase("CREATIVE") ) {
                         // The player is in Creative mode inform the player.
                         String creativeMessage = Messages.getMessages().getString("weight-command-creative-message");
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(creativeMessage, p)));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.formatMessage(creativeMessage, p)));
                          return false;
                     }
 
                     if(PlayerGamemode.equalsIgnoreCase("SPECTATOR") ) {
                         // The player is in Creative mode inform the player.
                         String spectatorMessage = Messages.getMessages().getString("weight-command-spectator-message");
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(spectatorMessage, p)));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.formatMessage(spectatorMessage, p)));
                         return false;
                     }
 
                     if(p.hasPermission("weight.bypass")){
                         // The player has the "weight.bypass" permission inform the player.
                         String bypassMessage = Messages.getMessages().getString("weight-command-bypass-message");
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(bypassMessage, p)));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.formatMessage(bypassMessage, p)));
                         return false;
                     }
 
@@ -78,7 +78,7 @@ public class WeightCommand implements CommandExecutor {
                     // Send the default Weight-RPG command messages to the player.
                     List<String> message = Messages.getMessages().getStringList("weight-command-message");
                     for (String s : message)
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.messageSender(s, p)));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.formatMessage(s, p)));
 
                 }else
                     // The player does not have the "weight.use" permission. Send a message indicating no permission.

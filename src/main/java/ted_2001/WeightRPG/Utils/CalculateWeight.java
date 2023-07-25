@@ -26,6 +26,8 @@ public class CalculateWeight {
     public static HashMap<UUID, Float> playerWeight = new HashMap<>();
     public static HashMap<UUID, Long> cooldown = new HashMap<>();
 
+    public static HashMap<UUID, Float> playerBoostWeight = new HashMap<>();
+
     boolean Weight2 = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
     boolean Weight3 = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
 
@@ -69,47 +71,49 @@ public class CalculateWeight {
         // Calculate weight for each item in player's inventory and armor slots
         for (ItemStack item : inventory.getStorageContents()) {
             if (item != null) {
-                totalWeight += itemWeightCalculations(item);
+                totalWeight += itemWeightCalculations(item, p);
             }
         }
 
         for (ItemStack itemStack : inventory.getArmorContents()) {
             if (itemStack != null) {
-                totalWeight += itemWeightCalculations(itemStack);
+                totalWeight += itemWeightCalculations(itemStack, p);
             }
         }
 
         ItemStack offHandItem = inventory.getItemInOffHand();
         if (offHandItem != null) {
-            totalWeight += itemWeightCalculations(offHandItem);
+            totalWeight += itemWeightCalculations(offHandItem, p);
         }
         // Update player's weight in the HashMap
-        playerWeight.put(p.getUniqueId(), PlayerWeight);
+        playerWeight.put(p.getUniqueId(), totalWeight);
         applyWeightEffects(p); // Apply effects based on player's weight
     }
 
 
-    private float  itemWeightCalculations(ItemStack itemStack) {
+    private float  itemWeightCalculations(ItemStack itemStack, Player p) {
 
         float itemWeight = 0.0f;
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         if (itemMeta != null) {
             String displayName = itemMeta.getDisplayName();
-            
+            float boostWeight = 0;
             // Check if the item has a custom weight based on its display name from config file
-            if (customItemsWeight.containsKey(displayName)) 
+            if (customItemsWeight.containsKey(displayName))
                 itemWeight = customItemsWeight.get(displayName);
 
-            // Check if the item is a boost item weight based on its display name from config file
-            else if (boostItemsWeight.containsKey(displayName)) 
+                // Check if the item is a boost item weight based on its display name from config file
+            else if (boostItemsWeight.containsKey(displayName)) {
                 // Boost items don't add weight to the player.
+                boostWeight += boostItemsWeight.get(displayName);
+                playerBoostWeight.put(p.getUniqueId(), boostWeight);
                 return 0.0f;
-
-            // Check if the item has a global weight based on its material type
-            else if (globalItemsWeight.containsKey(itemStack.getType())) 
-                itemWeight = globalItemsWeight.get(itemStack.getType());            
-            
+            }
+                // Check if the item has a global weight based on its material type
+            else if (globalItemsWeight.containsKey(itemStack.getType()))
+                itemWeight = globalItemsWeight.get(itemStack.getType());
+        }
 
         return itemWeight * itemStack.getAmount();
     }
@@ -124,9 +128,9 @@ public class CalculateWeight {
         float weight = playerWeight.get(id);
 
         // Calculate weight thresholds for different levels
-        double weight1 = calculateWeightLevel1(p);
-        double weight2 = calculateWeightLevel2(p);
-        double weight3 = calculateWeightLevel3(p);
+        double weight1 = calculateWeightThreshold(p, 1);
+        double weight2 = calculateWeightThreshold(p, 2);
+        double weight3 = calculateWeightThreshold(p, 3);
 
         // Get walk speed values from plugin's configuration for each weight level
         float walkSpeedLevel1 = (float) getPlugin().getConfig().getDouble("weight-level-1.speed");
@@ -264,14 +268,8 @@ public class CalculateWeight {
 
         message = message.replaceAll("%playername%", p.getName());
         message = message.replaceAll("%displayname%", p.getDisplayName());
-
-        if(playerWeight.get(p.getUniqueId())!= null)
-            message = message.replaceAll("%weight%", String.format("%.2f", playerWeight.getOrDefault(p.getUniqueId(), 0f)));
-        else
-            message = message.replaceAll("%weight%", "0");
-
+        message = message.replaceAll("%weight%", String.format("%.2f", playerWeight.getOrDefault(p.getUniqueId(), 0f)));
         message = message.replaceAll("%world%", p.getWorld().getName());
-
         message = message.replaceAll("%level1%", Objects.requireNonNull(String.valueOf(calculateWeightThreshold(p,1))));
         message = message.replaceAll("%level2%", Objects.requireNonNull(String.valueOf(calculateWeightThreshold(p,2))));
         message = message.replaceAll("%level3%", Objects.requireNonNull(String.valueOf(calculateWeightThreshold(p,3))));
@@ -284,7 +282,7 @@ public class CalculateWeight {
         message = message.replaceAll("%pluginprefix%", getPlugin().getPluginPrefix());
 
         // Replace '%maxweight%' with the maximum weight threshold based on the enabled weight levels (level 1, level 2, or level 3)
-        message = message.replaceAll("%maxweight%", String.valueOf(calculateWeightThreshold(player, getEnabledWeightLevel())));
+        message = message.replaceAll("%maxweight%", String.valueOf(calculateWeightThreshold(p, getEnabledWeightLevel())));
 
         return message;
     }
@@ -292,13 +290,16 @@ public class CalculateWeight {
     // Calculates and returns the percentage of the player's weight relative to the maximum weight threshold,
     // based on the enabled weight levels (level 1, level 2, or level 3).
     public float getPercentage(Player p){
+
         if(playerWeight.get(p.getUniqueId()) == null)
             return 0;
 
-        float weight = playerWeight.get(p.getUniqueId());
-        float maxWeight = calculateWeightThreshold(player, getEnabledWeightLevel());
+        float boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
 
-        return weight * 100 / maxWeight;
+        float weight = playerWeight.get(p.getUniqueId());
+        float maxWeight = calculateWeightThreshold(p, getEnabledWeightLevel());
+
+        return weight * 100 / maxWeight + boostWeight;
     }
 
     // Generates a progress bar based on the player's weight relative to the maximum weight threshold
@@ -308,11 +309,9 @@ public class CalculateWeight {
         if (p == null)
             return "";
 
-        float weight = playerWeight.getOrDefault(player.getUniqueId(), 0f);
-        float maxWeight = calculateWeightThreshold(player, getEnabledWeightLevel());
 
-        // Calculate the percentage of the player's weight relative to the maximum weight threshold
-        float percentage = (weight * 100 / maxWeight);
+        // Calculate the percentage of the player's weight
+        float percentage = getPercentage(p);
 
         // Initialize the progress bar with 20 bars ('|') and white color
         StringBuilder message = new StringBuilder(38);
@@ -333,139 +332,6 @@ public class CalculateWeight {
         return ChatColor.translateAlternateColorCodes('&', message.toString());
     }
 
- 
-
-
-
-    // Calculates and returns the weight threshold for level 1 based on the player's permissions.
-    // If permission-mode is disabled, the weight threshold value from the 'config.yml' file will be used.
-    public float calculateWeightLevel1(Player p){
-
-        PlayerInventory inv = p.getInventory();
-
-        ItemStack[] items = inv.getStorageContents();
-        ItemStack[] armor = inv.getArmorContents();
-        ItemStack secondhand = inv.getItemInOffHand();
-
-        float totalExtraWeight = 0.0f;
-
-        for (ItemStack item : items) {
-             if (item != null && boostItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName()))
-                totalExtraWeight += boostItemsWeight.get(item.getItemMeta().getDisplayName());
-        }
-
-        for (ItemStack itemStack : armor) {
-            if (itemStack != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))
-                totalExtraWeight += boostItemsWeight.get(itemStack.getItemMeta().getDisplayName());
-        }
-
-        if(secondhand.getItemMeta() != null && boostItemsWeight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName()))
-            totalExtraWeight += boostItemsWeight.get(secondhand.getItemMeta().getDisplayName());
-
-        if (!getPlugin().getConfig().getBoolean("permission-mode")) {
-        // If permission-mode is disabled, return the weight threshold value from the 'config.yml' file
-        return weightThresholdValues[0] + totalExtraWeight;
-        }
-
-        // If permission-mode is enabled, calculate the weight threshold based on the player's permissions
-        float weight = weightThresholdValues[0];
-        for (int i = 10000; i > 0; i -= 100) {
-            if (p.hasPermission("weight.level1." + i)) {
-                weight = i;
-                return weight + totalExtraWeight;
-            }
-        }
-
-        // If no specific permission found, return the default weight threshold for level 1
-        return weight + totalExtraWeight;
-    }
-
-    // Calculates and returns the weight threshold for level 2 based on the player's permissions.
-    // If permission-mode is disabled, the weight threshold value from the 'config.yml' file will be used.
-    public float calculateWeightLevel2(Player p) {
-
-        PlayerInventory inv = p.getInventory();
-
-        ItemStack[] items = inv.getStorageContents();
-        ItemStack[] armor = inv.getArmorContents();
-        ItemStack secondhand = inv.getItemInOffHand();
-
-        float totalExtraWeight = 0.0f;
-
-        for (ItemStack item : items) {
-            if (item != null && boostItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName()))
-                totalExtraWeight += boostItemsWeight.get(item.getItemMeta().getDisplayName());
-        }
-
-        for (ItemStack itemStack : armor) {
-            if (itemStack != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))
-                totalExtraWeight += boostItemsWeight.get(itemStack.getItemMeta().getDisplayName());
-        }
-
-        if(secondhand.getItemMeta() != null && boostItemsWeight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName()))
-            totalExtraWeight += boostItemsWeight.get(secondhand.getItemMeta().getDisplayName());
-
-        if (!getPlugin().getConfig().getBoolean("permission-mode")) {
-            // If permission-mode is disabled, return the weight threshold value from the 'config.yml' file
-            return weightThresholdValues[1] + totalExtraWeight;
-        }
-
-        // If permission-mode is enabled, calculate the weight threshold based on the player's permissions
-        float weight = weightThresholdValues[1];
-        for (int i = 10000; i > 0; i -= 100) {
-            if (p.hasPermission("weight.level2." + i)) {
-                weight = i;
-                return weight + totalExtraWeight;
-            }
-        }
-
-        // If no specific permission found, return the default weight threshold for level 2
-        return weight + totalExtraWeight;
-    }
-
-    // Calculates and returns the weight threshold for level 3 based on the player's permissions.
-    // If permission-mode is disabled, the weight threshold value from the 'config.yml' file will be used.
-    public float calculateWeightLevel3(Player p) {
-
-        PlayerInventory inv = p.getInventory();
-
-        ItemStack[] items = inv.getStorageContents();
-        ItemStack[] armor = inv.getArmorContents();
-        ItemStack secondhand = inv.getItemInOffHand();
-
-        float totalExtraWeight = 0.0f;
-
-        for (ItemStack item : items) {
-            if (item != null && boostItemsWeight.containsKey(Objects.requireNonNull(item.getItemMeta()).getDisplayName()))
-                totalExtraWeight += boostItemsWeight.get(item.getItemMeta().getDisplayName());
-        }
-
-        for (ItemStack itemStack : armor) {
-            if (itemStack != null && boostItemsWeight.containsKey(Objects.requireNonNull(itemStack.getItemMeta()).getDisplayName()))
-                totalExtraWeight += boostItemsWeight.get(itemStack.getItemMeta().getDisplayName());
-        }
-
-        if(secondhand.getItemMeta() != null && boostItemsWeight.containsKey(Objects.requireNonNull(secondhand.getItemMeta()).getDisplayName()))
-            totalExtraWeight += boostItemsWeight.get(secondhand.getItemMeta().getDisplayName());
-
-        if (!getPlugin().getConfig().getBoolean("permission-mode")) {
-            // If permission-mode is disabled, return the weight threshold value from the 'config.yml' file
-            return weightThresholdValues[2] + totalExtraWeight;
-        }
-
-        // If permission-mode is enabled, calculate the weight threshold based on the player's permissions
-        float weight = weightThresholdValues[2];
-        for (int i = 20000; i > 0; i -= 100) {
-            if (p.hasPermission("weight.level3." + i)) {
-                weight = i;
-                return weight + totalExtraWeight;
-            }
-        }
-
-        // If no specific permission found, return the default weight threshold for level 3
-        return weight + totalExtraWeight;
-    }
-
 
     public int getEnabledWeightLevel() {
         if (Weight3) {
@@ -475,6 +341,24 @@ public class CalculateWeight {
         } else {
             return 1;
         }
+    }
+
+    public float calculateWeightThreshold(Player player, int level) {
+
+        float weight = weightThresholdValues[level - 1];
+        float boostWeight = playerBoostWeight.getOrDefault(player.getUniqueId(), 0f);
+
+        if (!getPlugin().getConfig().getBoolean("permission-mode")) {
+            // If permission-mode is disabled, return the weight threshold value from the 'config.yml' file
+            return weightThresholdValues[1] + boostWeight;
+        }
+        for (int i = 10000; i > 0; i -= 100) {
+            if (player.hasPermission("weight.level" + level + "." + i)) {
+                weight = i;
+                break;
+            }
+        }
+        return weight + boostWeight;
     }
 
 }

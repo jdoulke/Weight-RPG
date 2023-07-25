@@ -61,7 +61,7 @@ public class WeightExpasion extends PlaceholderExpansion {
                 return "0";
         }
         if(params.equals("max_weight")){
-            float maxWeight = w.calculateWeightThreshold(p, getEnabledWeightLevel());
+            float maxWeight = w.calculateWeightThreshold(p, w.getEnabledWeightLevel());
             return String.valueOf(maxWeight);
         }
         if(params.equals("weight_level1")) {
