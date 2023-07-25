@@ -18,6 +18,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
+import ted_2001.WeightRPG.Utils.ColorUtils;
 import ted_2001.WeightRPG.Utils.Messages;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
@@ -604,10 +605,10 @@ public class WeightCalculateListeners implements Listener {
             return;
         if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
             message = getPlaceholders(message, item, weight, amount);
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.formatMessage(message, p))));
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ColorUtils.translateColorCodes(weightCalculation.formatMessage(message, p))));
         }else {
             message = getPlaceholders(message, item, weight, amount);
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.formatMessage(message, p)));
+            p.sendMessage(ColorUtils.translateColorCodes(weightCalculation.formatMessage(message, p)));
         }
     }
 

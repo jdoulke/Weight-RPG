@@ -88,21 +88,21 @@ drop-cooldown:
 
 # Here add customs items name for custom weight. 
 # Don't add space after and before '='. Use '&' for color codes.
-# Υou can use RGB colors by specifying them in the format "#RRGGBB"
+# Υou can use RGB colors by specifying them in the format "&#RRGGBB"
 custom-items-weight:
 # - "customitemname=weight"
   - "&c&lThunder Sword=20"
-  - "#FFD700&lAmazing Pickaxe=14"
+  - "&#FFD700&lAmazing Pickaxe=14"
 
 
 # Here add boost items' names and their respective weight to increase the player's carrying capacity.
 # Don't add space after and before '='. Use '&' for color codes.
-# Υou can use RGB colors by specifying them in the format "#RRGGBB"
-# Weight items don't have any weight. 
+# Υou can use RGB colors by specifying them in the format "&#RRGGBB"
+# Boost items don't have any weight.
 boost-items:
 # - "itemname=boost_weight"
   - "&aSuper Backpack=50"
-  - "&b&lEnhanced Bag=100"
+  - "&#1cebee&lEnhanced Bag=100"
 
 plugin-prefix: "&7[&eWeight-RPG&7]&f: "
 
