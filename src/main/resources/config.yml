@@ -18,8 +18,8 @@
 # %maxweight% for global max weight. (if you have enabled level 3 then level 3 is the maximum if you have disabled level 3 but enabled level 2 then level 2 is the max.)
 # %world% for player's world.
 # %level1% for weight level 1 value %level2% for level 2 and %level3% for level 3.
-# %percentage% for weight percentage (weight * 100 / max weight)
-# %percentageweight% for percentage animation.
+# %percentage% for weight percentage ( weight * 100 / ( max weight + boost items ) )
+# %percentageweight% for percentage bar animation.
 # %pluginprefix% for plugin's prefix.
 
 
@@ -30,7 +30,7 @@ message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1% %perce
 # Permission mode will get the weight values from the player's permission. (default false)
 # You need to use permissions like this. weight.level1.(value), weight.level2.(value), weight.level3.(value)
 # If the permission doesn't exist then the value of the weight level will be the value under the weight level on the config.yml file
-# NOT RECOMMENDED the usage of it will be pretty heavy.
+# NOT RECOMMENDED the usage of it will be heavy.
 # Max value for level 1 and level 2 is 10000 and for level 3 is 20000 on permission mode
 # permission mode will only work with multiples of 100. For example (1000, 1500, 2300, etc).
 # This is for performance reasons.
