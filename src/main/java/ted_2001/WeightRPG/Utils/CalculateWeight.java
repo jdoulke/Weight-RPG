@@ -68,6 +68,7 @@ public class CalculateWeight {
         PlayerInventory inventory = p.getInventory();
         float totalWeight = 0f;
 
+        playerBoostWeight.put(p.getUniqueId(), 0f);
         // Calculate weight for each item in player's inventory and armor slots
         for (ItemStack item : inventory.getStorageContents()) {
             if (item != null) {
@@ -98,17 +99,16 @@ public class CalculateWeight {
 
         if (itemMeta != null) {
             String displayName = itemMeta.getDisplayName();
-            float boostWeight = 0;
             // Check if the item has a custom weight based on its display name from config file
             if (customItemsWeight.containsKey(displayName))
                 itemWeight = customItemsWeight.get(displayName);
 
-                // Check if the item is a boost item weight based on its display name from config file
+            // Check if the item is a boost item weight based on its display name from config file
             else if (boostItemsWeight.containsKey(displayName)) {
                 // Boost items don't add weight to the player.
-                boostWeight += boostItemsWeight.get(displayName);
-                boostWeight *= itemStack.getAmount();
-                playerBoostWeight.put(p.getUniqueId(), boostWeight);
+                float boostWeight = boostItemsWeight.get(displayName) * itemStack.getAmount();
+                float currentBoostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                playerBoostWeight.put(p.getUniqueId(), currentBoostWeight + boostWeight);
                 return 0.0f;
             }
                 // Check if the item has a global weight based on its material type

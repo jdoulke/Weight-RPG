@@ -244,10 +244,10 @@ public class WeightCalculateListeners implements Listener {
                     // Check if action bar messages are enabled in the plugin's configuration
                     if(getPlugin().getConfig().getBoolean("actionbar-messages"))
                         // Send the formatted message to the player's action bar if action bar messages are enabled
-                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', message)));
+                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ColorUtils.translateColorCodes(message)));
                     else
                         // Send the formatted message as a regular chat message if action bar messages are not enabled
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                        p.sendMessage(ColorUtils.translateColorCodes(message));
 
                     return;
 
@@ -476,10 +476,10 @@ public class WeightCalculateListeners implements Listener {
         // Check if action bar messages are enabled in the plugin's configuration
         if(getPlugin().getConfig().getBoolean("actionbar-messages"))
             // Send the formatted message to the player's action bar if action bar messages are enabled
-            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', weightCalculation.formatMessage(message,p))));
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ColorUtils.translateColorCodes(weightCalculation.formatMessage(message,p))));
         else
             // Send the formatted message as a regular chat message if action bar messages are not enabled
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', weightCalculation.formatMessage(message,p)));
+            p.sendMessage(ColorUtils.translateColorCodes( weightCalculation.formatMessage(message,p)));
     }
 
     // Checks if the player is in an enabled world and not in Creative or Spectator mode.
