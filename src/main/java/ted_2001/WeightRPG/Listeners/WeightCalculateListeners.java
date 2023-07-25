@@ -171,6 +171,7 @@ public class WeightCalculateListeners implements Listener {
             }
 
             float weight = 0.0f;
+            float boostWeight;
             boolean isCustomItem = false;
             ItemMeta itemMeta = item.getItemMeta();
 
@@ -179,6 +180,10 @@ public class WeightCalculateListeners implements Listener {
                 weight = customItemsWeight.get(itemMeta.getDisplayName());
                 isCustomItem = true;
             } else if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
+                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                if(boostWeight != 0)
+                    boostWeight +=  (boostItemsWeight.get(itemMeta.getDisplayName()) * amount);
+                playerBoostWeight.put(p.getUniqueId(), boostWeight);
                 weight = 0.0f;
             }else if (globalItemsWeight.get(item.getType()) != null) 
                 weight = globalItemsWeight.get(item.getType());
@@ -265,6 +270,7 @@ public class WeightCalculateListeners implements Listener {
 
 
         float weight = 0.0f;
+        float boostWeight;
         boolean isCustomItem = false;
         ItemMeta itemMeta = item.getItemMeta();
 
@@ -273,6 +279,10 @@ public class WeightCalculateListeners implements Listener {
             weight = customItemsWeight.get(itemMeta.getDisplayName());
             isCustomItem = true;
         } else if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
+            boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+            if(boostWeight != 0)
+                boostWeight -= (boostItemsWeight.get(itemMeta.getDisplayName()) * amount);
+            playerBoostWeight.put(p.getUniqueId(), boostWeight);
             weight = 0.0f;
         }else if(globalItemsWeight.get(item.getType()) != null)
             weight = globalItemsWeight.get(item.getType());
@@ -322,6 +332,7 @@ public class WeightCalculateListeners implements Listener {
         }
 
         float weight = 0.0f;
+        float boostWeight;
         boolean isCustomItem = false;
         ItemMeta itemMeta = block.getItemMeta();
 
@@ -330,6 +341,10 @@ public class WeightCalculateListeners implements Listener {
             weight = customItemsWeight.get(itemMeta.getDisplayName());
             isCustomItem = true;
         } else if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
+            boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+            if(boostWeight != 0)
+                boostWeight -= boostItemsWeight.get(itemMeta.getDisplayName());
+            playerBoostWeight.put(p.getUniqueId(), boostWeight);
             weight = 0.0f;
         }else if(globalItemsWeight.get(block.getType()) != null)
             weight = globalItemsWeight.get(block.getType());

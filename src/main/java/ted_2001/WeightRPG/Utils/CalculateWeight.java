@@ -107,6 +107,7 @@ public class CalculateWeight {
             else if (boostItemsWeight.containsKey(displayName)) {
                 // Boost items don't add weight to the player.
                 boostWeight += boostItemsWeight.get(displayName);
+                boostWeight *= itemStack.getAmount();
                 playerBoostWeight.put(p.getUniqueId(), boostWeight);
                 return 0.0f;
             }
@@ -299,7 +300,7 @@ public class CalculateWeight {
         float weight = playerWeight.get(p.getUniqueId());
         float maxWeight = calculateWeightThreshold(p, getEnabledWeightLevel());
 
-        return weight * 100 / maxWeight + boostWeight;
+        return weight * 100 / (maxWeight + boostWeight);
     }
 
     // Generates a progress bar based on the player's weight relative to the maximum weight threshold
@@ -350,7 +351,7 @@ public class CalculateWeight {
 
         if (!getPlugin().getConfig().getBoolean("permission-mode")) {
             // If permission-mode is disabled, return the weight threshold value from the 'config.yml' file
-            return weightThresholdValues[1] + boostWeight;
+            return weightThresholdValues[level - 1] + boostWeight;
         }
         for (int i = 10000; i > 0; i -= 100) {
             if (player.hasPermission("weight.level" + level + "." + i)) {
