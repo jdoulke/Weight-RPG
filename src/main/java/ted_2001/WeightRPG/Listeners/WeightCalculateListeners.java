@@ -242,10 +242,11 @@ public class WeightCalculateListeners implements Listener {
                     message = weightCalculation.formatMessage(message, p);
 
                     // Check if action bar messages are enabled in the plugin's configuration
-                    if(getPlugin().getConfig().getBoolean("actionbar-messages"))
+                    if(getPlugin().getConfig().getBoolean("actionbar-messages")){
                         // Send the formatted message to the player's action bar if action bar messages are enabled
-                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ColorUtils.translateColorCodes(message)));
-                    else
+                        BaseComponent[] actionBarMessage = TextComponent.fromLegacyText(ColorUtils.translateColorCodes(message));
+                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, actionBarMessage);
+                    }else
                         // Send the formatted message as a regular chat message if action bar messages are not enabled
                         p.sendMessage(ColorUtils.translateColorCodes(message));
 
