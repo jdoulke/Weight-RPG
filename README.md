@@ -43,6 +43,7 @@ First, when the plugin loads for the first time it will create 2 files (config.y
 Custom item assignment
 After you configure the config file and assign all the weight values to items, use the command ‘/weight reload’ to apply the changes to the server. That’s it. To assign a weight value to a custom item, go to the config file in the “custom-items-weight” section and write the name with color codes like the examples.
 &c&lThunder Sword=20 (Use the same format as mentioned above.)​
+
 Boost Items Functionality
 These special items can grant players additional weight-carrying capacity. When players have Boost Items in their inventory, their maximum weight capacity will increase, allowing them to carry more items without reaching the weight threshold. To define Boost Items and their respective weight enhancements, navigate to the config.yml file. Under the "boost-items" section, add the names of the Boost Items and their associated weight values. The format to be used is "itemname=boost_weight," similar to the custom item assignment.​
 
