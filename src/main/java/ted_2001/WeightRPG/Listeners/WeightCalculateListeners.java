@@ -676,4 +676,36 @@ public class WeightCalculateListeners implements Listener {
         }
     }
 
+    // Method to handle player quitting event and remove player's entry from the playerWeight HashMap
+    // The main purpose of this method is to prevent potential bugs or issues related to outdated player weight data.
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        // Get the player who is quitting
+        Player quittingPlayer = event.getPlayer();
+        
+        // Remove the player from all HashMap
+        UUID playerId = quittingPlayer.getUniqueId();
+
+        if (CalculateWeight.playerWeight.containsKey(playerId)) 
+            CalculateWeight.playerWeight.remove(playerId);
+
+        if(jumpMessage.containsKey(playerId))
+            jumpMessage.remove(playerId);
+
+        if(pickMessage.containsKey(playerId))
+            pickMessage.remove(playerId);
+
+        if(placeMessage.containsKey(playerId))
+            placeMessage.remove(playerId);
+
+        if(dropMessage.containsKey(playerId))
+            dropMessage.remove(playerId);
+
+        if(notifyMessage.containsKey(playerId))
+            notifyMessage.remove(playerId);
+
+        if(dropCooldown.containsKey(playerId))
+            dropCooldown.remove(playerId);        
+    }
+
 }
