@@ -83,9 +83,10 @@ public class CalculateWeight {
         }
 
         ItemStack offHandItem = inventory.getItemInOffHand();
-        if (offHandItem != null) {
+        if (offHandItem != null) 
             totalWeight += itemWeightCalculations(offHandItem, p);
-        }
+        
+        
         // Update player's weight in the HashMap
         playerWeight.put(p.getUniqueId(), totalWeight);
         applyWeightEffects(p); // Apply effects based on player's weight
@@ -123,8 +124,10 @@ public class CalculateWeight {
         UUID id = p.getUniqueId();
 
         // If the player's weight is not calculated yet, return
-        if (playerWeight.get(id) == null)
+        if (playerWeight.get(id) == null){
+            calculateWeight(p);
             return;
+        }
 
         float weight = playerWeight.get(id);
 
