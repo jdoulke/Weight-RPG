@@ -10,13 +10,16 @@ Features
 
     Assign weight value to every item.
     Custom weight for custom items by their names.
+    Boost Items that grant additional weight capacity.
     Three weight levels so you can ‘punish’ players differently in each one. You can disable any level you want.
     You can use permissions for weight level.
     You can set item's weight using the command /weight set <item> <weight value>
     Players with permission weight.notify get a message for items that aren't in weight files. You can add them manually or you can use the command /weight add <item> <weight value>.
     Custom weight values and penalties for every weight level before it takes effect.
     You can disable jump and movement at any level you want for the player.
+    You can disable player of picking-up items at any level.
     100% customizable messages in messages.yml file.
+    HEX color support.
     Messages for pick-up, drop, or place items.
     16 custom placeholders to use in messages.
     Messages can be sent via action-bar or chat.
@@ -40,6 +43,9 @@ First, when the plugin loads for the first time it will create 2 files (config.y
 Custom item assignment
 After you configure the config file and assign all the weight values to items, use the command ‘/weight reload’ to apply the changes to the server. That’s it. To assign a weight value to a custom item, go to the config file in the “custom-items-weight” section and write the name with color codes like the examples.
 &c&lThunder Sword=20 (Use the same format as mentioned above.)​
+
+Boost Items Functionality
+These special items can grant players additional weight-carrying capacity. When players have Boost Items in their inventory, their maximum weight capacity will increase, allowing them to carry more items without reaching the weight threshold. To define Boost Items and their respective weight enhancements, navigate to the config.yml file. Under the "boost-items" section, add the names of the Boost Items and their associated weight values. The format to be used is "itemname=boost_weight," similar to the custom item assignment.​
 
 
 Command and Permissions
