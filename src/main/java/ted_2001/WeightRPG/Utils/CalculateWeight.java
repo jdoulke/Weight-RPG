@@ -4,9 +4,11 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Sound;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
@@ -69,22 +71,51 @@ public class CalculateWeight {
         float totalWeight = 0f;
 
         playerBoostWeight.put(p.getUniqueId(), 0f);
-        // Calculate weight for each item in player's inventory and armor slots
-        for (ItemStack item : inventory.getStorageContents()) {
-            if (item != null) {
-                totalWeight += itemWeightCalculations(item, p);
+
+        if(getPlugin().getConfig().getBoolean("shulker-boxes")){
+            for (ItemStack item : inventory.getStorageContents()) {
+                if (item != null) {
+                    if (item.getItemMeta() instanceof BlockStateMeta) {
+                        BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
+                        if (im.getBlockState() instanceof ShulkerBox) {
+                            ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                            totalWeight += shulkerBoxWeightCalculations(shulker, p);
+                        }
+                    }else {
+                        totalWeight += itemWeightCalculations(item, p);
+                    }
+                }
+                ItemStack offHandItem = inventory.getItemInOffHand();
+                if (offHandItem != null)
+                    if (offHandItem.getItemMeta() instanceof BlockStateMeta) {
+                        BlockStateMeta im = (BlockStateMeta) offHandItem.getItemMeta();
+                        if (im.getBlockState() instanceof ShulkerBox) {
+                            ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                            totalWeight += shulkerBoxWeightCalculations(shulker, p);
+                        }
+                    }else {
+                        totalWeight += itemWeightCalculations(offHandItem, p);
+                    }
             }
+        } else {
+            // Calculate weight for each item in player's inventory
+            for (ItemStack item : inventory.getStorageContents()) {
+                if (item != null) {
+                    totalWeight += itemWeightCalculations(item, p);
+                }
+            }
+
+            ItemStack offHandItem = inventory.getItemInOffHand();
+            if (offHandItem != null)
+                totalWeight += itemWeightCalculations(offHandItem, p);
         }
 
+        // Calculate weight for each item in player's armor
         for (ItemStack itemStack : inventory.getArmorContents()) {
             if (itemStack != null) {
                 totalWeight += itemWeightCalculations(itemStack, p);
             }
         }
-
-        ItemStack offHandItem = inventory.getItemInOffHand();
-        if (offHandItem != null) 
-            totalWeight += itemWeightCalculations(offHandItem, p);
         
         
         // Update player's weight in the HashMap
@@ -93,7 +124,7 @@ public class CalculateWeight {
     }
 
 
-    private float  itemWeightCalculations(ItemStack itemStack, Player p) {
+    private static float  itemWeightCalculations(ItemStack itemStack, Player p) {
 
         float itemWeight = 0.0f;
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -159,7 +190,7 @@ public class CalculateWeight {
         } else if (weight >= weight1 && weight < weight2) {
 
             // If the player's weight is between weight level 1 and weight level 2 thresholds
-            // and his walk speed is faster than walkingspeed1 or equals to the others 2 levels, set it to the weight level 1 value
+            // and his walk speed is faster than walking speed1 or equals to the others 2 levels, set it to the weight level 1 value
             if (p.getWalkSpeed() > walkSpeedLevel1 || p.getWalkSpeed() == walkSpeedLevel2 || p.getWalkSpeed() == walkSpeedLevel3)
                 p.setWalkSpeed(walkSpeedLevel1);
 
@@ -175,7 +206,7 @@ public class CalculateWeight {
 
             // If the player's weight is between weight level 2 and weight level 3 thresholds
             // and the weight level 2 feature is enabled
-            // and his walk speed is faster than walkingspeed2 or equals to the others 2 levels, set it to the weight level 2 value
+            // and his walk speed is faster than walking speed2 or equals to the others 2 levels, set it to the weight level 2 value
             if (p.getWalkSpeed() > walkSpeedLevel2 || p.getWalkSpeed() == walkSpeedLevel1 || p.getWalkSpeed() == walkSpeedLevel3)
                 p.setWalkSpeed(walkSpeedLevel2);
 
@@ -190,7 +221,7 @@ public class CalculateWeight {
         } else if (weight >= weight3 && Weight3) {
             // If the player's weight is above or equal to weight level 3 threshold
             // and the weight level 3 feature is enabled
-            // and his walk speed is faster than walkingspeed3 or equals to the others 2 levels, set it to the weight level 3 value
+            // and his walk speed is faster than walking speed3 or equals to the others 2 levels, set it to the weight level 3 value
             if (p.getWalkSpeed() > walkSpeedLevel3 || p.getWalkSpeed() == walkSpeedLevel1 || p.getWalkSpeed() == walkSpeedLevel2)
                 p.setWalkSpeed(walkSpeedLevel3);
 
@@ -325,11 +356,15 @@ public class CalculateWeight {
         int coloredBars = ((int) percentage >= 100) ? 20 : (((int) percentage) / 5 + 1);
         int colorIndex = ((int) percentage >= 100) ? 4 : (((int) percentage) / 20);
 
+        if(colorIndex < 0)
+            colorIndex = 0;
+
         // Insert the appropriate color code at the beginning and end of the colored bars
         if ((int) percentage >= 95)
             message.insert(5, darkRedColor);
-        else
-            message.insert(5, colorCodes[colorIndex]);
+        else {
+                message.insert(5, colorCodes[colorIndex]);
+        }
         message.insert(9 + coloredBars, whiteColor);
 
         // Return the formatted progress bar with color codes translated
@@ -363,6 +398,21 @@ public class CalculateWeight {
             }
         }
         return weight + boostWeight;
+    }
+
+    // Method to calculate item's weight inside a shulkerBox
+    public static float shulkerBoxWeightCalculations(ShulkerBox shulkerBox, Player p) {
+
+        float shulkerBoxInventoryWeight = globalItemsWeight.get(shulkerBox.getType());
+
+
+        for (ItemStack item : shulkerBox.getInventory().getStorageContents()) {
+            if (item != null) {
+                shulkerBoxInventoryWeight += itemWeightCalculations(item, p);
+            }
+        }
+        return shulkerBoxInventoryWeight;
+
     }
 
 }

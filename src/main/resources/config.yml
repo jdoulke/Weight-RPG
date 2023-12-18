@@ -86,6 +86,10 @@ drop-cooldown:
   enabled: true
   cooldown: 0.5
 
+# Should plugin calculate the storage inside a shulker box? (default is true)
+# It will calculate also the custom items and boost items weight.
+shulker-boxes: true
+
 # Here add customs items name for custom weight. 
 # Don't add space after and before '='. Use '&' for color codes.
 # Υou can use RGB colors by specifying them in the format "&#RRGGBB"

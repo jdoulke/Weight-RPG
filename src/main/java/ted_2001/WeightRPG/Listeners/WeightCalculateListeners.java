@@ -8,6 +8,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,6 +18,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.ColorUtils;
@@ -472,7 +474,7 @@ public class WeightCalculateListeners implements Listener {
         // Record the current time as the timestamp for jump restriction message cooldown.
         jumpMessage.put(p.getUniqueId(), System.currentTimeMillis());
 
-        // Get the jump restriction message from the messages configuration.
+        // Get the jump restriction message from the messages' configuration.
         String message = Messages.getMessages().getString("disable-jump-message", "");
 
         // Check if action bar messages are enabled in the plugin's configuration
@@ -607,17 +609,17 @@ public class WeightCalculateListeners implements Listener {
         if(message == null)
             return;
         if(getPlugin().getConfig().getBoolean("actionbar-messages")) {
-            message = getPlaceholders(message, item, weight, amount);
+            message = getPlaceholders(message, item, weight, amount, p);
             BaseComponent[] actionBarMessage = TextComponent.fromLegacyText(ColorUtils.translateColorCodes(weightCalculation.formatMessage(message, p)));
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, actionBarMessage);
         }else {
-            message = getPlaceholders(message, item, weight, amount);
+            message = getPlaceholders(message, item, weight, amount, p);
             p.sendMessage(ColorUtils.translateColorCodes(weightCalculation.formatMessage(message, p)));
         }
     }
 
     // Replaces placeholders in the given message with actual item-related information.
-    private String getPlaceholders(String message, ItemStack item, float weight, int amount) {
+    private String getPlaceholders(String message, ItemStack item, float weight, int amount, Player p) {
 
         message = message.replaceAll("%block%", String.valueOf(item.getType()));
 
@@ -627,7 +629,22 @@ public class WeightCalculateListeners implements Listener {
         else
             message = message.replaceAll("%itemdisplayname%", String.valueOf(item.getType()));
 
-        message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
+        if(getPlugin().getConfig().getBoolean("shulker-boxes")) {
+            if (item.getItemMeta() instanceof BlockStateMeta) {
+                BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
+                if (im.getBlockState() instanceof ShulkerBox) {
+                    ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                    weight = CalculateWeight.shulkerBoxWeightCalculations(shulker, p);
+                    message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
+                }
+            } else
+                message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
+        }else {
+            message = message.replaceAll("%itemweight%", String.format("%.2f", weight));
+        }
+
+
+
         message = message.replaceAll("%amount%", String.valueOf(amount));
 
         // Replace the %totalweight% placeholder with the total weight (weight * amount) of the items, formatted to two decimal places.
