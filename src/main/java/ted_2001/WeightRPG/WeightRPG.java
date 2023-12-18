@@ -73,13 +73,19 @@ public final class WeightRPG extends JavaPlugin {
 
         // Check for plugin updates
         new UpdateChecker(this, 105513).getVersion(version -> {
-            if (this.getDescription().getVersion().equals(version)) {
-                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There is no new update available.");
-            } else if (Double.parseDouble(this.getDescription().getVersion()) < Double.parseDouble(version)) {
-                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "There is a new update available.");
-            } else {
-                getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "You are using a newer version compared to the version uploaded on Spigot.");
-            }
+            String currentVersion = this.getDescription().getVersion().replace(".", "");
+            version = version.replace(".", "");
+
+            int currentVersionInt = Integer.parseInt(currentVersion);
+            int newVersionInt = Integer.parseInt(version);
+
+            if(newVersionInt > currentVersionInt)
+                getLogger().info("There is a new update available.");
+            else if(newVersionInt == currentVersionInt)
+                getLogger().info("There is not a new update available.");
+            else
+                getLogger().info("You are running a dev version.");
+
         });
 
         // Initialize metrics
