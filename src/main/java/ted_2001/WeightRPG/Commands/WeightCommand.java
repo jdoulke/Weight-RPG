@@ -141,7 +141,10 @@ public class WeightCommand implements CommandExecutor {
                         // Player does not have permission to execute the add command. Send him a no permission message.
                         noPermMessage(p);
                 } else if (arg0.equalsIgnoreCase("help")) {
+                    // The first argument is "help".
+                    // Check if the player has the "weight.help" permission to execute the help command.
                     if (p.hasPermission("weight.help")) {
+                        // Player has permission. Show the message from messages.yml file.
                         List<String> message = Messages.getMessages().getStringList("help-command-message");
                         for (String s : message)
                             p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.formatMessage(s, p)));
