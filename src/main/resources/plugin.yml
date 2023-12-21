@@ -10,23 +10,3 @@ commands:
     description: Shows the weight of the player.
     permission: weight.use
     usage: /weight
-  weight get:
-    description: Shows the weight of the player.
-    permission: weight.get
-    usage: /weight get <item>
-  weight set:
-    description: Sets the weight of the player.
-    permission: weight.set
-    usage: /weight set <item> <weight>
-  weight add:
-    description: Adds the item to the weight files.
-    permission: weight.add
-    usage: /weight add <item> <weight>
-  weight help:
-    description: Shows the help message.
-    permission: weight.help
-    usage: /weight help
-  weight reload:
-    description: Reloads the plugin.
-    permission: weight.reload
-    usage: /weight reload
