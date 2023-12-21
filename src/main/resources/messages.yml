@@ -28,7 +28,28 @@ weight-command-bypass-message: "%pluginprefix% &4Weight-RPG is disabled for you 
 weight-command-creative-message: "%pluginprefix% &4Weight-RPG is disabled for &aCreative Mode&4."
 weight-command-spectator-message: "%pluginprefix% &4Weight-RPG is disabled for &aSpectator Mode&4."
 
-no-permission-message: "%pluginprefix% &4You don't have permission to use this command."
+# These messages are sent to the player when he types only /weight <get/set/add> commands without the <item> parameter.
+get-command-message: "%pluginprefix% &aYou can see items weight by using the command &e/weight get <item>."
+set-command-message: "%pluginprefix% &aYou can set the weight value of an item using the command &e/weight set <item> <value>."
+add-command-message: "%pluginprefix% &a&aYou can add an item on the weight files using the command &e/weight add <item> <value>. &aYou will find the record on the Misc Items Weight file under Additional Items section."
+
+# These messages are sent to the player when he types a correct (succes message) item or not (fail message).
+# Here you can use %item% for the typed item and %itemweight% (this one only for the success message) for its weight.
+get-item-success-message: "%pluginprefix% &aThe weight of &e%item% &ais &b%itemweight%&a."
+get-item-fail-message: "%pluginprefix% &cCouldn't find &e%item% &cin the weight files."
+
+set-item-success-message: "%pluginprefix% &aYou successfully set the weight of &e%item% &ato &b%itemweight%&a."
+set-item-fail-message: "%pluginprefix% &cCouldn't find &e%item% &cin the weight files."
+
+add-item-success-message: "%pluginprefix% &aYou successfully added &e%item% &ato the weight files with a weight value of &b%itemweight%&a."
+add-item-found-message: "%pluginprefix% &cThis item already exists in the weight files and it's weight value is &b%itemweight%&c."
+
+no-permission-message: "%pluginprefix% &cYou don't have permission to use this command."
+unknown-command: "%pluginprefix% &cCouldn't find this command."
+disable-world-message: "%pluginprefix% &eWeight-RPG &cis disabled in the &b%world%&c."
+
+success-reload-message: "%pluginprefix% &aConfig and weight files reloaded successfully."
+fail-reload-message: "%pluginprefix% &There was an error while reloading, check the console."
 
 weight-command-message:
   - "%displayname% &eyour weight is &e%weight% &a/ &c%maxweight%."
