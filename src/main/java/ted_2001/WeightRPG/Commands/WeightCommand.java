@@ -140,6 +140,12 @@ public class WeightCommand implements CommandExecutor {
                     else
                         // Player does not have permission to execute the add command. Send him a no permission message.
                         noPermMessage(p);
+                } else if (arg0.equalsIgnoreCase("help")) {
+                    if (p.hasPermission("weight.help")) {
+                        List<String> message = Messages.getMessages().getStringList("help-command-message");
+                        for (String s : message)
+                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.formatMessage(s, p)));
+                    }
                 }else
                     // The first argument is none of the recognized commands.
                     p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");

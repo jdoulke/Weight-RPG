@@ -32,6 +32,8 @@ public class Tabcompleter implements TabCompleter {
                     results.add("set");
                 if(sender.hasPermission("weight.add"))
                     results.add("add");
+                if (sender.hasPermission("weight.help"))
+                    results.add("help");
 
                 // Return the sorted tab-completion results based on the user's input argument.
                 return sortedResults(args[0]);

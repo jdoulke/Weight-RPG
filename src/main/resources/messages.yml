@@ -29,10 +29,19 @@ weight-command-creative-message: "%pluginprefix% &4Weight-RPG is disabled for &a
 weight-command-spectator-message: "%pluginprefix% &4Weight-RPG is disabled for &aSpectator Mode&4."
 
 weight-command-message:
-  - '%displayname% &eyour weight is &e%weight% &a/ &c%maxweight%.'
-  - '&cPercentage %percentage%%'
-  - '%percentageweight%'
-  - '&eLevel 1 &avalue is &c%level1%.'
-  - '&6Level 2 &avalue is &c%level2%.'
-  - '&cLevel 3 &avalue is &c%level3%.'
-  #- '&aanything else you want.'
+  - "%displayname% &eyour weight is &e%weight% &a/ &c%maxweight%."
+  - "&cPercentage %percentage%%"
+  - "%percentageweight%"
+  - "&eLevel 1 &avalue is &c%level1%."
+  - "&6Level 2 &avalue is &c%level2%."
+  - "&cLevel 3 &avalue is &c%level3%."
+  #- "&aanything else you want."
+
+help-command-message:
+  - "-------------------&e&lWeight-RPG &c&l Commands&7-------------------"
+  - "&a/weight &eshow player weight and other information."
+  - "&a/weight get <item> &eshow the item's weight"
+  - "&a/weight set <item> <weight> &eset the item's weight."
+  - "&a/weight add <item> <weight> &eadd an item to the weight files."
+  - "&a/weight reload &ereload all files and apply changes to the server."
+  - "-------------------&e&lWeight-RPG &c&l Commands&7-------------------"
