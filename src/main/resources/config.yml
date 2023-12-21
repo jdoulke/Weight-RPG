@@ -10,12 +10,12 @@
 
 
 
-# Here set up options for weight levels. The effects will be used when the players have more weight than your typed value or permission value.
+# Here, set up options for weight levels. The effects will be used when the players have more weight than your typed value or permission value.
 # Messages can support placeholders. List of placeholders
 # %playername% for player's name.
 # %displayname% for player's display name.
 # %weight% for player's weight.
-# %maxweight% for global max weight. (if you have enabled level 3 then level 3 is the maximum if you have disabled level 3 but enabled level 2 then level 2 is the max.)
+# %maxweight% for global max weight. (if you have enabled level 3, then level 3 is the maximum. If you have disabled level 3 but enabled level 2, then level 2 is the max.)
 # %world% for player's world.
 # %level1% for weight level 1 value %level2% for level 2 and %level3% for level 3.
 # %percentage% for weight percentage ( weight * 100 / ( max weight + boost items ) )
@@ -24,34 +24,34 @@
 
 
 message-before-level1-enabled: true
-# The message that will send to the player before reaching level 1 value.
+# The message that will be sent to the player before reaching level 1 value.
 message-before-level1: "%displayname%: &eWeight &a%weight% &2/ &c%level1% %percentageweight%"
 
 # Permission mode will get the weight values from the player's permission. (default false)
 # You need to use permissions like this. weight.level1.(value), weight.level2.(value), weight.level3.(value)
-# If the permission doesn't exist then the value of the weight level will be the value under the weight level on the config.yml file
+# If the permission doesn't exist, then the value of the weight level will be the value under the weight level on the config.yml file
 # NOT RECOMMENDED the usage of it will be heavy.
-# Max value for level 1 and level 2 is 10000 and for level 3 is 20000 on permission mode
-# permission mode will only work with multiples of 100. For example (1000, 1500, 2300, etc).
+# Max value for level 1 and level 2 is 10000, and for level 3 is 20000 on permission mode.
+# Permission mode will only work with multiples of 100. For example (1000, 1500, 2300, etc).
 # This is for performance reasons.
 permission-mode: false
 
 weight-level-1:
-  # when this level will take effect.
-  # if you have permission mode on true ignore this option and configure the other options.
-  # but remember this value will be on players that they will not have the weight.level1.x permission
+  # When this level will take effect.
+  # If you have permission mode on true, ignore this option and configure the other options.
+  # but remember this value will be on players that do not have the weight.level1.x permission
   value: 1000
-  # normal speed is 0.2, accepted values 0 between 1.
+  # Normal speed is 0.2, with accepted values between 0 and 1.
   speed: 0.15
   # Disable jump for players in this level when they are carrying too many items. (default is false)
   disable-jump: false
   # Prevent the player from picking up items when his weight reaches this level.
   disable-pick-up: false
-  # the sound that will play when this level takes effect. Write 'none' for no sound. List of sounds https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+  # The sound that will play when this level takes effect. Write 'none' for no sound. List of sounds https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
   sound: none
-  # If the message send to the player when he will reach this level (default is true)
+  # If the message is sent to the player when he reaches this level (default is true)
   message-enabled: true
-  # The message that will send to the player when he will be over the weight value.
+  # The message that will be sent to the player when he is over the weight value.
   message: "%displayname%: &eI am carrying too many items. &e%weight% &2/ &c%level2% %percentageweight%"
 weight-level-2:
   enabled: true
@@ -75,7 +75,7 @@ weight-level-3:
 # Should messages send as actionbar messages? (if you set it in false messages will be sent on chat, default is true)
 actionbar-messages: true
 
-# Couldown in seconds before the next 'level message' and sound sent to the player. (default is 30)
+# Couldown in seconds before the following 'level message' and sound sent to the player. (default is 30)
 messages-cooldown: 30
 
 # Check everyone's inventory in seconds. Only integers value. (default is 3)
@@ -86,25 +86,25 @@ drop-cooldown:
   enabled: true
   cooldown: 0.5
 
-# Should plugin calculate the storage inside a shulker box? (default is true)
-# It will calculate also the custom items and boost items weight.
+# Should the plugin calculate the storage inside a shulker box? (default is true)
+# It will also calculate the custom items and boost items' weight.
 shulker-boxes: true
 
-# Here add customs items name for custom weight. 
+# Here, add customs item names for custom weight.
 # Don't add space after and before '='. Use '&' for color codes.
-# Υou can use RGB colors by specifying them in the format "&#RRGGBB"
+# You can use RGB colors by specifying them in the format "&#RRGGBB"
 custom-items-weight:
-# - "customitemname=weight"
+  # - "customitemname=weight"
   - "&c&lThunder Sword=20"
   - "&#FFD700&lAmazing Pickaxe=14"
 
 
 # Here add boost items' names and their respective weight to increase the player's carrying capacity.
 # Don't add space after and before '='. Use '&' for color codes.
-# Υou can use RGB colors by specifying them in the format "&#RRGGBB"
+# You can use RGB colors by specifying them in the format "&#RRGGBB"
 # Boost items don't have any weight.
 boost-items:
-# - "itemname=boost_weight"
+  # - "itemname=boost_weight"
   - "&aSuper Backpack=50"
   - "&#1cebee&lEnhanced Bag=100"
 
@@ -117,7 +117,7 @@ notify-permission-cooldown: 30
 
 # Disable the plugin on this world(s). It can be empty.
 disabled-worlds:
-  #- world_nether
-  #- world_the_end
-  #- world2
-  #- world_3
+#- world_nether
+#- world_the_end
+#- world2
+#- world_3
