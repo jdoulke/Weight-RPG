@@ -67,74 +67,54 @@ public class CalculateWeight {
             return;
         }
 
-        PlayerInventory inventory = p.getInventory();
-        float totalWeight = 0f;
-
         playerBoostWeight.put(p.getUniqueId(), 0f);
 
-        boolean shulkerBoxesEnabled = getPlugin().getConfig().getBoolean("shulker-boxes");
-
-        for (ItemStack item : inventory.getStorageContents()) {
-            if (item != null) {
-                if (shulkerBoxesEnabled && item.getItemMeta() instanceof BlockStateMeta) {
-                    BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
-                    if (im.getBlockState() instanceof ShulkerBox) {
-                        ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-                        totalWeight += shulkerBoxWeightCalculations(shulker, p);
-                        continue; // Skip to the next iteration
-                    }
-                }
-                // Calculate weight for non-shulker items
-                totalWeight += itemWeightCalculations(item, p);
-            }
-        }
-
-        // Calculate weight for each item in player's extra slots if they exist
-        for(ItemStack item : inventory.getExtraContents()) {
-            if (item != null) {
-                if (shulkerBoxesEnabled && item.getItemMeta() instanceof BlockStateMeta) {
-                    BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
-                    if (im.getBlockState() instanceof ShulkerBox) {
-                        ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-                        totalWeight += shulkerBoxWeightCalculations(shulker, p);
-                        continue; // Skip to the next iteration
-                    }
-                }
-                // Calculate weight for non-shulker items
-                totalWeight += itemWeightCalculations(item, p);
-            }
-        }
-
-        // Checking off-hand item outside the loop
-        ItemStack offHandItem = inventory.getItemInOffHand();
-        if (offHandItem != null) {
-            if (shulkerBoxesEnabled && offHandItem.getItemMeta() instanceof BlockStateMeta) {
-                BlockStateMeta im = (BlockStateMeta) offHandItem.getItemMeta();
-                if (im.getBlockState() instanceof ShulkerBox) {
-                    ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-                    totalWeight += shulkerBoxWeightCalculations(shulker, p);
-                } else {
-                    totalWeight += itemWeightCalculations(offHandItem, p);
-                }
-            } else {
-                totalWeight += itemWeightCalculations(offHandItem, p);
-            }
-        }
-
-        // Calculate weight for each item in player's armor
-        for (ItemStack item : inventory.getArmorContents()) {
-            if (item != null) {
-                totalWeight += itemWeightCalculations(item, p);
-            }
-        }
+        float totalWeight = checkForShulkerBox(p.getInventory(), p);
 
         // Update player's weight in the HashMap
         playerWeight.put(p.getUniqueId(), totalWeight);
         applyWeightEffects(p); // Apply effects based on player's weight
     }
 
+    // Method to calculate player's inventory weight
+    private float checkForShulkerBox(PlayerInventory inventory, Player p) {
+        float weight = 0f;
+        boolean shulkerBoxesEnabled = getPlugin().getConfig().getBoolean("shulker-boxes");
 
-    private static float  itemWeightCalculations(ItemStack itemStack, Player p) {
+        // Add weight of each item in the inventory
+        for (ItemStack item : inventory.getStorageContents())
+            weight += calculateItemWeight(item, shulkerBoxesEnabled, p);
+
+        // Add weight of each item in the extra slots if they exist
+        for (ItemStack item : inventory.getExtraContents())
+            weight += calculateItemWeight(item, shulkerBoxesEnabled, p);
+
+        // Add weight of each item in the armor slots
+        for (ItemStack item : inventory.getArmorContents())
+            weight += calculateItemWeight(item, shulkerBoxesEnabled, p);
+
+        // Add weight of the item in the off-hand slot
+        weight += calculateItemWeight(inventory.getItemInOffHand(), shulkerBoxesEnabled, p);
+
+        return weight;
+    }
+
+    private float calculateItemWeight(ItemStack item, boolean shulkerBoxesEnabled, Player p) {
+        if (item == null) return 0f;
+
+        // Check if the item is a shulker box
+        if (shulkerBoxesEnabled && item.getItemMeta() instanceof BlockStateMeta) {
+            BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
+            if (im.getBlockState() instanceof ShulkerBox) {
+                ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                return shulkerBoxWeightCalculations(shulker, p);
+            }
+        }
+        // If the item is not a shulker box, calculate its weight
+        return calculateItemWeight(item, p);
+    }
+
+    private static float calculateItemWeight(ItemStack itemStack, Player p) {
 
         float itemWeight = 0.0f;
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -418,7 +398,7 @@ public class CalculateWeight {
 
         for (ItemStack item : shulkerBox.getInventory().getStorageContents()) {
             if (item != null) {
-                shulkerBoxInventoryWeight += itemWeightCalculations(item, p);
+                shulkerBoxInventoryWeight += calculateItemWeight(item, p);
             }
         }
         return shulkerBoxInventoryWeight;
