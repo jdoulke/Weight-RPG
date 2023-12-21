@@ -9,4 +9,15 @@ commands:
   weight:
     description: Shows the weight of the player.
     permission: weight.use
-    usage: /weight
+  weight-get:
+    description: Shows the weight of the item.
+    permission: weight.use
+  weight-set:
+    description: Sets the weight of the item.
+    permission: weight.use
+  weight-add:
+    description: Adds an item to the weight files.
+    permission: weight.use
+  weight-reload:
+    description: Reloads all files and applies changes to the server.
+    permission: weight.use

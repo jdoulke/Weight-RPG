@@ -309,6 +309,7 @@ public class CalculateWeight {
         // Replace '%maxweight%' with the maximum weight threshold based on the enabled weight levels (level 1, level 2, or level 3)
         message = message.replaceAll("%maxweight%", String.valueOf(calculateWeightThreshold(p, getEnabledWeightLevel())));
 
+
         return message;
     }
 

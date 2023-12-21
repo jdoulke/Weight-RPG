@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
+import ted_2001.WeightRPG.Utils.ColorUtils;
 import ted_2001.WeightRPG.Utils.JsonFile;
 import ted_2001.WeightRPG.Utils.Messages;
 
@@ -24,7 +25,7 @@ import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 import static ted_2001.WeightRPG.Utils.CalculateWeight.weightThresholdValues;
 
 
-public class WeightCommand implements CommandExecutor {
+public class WeightCommands implements CommandExecutor {
 
     private final JsonFile js = new JsonFile();
     CalculateWeight w = new CalculateWeight();
@@ -46,7 +47,8 @@ public class WeightCommand implements CommandExecutor {
                     for (String disabledWorld : disabledWorlds) {
                         if (disabledWorld.equalsIgnoreCase((p.getWorld().getName()))) {
                             // The world is disabled for the Weight-RPG plugin inform the player.
-                            p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.YELLOW + "Weight-RPG " + ChatColor.RED +"is disabled in this world.");
+                            String disableWordMessage = w.formatMessage(Messages.getMessages().getString("disable-world-message", getPlugin().getPluginPrefix() + "&eWeight-RPG &cis disabled in this world."), p);
+                            p.sendMessage(ColorUtils.translateColorCodes(disableWordMessage));
                             return false;
                         }
                     }
@@ -97,10 +99,13 @@ public class WeightCommand implements CommandExecutor {
                         reloadCommand();
 
                         // Check if the config and weight files were reloaded successfully.
-                        if(js.successfullyRead)
-                            p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "Config and weight files reloaded successfully.");
-                        else
-                            p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "There was an error while reloading, check the console.");
+                        if (js.successfullyRead) {
+                            String successMessage = w.formatMessage(Messages.getMessages().getString("success-reload-message", getPlugin().getPluginPrefix() + "&aConfig and weight files reloaded successfully."), p);
+                            p.sendMessage(ColorUtils.translateColorCodes(successMessage));
+                        } else {
+                            String errorMessage = w.formatMessage(Messages.getMessages().getString("fail-reload-message", getPlugin().getPluginPrefix() + "&cThere was an error while reloading, check the console."), p);
+                            p.sendMessage(ColorUtils.translateColorCodes(errorMessage));
+                        }
 
                         // Reset the successfullyRead flag for future reload attempts.
                         js.successfullyRead = true;
@@ -112,10 +117,11 @@ public class WeightCommand implements CommandExecutor {
 
                     // The first argument is "get".
                     // Check if the player has the "weight.get" permission to execute the get command.
-                    if(p.hasPermission("weight.get"))
+                    if (p.hasPermission("weight.get")) {
                         // Player has permission. Inform the player how to use the "/weight get" command.
-                        p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.GREEN + "You can see items weight by using the command " + ChatColor.YELLOW + "/weight get <item>.");
-                    else
+                        String getMessage = w.formatMessage(Messages.getMessages().getString("get-command-message", getPlugin().getPluginPrefix() + "&aYou can see items weight by using the command &e/weight get <item>."), p);
+                        p.sendMessage(ColorUtils.translateColorCodes(getMessage));
+                    } else
                         // Player does not have permission to execute the get command. Send him a no permission message.
                         noPermMessage(p);
 
@@ -123,21 +129,23 @@ public class WeightCommand implements CommandExecutor {
 
                     // The first argument is "set".
                     // Check if the player has the "weight.set" permission to execute the set command.
-                    if(p.hasPermission("weight.set"))
+                    if (p.hasPermission("weight.set")) {
                         // Player has permission. Inform the player how to use the "/weight set" command.
-                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + " /weight set <item> <value>.");
-                    else
+                        String setMessage = w.formatMessage(Messages.getMessages().getString("set-command-message", getPlugin().getPluginPrefix() + "&aYou can set the weight value of an item using the command &e/weight set <item> <value>."), p);
+                        p.sendMessage(ColorUtils.translateColorCodes(setMessage));
+                    } else
                         // Player does not have permission to execute the set command. Send him a no permission message.
                         noPermMessage(p);
 
                 }else if(arg0.equalsIgnoreCase("add")){
                     // The first argument is "add".
                     // Check if the player has the "weight.add" permission to execute the add command.
-                    if(p.hasPermission("weight.add"))
+                    if (p.hasPermission("weight.add")) {
                         // Player has permission. Inform the player how to use the "/weight add" command.
-                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can add an item on the weight files using the command" + ChatColor.YELLOW + " /weight add <item> <value>. " +
-                                ChatColor.GREEN + " You will find the record on the Misc Items Weight file under Additional Items section.");
-                    else
+                        String addMessage = w.formatMessage(Messages.getMessages().getString("add-command-message", getPlugin().getPluginPrefix() + "&aYou can add an item on the weight files using the command &e/weight add <item> <value>." +
+                                "&aYou will find the record on the Misc Items Weight file under Additional Items section."), p);
+                        p.sendMessage(ColorUtils.translateColorCodes(addMessage));
+                    } else
                         // Player does not have permission to execute the add command. Send him a no permission message.
                         noPermMessage(p);
                 } else if (arg0.equalsIgnoreCase("help")) {
@@ -148,10 +156,13 @@ public class WeightCommand implements CommandExecutor {
                         List<String> message = Messages.getMessages().getStringList("help-command-message");
                         for (String s : message)
                             p.sendMessage(ChatColor.translateAlternateColorCodes('&', w.formatMessage(s, p)));
-                    }
-                }else
+                    } else
+                        // Player does not have permission to execute the add command. Send him a no permission message.
+                        noPermMessage(p);
+                } else {
                     // The first argument is none of the recognized commands.
-                    p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+                    unknownCommandMessage(p);
+                }
             }
 
             // Handles the "args.length == 2" scenario where there are two arguments in the command.
@@ -167,36 +178,45 @@ public class WeightCommand implements CommandExecutor {
                     if(p.hasPermission("weight.get")) {
                         // Convert the specified item name to a Material object.
                         Material item = Material.getMaterial(arg1);
-                        if(globalItemsWeight.get(item) != null)
+
+                        if (item != null && globalItemsWeight.containsKey(item)) {
                             // The weight of the specified item is found in the weight files. Send the weight information to the player.
-                            p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.YELLOW + arg1 +ChatColor.GREEN + " weighs " + ChatColor.RED + String.format("%.2f", globalItemsWeight.get(item)));
-                        else
+                            String getMessage = w.formatMessage(Messages.getMessages().getString("get-item-success-message", getPlugin().getPluginPrefix() + "&aThe weight of &e" + arg1 + " &ais &e" + String.format("%.2f", globalItemsWeight.get(item))), p);
+                            getMessage = getMessage.replaceAll("%item%", item.toString());
+                            getMessage = getMessage.replaceAll("%itemweight%", String.format("%.2f", globalItemsWeight.getOrDefault(item, 0f)));
+                            p.sendMessage(ColorUtils.translateColorCodes(getMessage));
+                        } else {
                             // The specified item is not found in the weight files. Inform the player about it.
-                            p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find " + ChatColor.YELLOW + arg1 + ChatColor.RED + " in the weight files.");
+                            String getMessage = w.formatMessage(Messages.getMessages().getString("get-item-fail-message", getPlugin().getPluginPrefix() + "&cCouldn't find &e" + arg1 + " &cin the weight files."), p);
+                            getMessage = getMessage.replaceAll("%item%", arg1);
+                            p.sendMessage(ColorUtils.translateColorCodes(getMessage));
+                        }
                     }else
                         noPermMessage(p);
                 }
                 // Command: /weight set <item> <value>
                 else if(arg0.equalsIgnoreCase("set")){
                     // Check if the player has the "weight.set" permission to execute the set command.
-                    if(p.hasPermission("weight.set"))
+                    if (p.hasPermission("weight.set")) {
                         // Player has permission. Inform the player how to use the "/weight set" command.
-                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can set the weight value of an item using the command" + ChatColor.YELLOW + " /weight set <item> <value>.");
-                    else
+                        String getMessage = w.formatMessage(Messages.getMessages().getString("set-command-message", getPlugin().getPluginPrefix() + "&aYou can set the weight value of an item using the command &e/weight set <item> <value>."), p);
+                        p.sendMessage(ColorUtils.translateColorCodes(getMessage));
+                    } else
                         noPermMessage(p);
                 }
                 // Command: /weight add <item> <value>
                 else if(arg0.equalsIgnoreCase("add")){
                     // Check if the player has the "weight.add" permission to execute the add command.
-                    if(p.hasPermission("weight.add"))
+                    if (p.hasPermission("weight.add")) {
                         // Player has permission. Inform the player how to use the "/weight add" command.
-                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You can add an item on the weight files using the command" + ChatColor.YELLOW + " /weight add <item> <value>. " +
-                                ChatColor.GREEN + " You will find the record on the Misc Items Weight file under Additional Items section.");
-                    else
+                        String addMessage = w.formatMessage(Messages.getMessages().getString("add-command-message", getPlugin().getPluginPrefix() + "&aYou can add an item on the weight files using the command &e/weight add <item> <value>." +
+                                "&aYou will find the record on the Misc Items Weight file under Additional Items section."), p);
+                        p.sendMessage(ColorUtils.translateColorCodes(addMessage));
+                    } else
                         noPermMessage(p);
                 }else
                     // The first argument is none of the recognized commands.
-                    p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+                    unknownCommandMessage(p);
             }
 
             // Handles the "args.length == 3" scenario where there are three arguments in the command.
@@ -247,7 +267,10 @@ public class WeightCommand implements CommandExecutor {
                                         throw new RuntimeException(e);
                                     }
                                     // Send a success message to the player after updating the weight value.
-                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ChatColor.GREEN + ".");
+                                    String setMessage = w.formatMessage(Messages.getMessages().getString("set-item-success-message", getPlugin().getPluginPrefix() + "&aYou successfully set the weight of &e" + itemName + " &ato &e" + weightValue + " &a."), p);
+                                    setMessage = setMessage.replaceAll("%item%", itemName);
+                                    setMessage = setMessage.replaceAll("%itemweight%", weightValue);
+                                    p.sendMessage(ColorUtils.translateColorCodes(setMessage));
                                     return writeAndCloseJsonFile(blockWeightObject, blocksWeightWriter);
                                 }
                             }
@@ -269,7 +292,10 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ChatColor.GREEN + ".");
+                                    String setMessage = w.formatMessage(Messages.getMessages().getString("set-item-success-message", getPlugin().getPluginPrefix() + "&aYou successfully set the weight of &e" + itemName + " &ato &e" + weightValue + " &a."), p);
+                                    setMessage = setMessage.replaceAll("%item%", itemName);
+                                    setMessage = setMessage.replaceAll("%itemweight%", weightValue);
+                                    p.sendMessage(ColorUtils.translateColorCodes(setMessage));
                                     return writeAndCloseJsonFile(toolsWeightObject, toolsWeightWriter);
                                 }
                             }
@@ -291,13 +317,18 @@ public class WeightCommand implements CommandExecutor {
                                     } catch (IOException e) {
                                         throw new RuntimeException(e);
                                     }
-                                    p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully set the weight of " + ChatColor.YELLOW + itemName + " to " + ChatColor.AQUA + weightValue + ChatColor.GREEN + ".");
+                                    String setMessage = w.formatMessage(Messages.getMessages().getString("set-item-success-message", getPlugin().getPluginPrefix() + "&aYou successfully set the weight of &e" + itemName + " &ato &e" + weightValue + " &a."), p);
+                                    setMessage = setMessage.replaceAll("%item%", itemName);
+                                    setMessage = setMessage.replaceAll("%itemweight%", weightValue);
+                                    p.sendMessage(ColorUtils.translateColorCodes(setMessage));
                                     return writeAndCloseJsonFile(miscWeightObject, miscWeightWriter);
                                 }
                             }
                         }
                         // If the specified item is not found in any of the weight files, inform the player about it.
-                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.RED + "Couldn't find " + ChatColor.YELLOW + itemName + ChatColor.RED + " in the weight files.");
+                        String setMessage = w.formatMessage(Messages.getMessages().getString("set-item-fail-message", getPlugin().getPluginPrefix() + "&cCouldn't find the &e" + itemName + " &cin any of the weight files."), p);
+                        setMessage = setMessage.replaceAll("%item%", itemName);
+                        p.sendMessage(ColorUtils.translateColorCodes(setMessage));
 
                     }else
                         noPermMessage(p);
@@ -311,8 +342,9 @@ public class WeightCommand implements CommandExecutor {
 
                         // Check if the specified item already exists in the globalItemsWeight map which means is already on weight files.
                         if(globalItemsWeight.get(Material.getMaterial(itemName)) != null) {
-                            p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.RED + "This item already exists in the weight files and it's weight value is " + ChatColor.YELLOW +
-                                    globalItemsWeight.get(Material.getMaterial(itemName)) + ChatColor.RED + ".");
+                            String addMessage = w.formatMessage(Messages.getMessages().getString("add-item-found-message", getPlugin().getPluginPrefix() + "&cThis item already exists in the weight files and it's weight value is &e " + globalItemsWeight.get(Material.getMaterial(itemName)) + "&c."), p);
+                            addMessage = addMessage.replaceAll("%itemweight%", String.valueOf(globalItemsWeight.get(Material.getMaterial(itemName))));
+                            p.sendMessage(ColorUtils.translateColorCodes(addMessage));
                             return false;
                         }
 
@@ -348,20 +380,23 @@ public class WeightCommand implements CommandExecutor {
                         writeAndCloseJsonFile(miscWeightObject, miscWeightFileWriter);
 
                         // Send a success message to the player after adding the new item and weight value.
-                        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.GREEN + "You successfully added " + ChatColor.YELLOW + itemName +
-                                ChatColor.GREEN + " to the weight files with a weight value of " + ChatColor.AQUA + weightValue + ChatColor.GREEN + ".");
+                        String addMessage = w.formatMessage(Messages.getMessages().getString("add-item-success-message", getPlugin().getPluginPrefix() + "&aYou successfully added the weight of &e" + itemName + " &ato &b" + weightValue + " &a."), p);
+                        addMessage = addMessage.replaceAll("%item%", itemName);
+                        addMessage = addMessage.replaceAll("%itemweight%", String.valueOf(globalItemsWeight.get(Material.getMaterial(itemName))));
+                        p.sendMessage(ColorUtils.translateColorCodes(addMessage));
+
                         return false;
 
                     }else
                         noPermMessage(p);
                 }else
-                    p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+                    unknownCommandMessage(p);
             }
 
             // Handles the case when the number of arguments (args.length) is greater than 3, which indicates an invalid command format.
             // Sends an error message to the player notifying them that the command could not be found due to the incorrect format.
             if(args.length > 3)
-                p.sendMessage(getPlugin().getPluginPrefix()  + ChatColor.RED + "Couldn't find this command.");
+                unknownCommandMessage(p);
         }
 
         // Handles the case when the sender of the command is the console or a remote console.
@@ -393,6 +428,11 @@ public class WeightCommand implements CommandExecutor {
             }
         }
         return false;
+    }
+
+    private void unknownCommandMessage(Player p) {
+        String unknownMessage = w.formatMessage(Messages.getMessages().getString("unknown-command", getPlugin().getPluginPrefix() + "&a&cCouldn't find this command."), p);
+        p.sendMessage(ColorUtils.translateColorCodes(unknownMessage));
     }
 
     // Writes the provided JSON object to the specified file writer, formats the JSON content with indentation,
@@ -478,7 +518,9 @@ public class WeightCommand implements CommandExecutor {
 
     // Sends a "no permission" message to the specified player when they attempt to use a command without the necessary permission.
     private void noPermMessage(Player p ){
-        p.sendMessage(getPlugin().getPluginPrefix() + ChatColor.RED + "You don't have permission to use this command.");
+        String noPermissionMessage = Messages.getMessages().getString("no-permission-message", getPlugin().getPluginPrefix() +
+                "&cYou do not have permission to use this command.");
+        p.sendMessage(ColorUtils.translateColorCodes((w.formatMessage(noPermissionMessage, p))));
     }
 
 }

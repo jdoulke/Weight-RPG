@@ -10,7 +10,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import ted_2001.WeightRPG.Commands.Tabcompleter;
-import ted_2001.WeightRPG.Commands.WeightCommand;
+import ted_2001.WeightRPG.Commands.WeightCommands;
 import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
 import ted_2001.WeightRPG.Utils.*;
 import ted_2001.WeightRPG.Utils.PlaceholderAPI.WeightExpasion;
@@ -37,7 +37,7 @@ public final class WeightRPG extends JavaPlugin {
 
         // Register listeners and commands
         getServer().getPluginManager().registerEvents(new WeightCalculateListeners(), this);
-        Objects.requireNonNull(getCommand("weight")).setExecutor(new WeightCommand());
+        Objects.requireNonNull(getCommand("weight")).setExecutor(new WeightCommands());
         TabCompleter tc = new Tabcompleter();
         Objects.requireNonNull(getPlugin().getCommand("weight")).setTabCompleter(tc);
 
@@ -135,7 +135,7 @@ public final class WeightRPG extends JavaPlugin {
 
 
     public void reloadPluginPrefix() {
-        this.pluginPrefix = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(getConfig().getString("plugin-prefix")));
+        pluginPrefix = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(getConfig().getString("plugin-prefix")));
     }
 
     public String getPluginPrefix() {

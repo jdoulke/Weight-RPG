@@ -28,6 +28,8 @@ weight-command-bypass-message: "%pluginprefix% &4Weight-RPG is disabled for you 
 weight-command-creative-message: "%pluginprefix% &4Weight-RPG is disabled for &aCreative Mode&4."
 weight-command-spectator-message: "%pluginprefix% &4Weight-RPG is disabled for &aSpectator Mode&4."
 
+no-permission-message: "%pluginprefix% &4You don't have permission to use this command."
+
 weight-command-message:
   - "%displayname% &eyour weight is &e%weight% &a/ &c%maxweight%."
   - "&cPercentage %percentage%%"
@@ -38,10 +40,10 @@ weight-command-message:
   #- "&aanything else you want."
 
 help-command-message:
-  - "-------------------&e&lWeight-RPG &c&l Commands&7-------------------"
-  - "&a/weight &eshow player weight and other information."
-  - "&a/weight get <item> &eshow the item's weight"
-  - "&a/weight set <item> <weight> &eset the item's weight."
-  - "&a/weight add <item> <weight> &eadd an item to the weight files."
-  - "&a/weight reload &ereload all files and apply changes to the server."
-  - "-------------------&e&lWeight-RPG &c&l Commands&7-------------------"
+  - "&5----------------> &eWeight-RPG Commands&5 <----------------"
+  - "&a/weight &6show player weight and other information."
+  - "&a/weight get <item> &6show the item's weight."
+  - "&a/weight set <item> <weight> &6set the item's weight."
+  - "&a/weight add <item> <weight> &6add an item to the weight files."
+  - "&a/weight reload &6reload all files and apply changes to server."
+  - "&5----------------> &eWeight-RPG Commands&5 <----------------"
