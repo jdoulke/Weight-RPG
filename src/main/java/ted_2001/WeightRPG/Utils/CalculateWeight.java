@@ -10,9 +10,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -120,25 +124,80 @@ public class CalculateWeight {
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         if (itemMeta != null) {
-            String displayName = itemMeta.getDisplayName();
-            // Check if the item has a custom weight based on its display name from config file
-            if (customItemsWeight.containsKey(displayName))
-                itemWeight = customItemsWeight.get(displayName);
+            // Check for custom weight stored in the item's persistent data container
+            NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
+            PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+            if (pdc.has(key, PersistentDataType.FLOAT)) {
+                itemWeight = pdc.get(key, PersistentDataType.FLOAT);
+            } else {
+                String displayName = itemMeta.getDisplayName();
+                // Check if the item has a custom weight based on its display name from config file
+                if (customItemsWeight.containsKey(displayName))
+                    itemWeight = customItemsWeight.get(displayName);
 
-            // Check if the item is a boost item weight based on its display name from config file
-            else if (boostItemsWeight.containsKey(displayName)) {
-                // Boost items don't add weight to the player.
-                float boostWeight = boostItemsWeight.get(displayName) * itemStack.getAmount();
-                float currentBoostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                playerBoostWeight.put(p.getUniqueId(), currentBoostWeight + boostWeight);
-                return 0.0f;
+                // Check if the item is a boost item weight based on its display name from config file
+                else if (boostItemsWeight.containsKey(displayName)) {
+                    // Boost items don't add weight to the player.
+                    float boostWeight = boostItemsWeight.get(displayName) * itemStack.getAmount();
+                    float currentBoostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                    playerBoostWeight.put(p.getUniqueId(), currentBoostWeight + boostWeight);
+                    return 0.0f;
+                }
+                    // Check if the item has a global weight based on its material type
+                else if (globalItemsWeight.containsKey(itemStack.getType()))
+                    itemWeight = globalItemsWeight.get(itemStack.getType());
             }
-                // Check if the item has a global weight based on its material type
-            else if (globalItemsWeight.containsKey(itemStack.getType()))
-                itemWeight = globalItemsWeight.get(itemStack.getType());
         }
 
+        updateItemWeightLore(itemStack, itemWeight);
+
         return itemWeight * itemStack.getAmount();
+    }
+
+    /**
+     * Adds or removes the weight line in the item's lore depending on the configuration.
+     *
+     * @param itemStack the item to update
+     * @param weight    the weight value assigned to the item
+     */
+    public static void updateItemWeightLore(ItemStack itemStack, float weight) {
+        if (itemStack == null) return;
+        if (getPlugin().getConfig().getBoolean("item-weight-lore.enabled") && weight > 0f) {
+            addWeightLore(itemStack, weight);
+        } else {
+            removeWeightLore(itemStack);
+        }
+    }
+
+    private static void addWeightLore(ItemStack itemStack, float weight) {
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null) return;
+
+        String template = getPlugin().getConfig().getString("item-weight-lore.format", "&7Weight: &e%weight%");
+        String line = template.replace("%weight%", String.format("%.2f", weight));
+        String coloredLine = ColorUtils.translateColorCodes(line);
+
+        List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+        String prefix = ChatColor.stripColor(ColorUtils.translateColorCodes(template.split("%weight%")[0]));
+        lore.removeIf(l -> ChatColor.stripColor(l).startsWith(prefix));
+        lore.add(coloredLine);
+        meta.setLore(lore);
+        itemStack.setItemMeta(meta);
+    }
+
+    public static void removeWeightLore(ItemStack itemStack) {
+        if (itemStack == null) return;
+        ItemMeta meta = itemStack.getItemMeta();
+        if (meta == null || !meta.hasLore()) return;
+
+        String template = getPlugin().getConfig().getString("item-weight-lore.format", "&7Weight: &e%weight%");
+        String prefix = ChatColor.stripColor(ColorUtils.translateColorCodes(template.split("%weight%")[0]));
+        List<String> lore = new ArrayList<>(meta.getLore());
+        boolean removed = lore.removeIf(l -> ChatColor.stripColor(l).startsWith(prefix));
+        if (removed) {
+            meta.setLore(lore.isEmpty() ? null : lore);
+            itemStack.setItemMeta(meta);
+        }
     }
 
     public void applyWeightEffects(Player p) {

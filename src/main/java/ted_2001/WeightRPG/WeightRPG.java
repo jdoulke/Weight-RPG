@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.inventory.ItemStack;
 import ted_2001.WeightRPG.Commands.Tabcompleter;
 import ted_2001.WeightRPG.Commands.WeightCommands;
 import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
@@ -126,6 +127,15 @@ public final class WeightRPG extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (getConfig().getBoolean("item-weight-lore.enabled")) {
+            for (Player player : getServer().getOnlinePlayers()) {
+                ItemStack[] storage = player.getInventory().getStorageContents();
+                for (ItemStack item : storage) CalculateWeight.removeWeightLore(item);
+                for (ItemStack item : player.getInventory().getExtraContents()) CalculateWeight.removeWeightLore(item);
+                for (ItemStack item : player.getInventory().getArmorContents()) CalculateWeight.removeWeightLore(item);
+                CalculateWeight.removeWeightLore(player.getInventory().getItemInOffHand());
+            }
+        }
         saveDefaultConfig();
     }
 
