@@ -65,6 +65,9 @@ Command and Permissions
     /weight add <item> <weight value>
     Permission: weight.add
     Description: add item to the weight files. The item will be on Misc Items Weight file on Additional Items section.
+    /weight custom add <weight value>
+    Permission: weight.custom
+    Description: add a custom weight tag to the item you're holding.
     Permission: weight.notify
     Description: Players with this permission will be notified when an item isn't on the weight files.
     You can use permission mode to calculate the weight of players. You need to add these 3 permissions. weight.level1.x, weight.level2.x, weight.level3.x . Where x is your amount of weight in the level.
