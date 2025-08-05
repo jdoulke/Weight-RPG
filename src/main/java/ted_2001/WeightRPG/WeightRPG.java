@@ -13,7 +13,7 @@ import ted_2001.WeightRPG.Commands.Tabcompleter;
 import ted_2001.WeightRPG.Commands.WeightCommands;
 import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
 import ted_2001.WeightRPG.Utils.*;
-import ted_2001.WeightRPG.Utils.PlaceholderAPI.WeightExpasion;
+import ted_2001.WeightRPG.Utils.PlaceholderAPI.WeightExpansion;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder;
 
 import java.io.File;
@@ -64,7 +64,7 @@ public final class WeightRPG extends JavaPlugin {
         // Check for PlaceholderAPI and register placeholders
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + "PlaceholderAPI" + ChatColor.GRAY + " found. Registering placeholders");
-            new WeightExpasion().register();
+            new WeightExpansion().register();
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Done.");
         }
 
@@ -126,7 +126,9 @@ public final class WeightRPG extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
         saveDefaultConfig();
+
     }
 
     public static WeightRPG getPlugin() {

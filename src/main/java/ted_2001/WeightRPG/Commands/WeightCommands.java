@@ -13,10 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import ted_2001.WeightRPG.Utils.CalculateWeight;
-import ted_2001.WeightRPG.Utils.ColorUtils;
-import ted_2001.WeightRPG.Utils.JsonFile;
-import ted_2001.WeightRPG.Utils.Messages;
+import ted_2001.WeightRPG.Utils.*;
 
 
 import java.io.*;

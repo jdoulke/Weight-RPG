@@ -25,6 +25,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.ColorUtils;
+import ted_2001.WeightRPG.Utils.ItemLoreUtils;
 import ted_2001.WeightRPG.Utils.Messages;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
@@ -102,6 +103,7 @@ public class WeightCalculateListeners implements Listener {
 
         weightCalculation.calculateWeight(p);
     }
+
 
     // Handles the event when a player change world.
     // Calculates and updates the player's weight if the Weight-RPG plugin is enabled for the player's world and region.

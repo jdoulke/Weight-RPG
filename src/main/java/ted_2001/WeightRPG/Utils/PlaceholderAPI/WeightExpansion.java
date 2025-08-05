@@ -8,13 +8,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.WeightRPG;
 
-import java.util.Objects;
 
 import static ted_2001.WeightRPG.Utils.CalculateWeight.*;
 import static ted_2001.WeightRPG.Utils.JsonFile.*;
 
 
-public class WeightExpasion extends PlaceholderExpansion {
+public class WeightExpansion extends PlaceholderExpansion {
 
     private final WeightRPG plugin = WeightRPG.getPlugin();
     CalculateWeight w= new CalculateWeight();

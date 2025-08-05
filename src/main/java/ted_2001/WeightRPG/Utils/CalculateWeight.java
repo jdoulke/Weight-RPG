@@ -136,8 +136,9 @@ public class CalculateWeight {
 
                 // Check if the item is a boost item weight based on its display name from config file
                 else if (boostItemsWeight.containsKey(displayName)) {
-                    // Boost items don't add weight to the player.
-                    float boostWeight = boostItemsWeight.get(displayName) * itemStack.getAmount();
+                    float boostPerItem = boostItemsWeight.get(displayName);
+                    ItemLoreUtils.updateBoostItemLore(itemStack, boostPerItem);
+                    float boostWeight = boostPerItem * itemStack.getAmount();
                     float currentBoostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
                     playerBoostWeight.put(p.getUniqueId(), currentBoostWeight + boostWeight);
                     return 0.0f;
@@ -148,6 +149,7 @@ public class CalculateWeight {
             }
         }
 
+        ItemLoreUtils.updateItemLore(itemStack, itemWeight);
         return itemWeight * itemStack.getAmount();
     }
 

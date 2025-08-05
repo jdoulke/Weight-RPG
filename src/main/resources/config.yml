@@ -110,6 +110,16 @@ boost-items:
 
 plugin-prefix: "&7[&eWeight-RPG&7]&f: "
 
+# Add a line in the lore of each item showing its unit weight. (default is false)
+# Use %weight% to display the weight of a single item and %item% for the item's name.
+# Boost items use %boost% to display the extra weight they grant.
+item-weight-lore:
+  enabled: false
+  message: "&7%item% Weight: &e%weight%"
+  boost-message: "&7%item% Weight Boost: &e%boost%"
+
+
+
 # Notify all the players that have the weight.notify permission that an item isn't in the weight files.
 # You can add the item with /weight add command.
 # Cooldown in seconds (default is 30)
