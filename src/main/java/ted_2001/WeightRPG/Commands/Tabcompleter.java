@@ -32,6 +32,8 @@ public class Tabcompleter implements TabCompleter {
                     results.add("set");
                 if(sender.hasPermission("weight.add"))
                     results.add("add");
+                if(sender.hasPermission("weight.custom"))
+                    results.add("custom");
                 if (sender.hasPermission("weight.help"))
                     results.add("help");
 
@@ -55,6 +57,11 @@ public class Tabcompleter implements TabCompleter {
 
                     // Return the sorted tab-completion results based on the user's input argument.
                     return sortedResults(args[1]);
+                    }
+                } else if(arg0.equalsIgnoreCase("custom")) {
+                    if(sender.hasPermission("weight.custom")) {
+                        results.add("add");
+                        return sortedResults(args[1]);
                     }
                 }
             }

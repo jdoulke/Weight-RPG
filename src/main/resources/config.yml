@@ -108,6 +108,12 @@ boost-items:
   - "&aSuper Backpack=50"
   - "&#1cebee&lEnhanced Bag=100"
 
+# Add the item's weight value to its lore.
+# Players can disable this feature here if they do not want the lore modified.
+item-weight-lore:
+  enabled: false
+  format: "&7Weight: &e%weight%"
+
 plugin-prefix: "&7[&eWeight-RPG&7]&f: "
 
 # Notify all the players that have the weight.notify permission that an item isn't in the weight files.

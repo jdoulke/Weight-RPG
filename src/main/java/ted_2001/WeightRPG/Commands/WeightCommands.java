@@ -5,6 +5,10 @@ import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -148,6 +152,14 @@ public class WeightCommands implements CommandExecutor {
                     } else
                         // Player does not have permission to execute the add command. Send him a no permission message.
                         noPermMessage(p);
+                } else if(arg0.equalsIgnoreCase("custom")){
+                    // The first argument is "custom".
+                    // Check if the player has the "weight.custom" permission to execute the custom command.
+                    if (p.hasPermission("weight.custom")) {
+                        String customMessage = w.formatMessage(Messages.getMessages().getString("custom-add-command-message", getPlugin().getPluginPrefix() + "&aYou can add a custom weight to the item in your hand using &e/weight custom add <value>."), p);
+                        p.sendMessage(ColorUtils.translateColorCodes(customMessage));
+                    } else
+                        noPermMessage(p);
                 } else if (arg0.equalsIgnoreCase("help")) {
                     // The first argument is "help".
                     // Check if the player has the "weight.help" permission to execute the help command.
@@ -214,6 +226,15 @@ public class WeightCommands implements CommandExecutor {
                         p.sendMessage(ColorUtils.translateColorCodes(addMessage));
                     } else
                         noPermMessage(p);
+                }else if(arg0.equalsIgnoreCase("custom")){
+                    if(p.hasPermission("weight.custom")) {
+                        if(arg1.equalsIgnoreCase("ADD")) {
+                            String customMessage = w.formatMessage(Messages.getMessages().getString("custom-add-command-message", getPlugin().getPluginPrefix() + "&aYou can add a custom weight to the item in your hand using &e/weight custom add <value>."), p);
+                            p.sendMessage(ColorUtils.translateColorCodes(customMessage));
+                        } else
+                            unknownCommandMessage(p);
+                    } else
+                        noPermMessage(p);
                 }else
                     // The first argument is none of the recognized commands.
                     unknownCommandMessage(p);
@@ -226,6 +247,7 @@ public class WeightCommands implements CommandExecutor {
                 String weightCommand = args[0];
                 String itemName = args[1].toUpperCase();
                 String weightValue = args[2];
+                String arg1Raw = args[1];
 
                 // Command: /weight set <item> <value>
                 if(weightCommand.equalsIgnoreCase("set")){
@@ -388,6 +410,34 @@ public class WeightCommands implements CommandExecutor {
                         return false;
 
                     }else
+                        noPermMessage(p);
+                }else if(weightCommand.equalsIgnoreCase("custom")) {
+                    if(p.hasPermission("weight.custom")) {
+                        if(arg1Raw.equalsIgnoreCase("add")) {
+                            float customValue;
+                            try {
+                                customValue = Float.parseFloat(weightValue);
+                            } catch (NumberFormatException ex) {
+                                p.sendMessage(ColorUtils.translateColorCodes(getPlugin().getPluginPrefix() + "&cInvalid number."));
+                                return false;
+                            }
+                            ItemStack item = p.getInventory().getItemInMainHand();
+                            if(item != null && item.getType() != Material.AIR) {
+                                ItemMeta meta = item.getItemMeta();
+                                NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
+                                meta.getPersistentDataContainer().set(key, PersistentDataType.FLOAT, customValue);
+                                item.setItemMeta(meta);
+                                CalculateWeight.updateItemWeightLore(item, customValue);
+                                String msg = w.formatMessage(Messages.getMessages().getString("custom-add-item-success-message", getPlugin().getPluginPrefix() + "&aSet custom weight &e" + weightValue + " &afor item."), p);
+                                msg = msg.replaceAll("%itemweight%", weightValue);
+                                p.sendMessage(ColorUtils.translateColorCodes(msg));
+                            } else {
+                                String msg = w.formatMessage(Messages.getMessages().getString("custom-add-item-fail-message", getPlugin().getPluginPrefix() + "&cYou must hold an item to set its weight."), p);
+                                p.sendMessage(ColorUtils.translateColorCodes(msg));
+                            }
+                        } else
+                            unknownCommandMessage(p);
+                    } else
                         noPermMessage(p);
                 }else
                     unknownCommandMessage(p);
