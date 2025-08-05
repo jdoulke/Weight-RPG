@@ -20,6 +20,9 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.ColorUtils;
 import ted_2001.WeightRPG.Utils.Messages;
@@ -179,18 +182,24 @@ public class WeightCalculateListeners implements Listener {
             boolean isCustomItem = false;
             ItemMeta itemMeta = item.getItemMeta();
 
-            // Check if the item is a custom-named item with weight defined in the config file.
-            if (itemMeta != null && customItemsWeight.containsKey(itemMeta.getDisplayName())) {
-                weight = customItemsWeight.get(itemMeta.getDisplayName());
-                isCustomItem = true;
-            } else if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
-                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                if(boostWeight != 0)
-                    boostWeight +=  (boostItemsWeight.get(itemMeta.getDisplayName()) * amount);
-                playerBoostWeight.put(p.getUniqueId(), boostWeight);
-                weight = 0.0f;
-            }else if (globalItemsWeight.get(item.getType()) != null) 
-                weight = globalItemsWeight.get(item.getType());
+            if (itemMeta != null) {
+                NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
+                PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+                if (pdc.has(key, PersistentDataType.FLOAT)) {
+                    weight = pdc.get(key, PersistentDataType.FLOAT);
+                    isCustomItem = true;
+                } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
+                    weight = customItemsWeight.get(itemMeta.getDisplayName());
+                    isCustomItem = true;
+                } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
+                    boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                    if (boostWeight != 0)
+                        boostWeight += (boostItemsWeight.get(itemMeta.getDisplayName()) * amount);
+                    playerBoostWeight.put(p.getUniqueId(), boostWeight);
+                    weight = 0.0f;
+                } else if (globalItemsWeight.get(item.getType()) != null)
+                    weight = globalItemsWeight.get(item.getType());
+            }
             
             // Check if the player's weight is not being tracked yet or if the item is a custom item.
             if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
@@ -279,18 +288,24 @@ public class WeightCalculateListeners implements Listener {
         boolean isCustomItem = false;
         ItemMeta itemMeta = item.getItemMeta();
 
-        // Check if the item is a custom-named item with weight defined in the config file.
-        if (itemMeta != null && customItemsWeight.containsKey(itemMeta.getDisplayName())) {
-            weight = customItemsWeight.get(itemMeta.getDisplayName());
-            isCustomItem = true;
-        } else if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
-            boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-            if(boostWeight != 0)
-                boostWeight -= (boostItemsWeight.get(itemMeta.getDisplayName()) * amount);
-            playerBoostWeight.put(p.getUniqueId(), boostWeight);
-            weight = 0.0f;
-        }else if(globalItemsWeight.get(item.getType()) != null)
-            weight = globalItemsWeight.get(item.getType());
+        if (itemMeta != null) {
+            NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
+            PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+            if (pdc.has(key, PersistentDataType.FLOAT)) {
+                weight = pdc.get(key, PersistentDataType.FLOAT);
+                isCustomItem = true;
+            } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
+                weight = customItemsWeight.get(itemMeta.getDisplayName());
+                isCustomItem = true;
+            } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
+                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                if (boostWeight != 0)
+                    boostWeight -= (boostItemsWeight.get(itemMeta.getDisplayName()) * amount);
+                playerBoostWeight.put(p.getUniqueId(), boostWeight);
+                weight = 0.0f;
+            } else if (globalItemsWeight.get(item.getType()) != null)
+                weight = globalItemsWeight.get(item.getType());
+        }
 
         // Handle weight calculation and weight effects for the player based on the dropped item.
         if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
@@ -341,18 +356,24 @@ public class WeightCalculateListeners implements Listener {
         boolean isCustomItem = false;
         ItemMeta itemMeta = block.getItemMeta();
 
-        // Check if the item is a custom-named item with weight defined in the config file.
-        if (itemMeta != null && customItemsWeight.containsKey(itemMeta.getDisplayName())) {
-            weight = customItemsWeight.get(itemMeta.getDisplayName());
-            isCustomItem = true;
-        } else if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
-            boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-            if(boostWeight != 0)
-                boostWeight -= boostItemsWeight.get(itemMeta.getDisplayName());
-            playerBoostWeight.put(p.getUniqueId(), boostWeight);
-            weight = 0.0f;
-        }else if(globalItemsWeight.get(block.getType()) != null)
-            weight = globalItemsWeight.get(block.getType());
+        if (itemMeta != null) {
+            NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
+            PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+            if (pdc.has(key, PersistentDataType.FLOAT)) {
+                weight = pdc.get(key, PersistentDataType.FLOAT);
+                isCustomItem = true;
+            } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
+                weight = customItemsWeight.get(itemMeta.getDisplayName());
+                isCustomItem = true;
+            } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
+                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                if (boostWeight != 0)
+                    boostWeight -= boostItemsWeight.get(itemMeta.getDisplayName());
+                playerBoostWeight.put(p.getUniqueId(), boostWeight);
+                weight = 0.0f;
+            } else if (globalItemsWeight.get(block.getType()) != null)
+                weight = globalItemsWeight.get(block.getType());
+        }
 
         // Handle weight calculation and weight effects for the player based on the placed block.
         if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
