@@ -49,13 +49,21 @@ public final class ItemLoreUtils {
             return;
 
         NamespacedKey loreKey = new NamespacedKey(getPlugin(), "weightLore");
+        NamespacedKey blankKey = new NamespacedKey(getPlugin(), "weightLoreBlank");
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
 
         String previousLine = pdc.get(loreKey, PersistentDataType.STRING);
+        Byte hadBlank = pdc.get(blankKey, PersistentDataType.BYTE);
         if (previousLine != null) {
-            lore.removeIf(line -> line.equals(previousLine));
+            int index = lore.indexOf(previousLine);
+            if (index != -1) {
+                lore.remove(index);
+                if (hadBlank != null && hadBlank == 1 && index - 1 >= 0 && lore.get(index - 1).isEmpty())
+                    lore.remove(index - 1);
+            }
             pdc.remove(loreKey);
+            pdc.remove(blankKey);
         }
 
         if (getPlugin().getConfig().getBoolean("item-weight-lore.enabled") && weight > 0f) {
@@ -68,6 +76,14 @@ public final class ItemLoreUtils {
                     .replace("%item%", itemName);
 
             line = ChatColor.translateAlternateColorCodes('&', line);
+
+            boolean hasTrailingBlank = !lore.isEmpty() && lore.get(lore.size() - 1).isEmpty();
+            if (!hasTrailingBlank) {
+                lore.add("");
+                pdc.set(blankKey, PersistentDataType.BYTE, (byte) 1);
+            } else
+                pdc.set(blankKey, PersistentDataType.BYTE, (byte) 0);
+
             lore.add(line);
             pdc.set(loreKey, PersistentDataType.STRING, line);
         }
@@ -93,13 +109,21 @@ public final class ItemLoreUtils {
             return;
 
         NamespacedKey loreKey = new NamespacedKey(getPlugin(), "weightLore");
+        NamespacedKey blankKey = new NamespacedKey(getPlugin(), "weightLoreBlank");
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
 
         String previousLine = pdc.get(loreKey, PersistentDataType.STRING);
+        Byte hadBlank = pdc.get(blankKey, PersistentDataType.BYTE);
         if (previousLine != null) {
-            lore.removeIf(line -> line.equals(previousLine));
+            int index = lore.indexOf(previousLine);
+            if (index != -1) {
+                lore.remove(index);
+                if (hadBlank != null && hadBlank == 1 && index - 1 >= 0 && lore.get(index - 1).isEmpty())
+                    lore.remove(index - 1);
+            }
             pdc.remove(loreKey);
+            pdc.remove(blankKey);
         }
 
         if (getPlugin().getConfig().getBoolean("item-weight-lore.enabled") && boostWeight > 0f) {
@@ -112,6 +136,14 @@ public final class ItemLoreUtils {
                     .replace("%item%", itemName);
 
             line = ChatColor.translateAlternateColorCodes('&', line);
+
+            boolean hasTrailingBlank = !lore.isEmpty() && lore.get(lore.size() - 1).isEmpty();
+            if (!hasTrailingBlank) {
+                lore.add("");
+                pdc.set(blankKey, PersistentDataType.BYTE, (byte) 1);
+            } else
+                pdc.set(blankKey, PersistentDataType.BYTE, (byte) 0);
+
             lore.add(line);
             pdc.set(loreKey, PersistentDataType.STRING, line);
         }

@@ -157,6 +157,14 @@ public class WeightCommands implements CommandExecutor {
                         p.sendMessage(ColorUtils.translateColorCodes(customMessage));
                     } else
                         noPermMessage(p);
+                } else if(arg0.equalsIgnoreCase("boost")) {
+                    // The first argument is "boost".
+                    // Check if the player has the "weight.boost" permission to execute the boost command.
+                    if (p.hasPermission("weight.boost")) {
+                        String boostMessage = w.formatMessage(Messages.getMessages().getString("boost-add-command-message", getPlugin().getPluginPrefix() + "&aYou can add a boost weight to the item in your hand using &e/weight boost add <value>."), p);
+                        p.sendMessage(ColorUtils.translateColorCodes(boostMessage));
+                    } else
+                        noPermMessage(p);
                 } else if (arg0.equalsIgnoreCase("help")) {
                     // The first argument is "help".
                     // Check if the player has the "weight.help" permission to execute the help command.
@@ -228,6 +236,15 @@ public class WeightCommands implements CommandExecutor {
                         if(arg1.equalsIgnoreCase("ADD")) {
                             String customMessage = w.formatMessage(Messages.getMessages().getString("custom-add-command-message", getPlugin().getPluginPrefix() + "&aYou can add a custom weight to the item in your hand using &e/weight custom add <value>."), p);
                             p.sendMessage(ColorUtils.translateColorCodes(customMessage));
+                        } else
+                            unknownCommandMessage(p);
+                    } else
+                        noPermMessage(p);
+                } else if(arg0.equalsIgnoreCase("boost")) {
+                    if(p.hasPermission("weight.boost")) {
+                        if(arg1.equals("ADD")) {
+                            String boostMessage = w.formatMessage(Messages.getMessages().getString("boost-add-command-message", getPlugin().getPluginPrefix() + "&aYou can add a boost weight to the item in your hand using &e/weight boost add <value>."), p);
+                            p.sendMessage(ColorUtils.translateColorCodes(boostMessage));
                         } else
                             unknownCommandMessage(p);
                     } else
@@ -429,6 +446,34 @@ public class WeightCommands implements CommandExecutor {
                                 p.sendMessage(ColorUtils.translateColorCodes(msg));
                             } else {
                                 String msg = w.formatMessage(Messages.getMessages().getString("custom-add-item-fail-message", getPlugin().getPluginPrefix() + "&cYou must hold an item to set its weight."), p);
+                                p.sendMessage(ColorUtils.translateColorCodes(msg));
+                            }
+                        } else
+                            unknownCommandMessage(p);
+                    } else
+                        noPermMessage(p);
+                } else if(weightCommand.equalsIgnoreCase("boost")) {
+                    if(p.hasPermission("weight.boost")) {
+                        if(arg1Raw.equalsIgnoreCase("add")) {
+                            float boostValue;
+                            try {
+                                boostValue = Float.parseFloat(weightValue);
+                            } catch (NumberFormatException ex) {
+                                p.sendMessage(ColorUtils.translateColorCodes(getPlugin().getPluginPrefix() + "&cInvalid number."));
+                                return false;
+                            }
+                            ItemStack item = p.getInventory().getItemInMainHand();
+                            if(item != null && item.getType() != Material.AIR) {
+                                ItemMeta meta = item.getItemMeta();
+                                NamespacedKey key = new NamespacedKey(getPlugin(), "boost");
+                                meta.getPersistentDataContainer().set(key, PersistentDataType.FLOAT, boostValue);
+                                item.setItemMeta(meta);
+                                ItemLoreUtils.updateBoostItemLore(item, boostValue);
+                                String msg = w.formatMessage(Messages.getMessages().getString("boost-add-item-success-message", getPlugin().getPluginPrefix() + "&aSet boost weight &e" + weightValue + " &afor item."), p);
+                                msg = msg.replaceAll("%boostweight%", weightValue);
+                                p.sendMessage(ColorUtils.translateColorCodes(msg));
+                            } else {
+                                String msg = w.formatMessage(Messages.getMessages().getString("boost-add-item-fail-message", getPlugin().getPluginPrefix() + "&cYou must hold an item to set its boost weight."), p);
                                 p.sendMessage(ColorUtils.translateColorCodes(msg));
                             }
                         } else

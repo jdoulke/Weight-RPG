@@ -34,6 +34,8 @@ public class Tabcompleter implements TabCompleter {
                     results.add("add");
                 if(sender.hasPermission("weight.custom"))
                     results.add("custom");
+                if(sender.hasPermission("weight.boost"))
+                    results.add("boost");
                 if (sender.hasPermission("weight.help"))
                     results.add("help");
 
@@ -60,6 +62,11 @@ public class Tabcompleter implements TabCompleter {
                     }
                 } else if(arg0.equalsIgnoreCase("custom")) {
                     if(sender.hasPermission("weight.custom")) {
+                        results.add("add");
+                        return sortedResults(args[1]);
+                    }
+                } else if(arg0.equalsIgnoreCase("boost")) {
+                    if(sender.hasPermission("weight.boost")) {
                         results.add("add");
                         return sortedResults(args[1]);
                     }
