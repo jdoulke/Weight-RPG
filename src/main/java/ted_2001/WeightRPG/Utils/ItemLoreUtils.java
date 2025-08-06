@@ -9,6 +9,8 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Objects;
 
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
@@ -21,6 +23,8 @@ public final class ItemLoreUtils {
     private ItemLoreUtils() {
         // Utility class
     }
+
+    private static final Map<String, String> MATERIAL_NAME_CACHE = new HashMap<>();
 
     /**
      * Updates the lore of the provided item with its weight value. If the lore is disabled in
@@ -97,8 +101,7 @@ public final class ItemLoreUtils {
 
         if (line != null) {
             trimTrailingEmptyLines(lore);
-            if (!lore.isEmpty())
-                lore.add("");
+            lore.add("");
             lore.add(line);
             if (plainLine != null)
                 pdc.set(loreKey, PersistentDataType.STRING, plainLine);
@@ -177,8 +180,7 @@ public final class ItemLoreUtils {
 
         if (line != null) {
             trimTrailingEmptyLines(lore);
-            if (!lore.isEmpty())
-                lore.add("");
+            lore.add("");
             lore.add(line);
             if (plainLine != null)
                 pdc.set(loreKey, PersistentDataType.STRING, plainLine);
@@ -194,14 +196,16 @@ public final class ItemLoreUtils {
     }
 
     private static String formatMaterialName(String material) {
-        String[] parts = material.toLowerCase().split("_");
-        StringBuilder builder = new StringBuilder();
-        for (String part : parts) {
-            if (part.isEmpty()) continue;
-            builder.append(Character.toUpperCase(part.charAt(0)))
-                    .append(part.substring(1))
-                    .append(' ');
-        }
-        return builder.toString().trim();
+        return MATERIAL_NAME_CACHE.computeIfAbsent(material, key -> {
+            String[] parts = key.toLowerCase().split("_");
+            StringBuilder builder = new StringBuilder();
+            for (String part : parts) {
+                if (part.isEmpty()) continue;
+                builder.append(Character.toUpperCase(part.charAt(0)))
+                        .append(part.substring(1))
+                        .append(' ');
+            }
+            return builder.toString().trim();
+        });
     }
 }
