@@ -108,8 +108,8 @@ public final class ItemLoreUtils {
         if (meta == null)
             return;
 
-        NamespacedKey loreKey = new NamespacedKey(getPlugin(), "weightLore");
-        NamespacedKey blankKey = new NamespacedKey(getPlugin(), "weightLoreBlank");
+        NamespacedKey loreKey = new NamespacedKey(getPlugin(), "boostLore");
+        NamespacedKey blankKey = new NamespacedKey(getPlugin(), "boostLoreBlank");
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
 

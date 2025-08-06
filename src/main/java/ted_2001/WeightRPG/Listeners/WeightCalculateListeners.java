@@ -180,7 +180,6 @@ public class WeightCalculateListeners implements Listener {
             }
 
             float weight = 0.0f;
-            float boostWeight;
             boolean isCustomItem = false;
             ItemMeta itemMeta = item.getItemMeta();
 
@@ -190,27 +189,29 @@ public class WeightCalculateListeners implements Listener {
                 PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
                 if (pdc.has(key, PersistentDataType.FLOAT)) {
                     weight = pdc.get(key, PersistentDataType.FLOAT);
+                    ItemLoreUtils.updateItemLore(item, weight);
                     isCustomItem = true;
                 } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
-                    boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                    if (boostWeight != 0)
-                        boostWeight += (pdc.get(boostKey, PersistentDataType.FLOAT) * amount);
-                    playerBoostWeight.put(p.getUniqueId(), boostWeight);
+                    float boostPerItem = pdc.get(boostKey, PersistentDataType.FLOAT);
+                    ItemLoreUtils.updateBoostItemLore(item, boostPerItem);
                     weight = 0.0f;
+                    isCustomItem = true;
                 } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                     weight = customItemsWeight.get(itemMeta.getDisplayName());
+                    ItemLoreUtils.updateItemLore(item, weight);
                     isCustomItem = true;
                 } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
-                    boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                    if (boostWeight != 0)
-                        boostWeight += (boostItemsWeight.get(itemMeta.getDisplayName()) * amount);
-                    playerBoostWeight.put(p.getUniqueId(), boostWeight);
+                    float boostPerItem = boostItemsWeight.get(itemMeta.getDisplayName());
+                    ItemLoreUtils.updateBoostItemLore(item, boostPerItem);
                     weight = 0.0f;
-                } else if (globalItemsWeight.get(item.getType()) != null)
+                    isCustomItem = true;
+                } else if (globalItemsWeight.get(item.getType()) != null) {
                     weight = globalItemsWeight.get(item.getType());
+                    ItemLoreUtils.updateItemLore(item, weight);
+                }
             }
-            
-            // Check if the player's weight is not being tracked yet or if the item is a custom item.
+
+            // Check if the player's weight is not being tracked yet or if the item is a custom/boost item.
             if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
                 // Calculate the player's weight and notify them about the received item.
                 weightCalculation.calculateWeight(p);
@@ -293,7 +294,6 @@ public class WeightCalculateListeners implements Listener {
 
 
         float weight = 0.0f;
-        float boostWeight;
         boolean isCustomItem = false;
         ItemMeta itemMeta = item.getItemMeta();
 
@@ -305,20 +305,22 @@ public class WeightCalculateListeners implements Listener {
                 weight = pdc.get(key, PersistentDataType.FLOAT);
                 isCustomItem = true;
             } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
-                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                if (boostWeight != 0)
-                    boostWeight -= (pdc.get(boostKey, PersistentDataType.FLOAT) * amount);
+                float boostPerItem = pdc.get(boostKey, PersistentDataType.FLOAT);
+                float boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                boostWeight -= boostPerItem * amount;
                 playerBoostWeight.put(p.getUniqueId(), boostWeight);
                 weight = 0.0f;
+                isCustomItem = true;
             } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                 weight = customItemsWeight.get(itemMeta.getDisplayName());
                 isCustomItem = true;
             } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
-                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                if (boostWeight != 0)
-                    boostWeight -= (boostItemsWeight.get(itemMeta.getDisplayName()) * amount);
+                float boostPerItem = boostItemsWeight.get(itemMeta.getDisplayName());
+                float boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                boostWeight -= boostPerItem * amount;
                 playerBoostWeight.put(p.getUniqueId(), boostWeight);
                 weight = 0.0f;
+                isCustomItem = true;
             } else if (globalItemsWeight.get(item.getType()) != null)
                 weight = globalItemsWeight.get(item.getType());
         }
@@ -368,7 +370,6 @@ public class WeightCalculateListeners implements Listener {
         }
 
         float weight = 0.0f;
-        float boostWeight;
         boolean isCustomItem = false;
         ItemMeta itemMeta = block.getItemMeta();
 
@@ -380,20 +381,22 @@ public class WeightCalculateListeners implements Listener {
                 weight = pdc.get(key, PersistentDataType.FLOAT);
                 isCustomItem = true;
             } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
-                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                if (boostWeight != 0)
-                    boostWeight -= pdc.get(boostKey, PersistentDataType.FLOAT);
+                float boostPerItem = pdc.get(boostKey, PersistentDataType.FLOAT);
+                float boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                boostWeight -= boostPerItem;
                 playerBoostWeight.put(p.getUniqueId(), boostWeight);
                 weight = 0.0f;
+                isCustomItem = true;
             } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                 weight = customItemsWeight.get(itemMeta.getDisplayName());
                 isCustomItem = true;
             } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
-                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                if (boostWeight != 0)
-                    boostWeight -= boostItemsWeight.get(itemMeta.getDisplayName());
+                float boostPerItem = boostItemsWeight.get(itemMeta.getDisplayName());
+                float boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                boostWeight -= boostPerItem;
                 playerBoostWeight.put(p.getUniqueId(), boostWeight);
                 weight = 0.0f;
+                isCustomItem = true;
             } else if (globalItemsWeight.get(block.getType()) != null)
                 weight = globalItemsWeight.get(block.getType());
         }
