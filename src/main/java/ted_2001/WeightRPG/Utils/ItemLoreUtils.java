@@ -68,12 +68,20 @@ public final class ItemLoreUtils {
                     .replace("%item%", itemName);
 
             line = ChatColor.translateAlternateColorCodes('&', line);
-            if (line.equals(previousLine))
+            String plainLine = ChatColor.stripColor(line);
+            if (previousLine != null && plainLine.equals(ChatColor.stripColor(previousLine)))
                 return; // Lore already up-to-date
         }
 
         if (previousLine != null) {
-            int index = lore.indexOf(previousLine);
+            String plainPrev = ChatColor.stripColor(previousLine);
+            int index = -1;
+            for (int i = 0; i < lore.size(); i++) {
+                if (ChatColor.stripColor(lore.get(i)).equals(plainPrev)) {
+                    index = i;
+                    break;
+                }
+            }
             if (index != -1) {
                 lore.remove(index);
                 if (hadBlank != null && hadBlank == 1 && index - 1 >= 0 && lore.get(index - 1).isEmpty())
@@ -92,7 +100,7 @@ public final class ItemLoreUtils {
                 pdc.set(blankKey, PersistentDataType.BYTE, (byte) 0);
 
             lore.add(line);
-            pdc.set(loreKey, PersistentDataType.STRING, line);
+            pdc.set(loreKey, PersistentDataType.STRING, ChatColor.stripColor(line));
         }
 
         meta.setLore(lore.isEmpty() ? null : lore);
@@ -139,12 +147,20 @@ public final class ItemLoreUtils {
                     .replace("%item%", itemName);
 
             line = ChatColor.translateAlternateColorCodes('&', line);
-            if (line.equals(previousLine))
+            String plainLine = ChatColor.stripColor(line);
+            if (previousLine != null && plainLine.equals(ChatColor.stripColor(previousLine)))
                 return;
         }
 
         if (previousLine != null) {
-            int index = lore.indexOf(previousLine);
+            String plainPrev = ChatColor.stripColor(previousLine);
+            int index = -1;
+            for (int i = 0; i < lore.size(); i++) {
+                if (ChatColor.stripColor(lore.get(i)).equals(plainPrev)) {
+                    index = i;
+                    break;
+                }
+            }
             if (index != -1) {
                 lore.remove(index);
                 if (hadBlank != null && hadBlank == 1 && index - 1 >= 0 && lore.get(index - 1).isEmpty())
@@ -163,7 +179,7 @@ public final class ItemLoreUtils {
                 pdc.set(blankKey, PersistentDataType.BYTE, (byte) 0);
 
             lore.add(line);
-            pdc.set(loreKey, PersistentDataType.STRING, line);
+            pdc.set(loreKey, PersistentDataType.STRING, ChatColor.stripColor(line));
         }
 
         meta.setLore(lore.isEmpty() ? null : lore);
