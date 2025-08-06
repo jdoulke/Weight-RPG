@@ -68,8 +68,6 @@ public final class ItemLoreUtils {
 
             line = ChatColor.translateAlternateColorCodes('&', line);
             plainLine = ChatColor.stripColor(line);
-            if (previousLine != null && plainLine.equals(previousLine))
-                return; // Lore already up-to-date
         }
 
         int index = -1;
@@ -98,10 +96,12 @@ public final class ItemLoreUtils {
         }
 
         if (line != null) {
-            if (!lore.isEmpty() && !lore.get(lore.size() - 1).isEmpty())
+            trimTrailingEmptyLines(lore);
+            if (!lore.isEmpty())
                 lore.add("");
             lore.add(line);
-            pdc.set(loreKey, PersistentDataType.STRING, plainLine);
+            if (plainLine != null)
+                pdc.set(loreKey, PersistentDataType.STRING, plainLine);
 
         }
 
@@ -112,8 +112,7 @@ public final class ItemLoreUtils {
     /**
      * Removes any weight lore and updates the provided boost item with the bonus weight it grants
      * to the player. If lore messages are disabled or the boost value is zero, any previously added
-     * lore line by the plugin will be removed. If the boost lore already exists and is still valid,
-     * the method skips modifying the item.
+     * lore line by the plugin will be removed.
      *
      * @param item       the {@link ItemStack} to update
      * @param boostWeight the weight bonus of a single item
@@ -150,8 +149,6 @@ public final class ItemLoreUtils {
 
             line = ChatColor.translateAlternateColorCodes('&', line);
             plainLine = ChatColor.stripColor(line);
-            if (previousLine != null && plainLine.equals(previousLine))
-                return;
         }
 
         int index = -1;
@@ -179,14 +176,21 @@ public final class ItemLoreUtils {
         }
 
         if (line != null) {
-            if (!lore.isEmpty() && !lore.get(lore.size() - 1).isEmpty())
+            trimTrailingEmptyLines(lore);
+            if (!lore.isEmpty())
                 lore.add("");
             lore.add(line);
-            pdc.set(loreKey, PersistentDataType.STRING, plainLine);
+            if (plainLine != null)
+                pdc.set(loreKey, PersistentDataType.STRING, plainLine);
         }
 
         meta.setLore(lore.isEmpty() ? null : lore);
         item.setItemMeta(meta);
+    }
+
+    private static void trimTrailingEmptyLines(List<String> lore) {
+        while (!lore.isEmpty() && lore.get(lore.size() - 1).isEmpty())
+            lore.remove(lore.size() - 1);
     }
 
     private static String formatMaterialName(String material) {
