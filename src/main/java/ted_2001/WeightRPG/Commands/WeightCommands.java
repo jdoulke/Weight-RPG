@@ -22,6 +22,7 @@ import java.util.List;
 
 import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.boostItemsWeight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 import static ted_2001.WeightRPG.Utils.CalculateWeight.weightThresholdValues;
 
@@ -566,6 +567,7 @@ public class WeightCommands implements CommandExecutor {
         // Clear the stored custom and global item weights.
         customItemsWeight.clear();
         globalItemsWeight.clear();
+        boostItemsWeight.clear();
 
         // If the config file exists, reload it. Otherwise, create a new one with default values.
         if(config.exists())
