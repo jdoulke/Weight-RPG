@@ -116,7 +116,7 @@ plugin-prefix: "&7[&eWeight-RPG&7]&f: "
 item-weight-lore:
   enabled: false
   message: "&7%item% Weight: &e%weight%"
-  boost-message: "&7%item% Weight Boost: &e%boost%"
+  boost-message: "%item% &7Weight Boost: &e%boost%"
 
 
 
