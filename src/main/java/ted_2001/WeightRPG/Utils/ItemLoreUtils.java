@@ -120,10 +120,23 @@ public final class ItemLoreUtils {
         String previousLine = pdc.get(loreKey, PersistentDataType.STRING);
         Byte hadBlank = pdc.get(blankKey, PersistentDataType.BYTE);
         boolean enabled = getPlugin().getConfig().getBoolean("item-weight-lore.enabled");
-        if (previousLine != null) {
-            if (enabled && boostWeight > 0f)
-                return;
 
+        String line = null;
+        if (enabled && boostWeight > 0f) {
+            String template = Objects.requireNonNull(getPlugin().getConfig().getString(
+                    "item-weight-lore.boost-message", "&7%item% Weight Boost: &e%boost%"));
+
+            String itemName = meta.hasDisplayName() ? meta.getDisplayName() : formatMaterialName(item.getType().name());
+            line = template
+                    .replace("%boost%", String.format("%.2f", boostWeight))
+                    .replace("%item%", itemName);
+
+            line = ChatColor.translateAlternateColorCodes('&', line);
+            if (line.equals(previousLine))
+                return;
+        }
+
+        if (previousLine != null) {
             int index = lore.indexOf(previousLine);
             if (index != -1) {
                 lore.remove(index);
@@ -134,17 +147,7 @@ public final class ItemLoreUtils {
             pdc.remove(blankKey);
         }
 
-        if (enabled && boostWeight > 0f) {
-            String template = Objects.requireNonNull(getPlugin().getConfig().getString(
-                    "item-weight-lore.boost-message", "&7%item% Weight Boost: &e%boost%"));
-
-            String itemName = meta.hasDisplayName() ? meta.getDisplayName() : formatMaterialName(item.getType().name());
-            String line = template
-                    .replace("%boost%", String.format("%.2f", boostWeight))
-                    .replace("%item%", itemName);
-
-            line = ChatColor.translateAlternateColorCodes('&', line);
-
+        if (line != null) {
             boolean hasTrailingBlank = !lore.isEmpty() && lore.get(lore.size() - 1).isEmpty();
             if (!hasTrailingBlank) {
                 lore.add("");
