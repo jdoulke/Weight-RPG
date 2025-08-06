@@ -188,17 +188,21 @@ public class WeightCalculateListeners implements Listener {
                 PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
                 if (pdc.has(key, PersistentDataType.FLOAT)) {
                     weight = pdc.get(key, PersistentDataType.FLOAT);
+                    ItemLoreUtils.updateItemLore(item, weight);
                 } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
-                    // Boost items have no weight themselves
-                    weight = 0.0f;
+                    float boostPerItem = pdc.get(boostKey, PersistentDataType.FLOAT);
+                    ItemLoreUtils.updateBoostItemLore(item, boostPerItem);
                 } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                     weight = customItemsWeight.get(itemMeta.getDisplayName());
+                    ItemLoreUtils.updateItemLore(item, weight);
                 } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
-                    // Items providing weight boost
-                    weight = 0.0f;
+                    float boostPerItem = boostItemsWeight.get(itemMeta.getDisplayName());
+                    ItemLoreUtils.updateBoostItemLore(item, boostPerItem);
                 } else if (globalItemsWeight.get(item.getType()) != null) {
                     weight = globalItemsWeight.get(item.getType());
+                    ItemLoreUtils.updateItemLore(item, weight);
                 }
+                e.getItem().setItemStack(item);
             }
 
             // Notify the player and update their weight/lore after the item has stacked in the inventory.
