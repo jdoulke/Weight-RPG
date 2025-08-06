@@ -139,8 +139,9 @@ public class CalculateWeight {
             } else {
                 String displayName = itemMeta.getDisplayName();
                 // Check if the item has a custom weight based on its display name from config file
-                if (customItemsWeight.containsKey(displayName))
+                if (customItemsWeight.containsKey(displayName)) {
                     itemWeight = customItemsWeight.get(displayName);
+                }
 
                 // Check if the item is a boost item weight based on its display name from config file
                 else if (boostItemsWeight.containsKey(displayName)) {
@@ -151,9 +152,14 @@ public class CalculateWeight {
                     playerBoostWeight.put(p.getUniqueId(), currentBoostWeight + boostWeight);
                     return 0.0f;
                 }
-                    // Check if the item has a global weight based on its material type
-                else if (globalItemsWeight.containsKey(itemStack.getType()))
+
+                // Check if the item has a global weight based on its material type
+                else if (globalItemsWeight.containsKey(itemStack.getType())) {
                     itemWeight = globalItemsWeight.get(itemStack.getType());
+                }
+
+                // Ensure outdated boost lore is removed for items that are no longer boost items
+                ItemLoreUtils.updateBoostItemLore(itemStack, 0f);
             }
         }
 

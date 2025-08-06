@@ -190,6 +190,7 @@ public class WeightCalculateListeners implements Listener {
                 if (pdc.has(key, PersistentDataType.FLOAT)) {
                     weight = pdc.get(key, PersistentDataType.FLOAT);
                     ItemLoreUtils.updateItemLore(item, weight);
+                    ItemLoreUtils.updateBoostItemLore(item, 0f);
                     isCustomItem = true;
                 } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
                     float boostPerItem = pdc.get(boostKey, PersistentDataType.FLOAT);
@@ -199,6 +200,7 @@ public class WeightCalculateListeners implements Listener {
                 } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                     weight = customItemsWeight.get(itemMeta.getDisplayName());
                     ItemLoreUtils.updateItemLore(item, weight);
+                    ItemLoreUtils.updateBoostItemLore(item, 0f);
                     isCustomItem = true;
                 } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
                     float boostPerItem = boostItemsWeight.get(itemMeta.getDisplayName());
@@ -208,6 +210,11 @@ public class WeightCalculateListeners implements Listener {
                 } else if (globalItemsWeight.get(item.getType()) != null) {
                     weight = globalItemsWeight.get(item.getType());
                     ItemLoreUtils.updateItemLore(item, weight);
+                    ItemLoreUtils.updateBoostItemLore(item, 0f);
+                } else {
+                    // Item is not weighted or boosted anymore - remove any leftover lore
+                    ItemLoreUtils.updateBoostItemLore(item, 0f);
+                    ItemLoreUtils.updateItemLore(item, 0f);
                 }
             }
 
