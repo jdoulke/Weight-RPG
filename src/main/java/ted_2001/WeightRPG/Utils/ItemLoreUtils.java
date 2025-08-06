@@ -2,9 +2,7 @@ package ted_2001.WeightRPG.Utils;
 
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -49,50 +47,60 @@ public final class ItemLoreUtils {
             return;
 
         NamespacedKey loreKey = new NamespacedKey(getPlugin(), "weightLore");
-        NamespacedKey blankKey = new NamespacedKey(getPlugin(), "weightLoreBlank");
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
 
         String previousLine = pdc.get(loreKey, PersistentDataType.STRING);
-        Byte hadBlank = pdc.get(blankKey, PersistentDataType.BYTE);
 
         boolean enabled = getPlugin().getConfig().getBoolean("item-weight-lore.enabled");
-        String line = null;
-        if (enabled && weight > 0f) {
-            String template = Objects.requireNonNull(getPlugin().getConfig().getString(
-                    "item-weight-lore.message", "&7%item% Weight: &e%weight%"));
 
-            String itemName = meta.hasDisplayName() ? meta.getDisplayName() : formatMaterialName(item.getType().name());
+        String itemName = meta.hasDisplayName() ? meta.getDisplayName() : formatMaterialName(item.getType().name());
+        String template = Objects.requireNonNull(getPlugin().getConfig().getString(
+                "item-weight-lore.message", "&7%item% Weight: &e%weight%"));
+        String prefix = ChatColor.stripColor(template.replace("%item%", itemName).split("%weight%")[0]);
+
+        String line = null;
+        String plainLine = null;
+        if (enabled && weight > 0f) {
             line = template
                     .replace("%weight%", String.format("%.2f", weight))
                     .replace("%item%", itemName);
 
             line = ChatColor.translateAlternateColorCodes('&', line);
-            if (line.equals(previousLine))
+            plainLine = ChatColor.stripColor(line);
+            if (previousLine != null && plainLine.equals(previousLine))
                 return; // Lore already up-to-date
         }
 
+        int index = -1;
         if (previousLine != null) {
-            int index = lore.indexOf(previousLine);
-            if (index != -1) {
-                lore.remove(index);
-                if (hadBlank != null && hadBlank == 1 && index - 1 >= 0 && lore.get(index - 1).isEmpty())
-                    lore.remove(index - 1);
+            for (int i = 0; i < lore.size(); i++) {
+                if (ChatColor.stripColor(lore.get(i)).equals(previousLine)) {
+                    index = i;
+                    break;
+                }
             }
             pdc.remove(loreKey);
-            pdc.remove(blankKey);
+        } else {
+            for (int i = 0; i < lore.size(); i++) {
+                if (ChatColor.stripColor(lore.get(i)).startsWith(prefix)) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        if (index != -1) {
+            lore.remove(index);
+            if (index - 1 >= 0 && lore.get(index - 1).isEmpty())
+                lore.remove(index - 1);
         }
 
         if (line != null) {
-            boolean hasTrailingBlank = !lore.isEmpty() && lore.get(lore.size() - 1).isEmpty();
-            if (!hasTrailingBlank) {
+            if (!lore.isEmpty() && !lore.get(lore.size() - 1).isEmpty())
                 lore.add("");
-                pdc.set(blankKey, PersistentDataType.BYTE, (byte) 1);
-            } else
-                pdc.set(blankKey, PersistentDataType.BYTE, (byte) 0);
-
             lore.add(line);
-            pdc.set(loreKey, PersistentDataType.STRING, line);
+            pdc.set(loreKey, PersistentDataType.STRING, plainLine);
         }
 
         meta.setLore(lore.isEmpty() ? null : lore);
@@ -120,50 +128,59 @@ public final class ItemLoreUtils {
             return;
 
         NamespacedKey loreKey = new NamespacedKey(getPlugin(), "boostLore");
-        NamespacedKey blankKey = new NamespacedKey(getPlugin(), "boostLoreBlank");
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
 
         String previousLine = pdc.get(loreKey, PersistentDataType.STRING);
-        Byte hadBlank = pdc.get(blankKey, PersistentDataType.BYTE);
         boolean enabled = getPlugin().getConfig().getBoolean("item-weight-lore.enabled");
 
-        String line = null;
-        if (enabled && boostWeight > 0f) {
-            String template = Objects.requireNonNull(getPlugin().getConfig().getString(
-                    "item-weight-lore.boost-message", "&7%item% Weight Boost: &e%boost%"));
+        String itemName = meta.hasDisplayName() ? meta.getDisplayName() : formatMaterialName(item.getType().name());
+        String template = Objects.requireNonNull(getPlugin().getConfig().getString(
+                "item-weight-lore.boost-message", "&7%item% Weight Boost: &e%boost%"));
+        String prefix = ChatColor.stripColor(template.replace("%item%", itemName).split("%boost%")[0]);
 
-            String itemName = meta.hasDisplayName() ? meta.getDisplayName() : formatMaterialName(item.getType().name());
+        String line = null;
+        String plainLine = null;
+        if (enabled && boostWeight > 0f) {
             line = template
                     .replace("%boost%", String.format("%.2f", boostWeight))
                     .replace("%item%", itemName);
 
             line = ChatColor.translateAlternateColorCodes('&', line);
-            if (line.equals(previousLine))
+            plainLine = ChatColor.stripColor(line);
+            if (previousLine != null && plainLine.equals(previousLine))
                 return;
         }
 
+        int index = -1;
         if (previousLine != null) {
-            int index = lore.indexOf(previousLine);
-            if (index != -1) {
-                lore.remove(index);
-                if (hadBlank != null && hadBlank == 1 && index - 1 >= 0 && lore.get(index - 1).isEmpty())
-                    lore.remove(index - 1);
+            for (int i = 0; i < lore.size(); i++) {
+                if (ChatColor.stripColor(lore.get(i)).equals(previousLine)) {
+                    index = i;
+                    break;
+                }
             }
             pdc.remove(loreKey);
-            pdc.remove(blankKey);
+        } else {
+            for (int i = 0; i < lore.size(); i++) {
+                if (ChatColor.stripColor(lore.get(i)).startsWith(prefix)) {
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        if (index != -1) {
+            lore.remove(index);
+            if (index - 1 >= 0 && lore.get(index - 1).isEmpty())
+                lore.remove(index - 1);
         }
 
         if (line != null) {
-            boolean hasTrailingBlank = !lore.isEmpty() && lore.get(lore.size() - 1).isEmpty();
-            if (!hasTrailingBlank) {
+            if (!lore.isEmpty() && !lore.get(lore.size() - 1).isEmpty())
                 lore.add("");
-                pdc.set(blankKey, PersistentDataType.BYTE, (byte) 1);
-            } else
-                pdc.set(blankKey, PersistentDataType.BYTE, (byte) 0);
-
             lore.add(line);
-            pdc.set(loreKey, PersistentDataType.STRING, line);
+            pdc.set(loreKey, PersistentDataType.STRING, plainLine);
         }
 
         meta.setLore(lore.isEmpty() ? null : lore);

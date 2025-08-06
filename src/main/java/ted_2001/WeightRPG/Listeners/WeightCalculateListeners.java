@@ -186,19 +186,24 @@ public class WeightCalculateListeners implements Listener {
                 NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
                 NamespacedKey boostKey = new NamespacedKey(getPlugin(), "boost");
                 PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+                String plainName = itemMeta.hasDisplayName() ? ChatColor.stripColor(itemMeta.getDisplayName()) : "";
                 if (pdc.has(key, PersistentDataType.FLOAT)) {
                     weight = pdc.get(key, PersistentDataType.FLOAT);
+                    ItemLoreUtils.updateItemLore(item, weight);
                 } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
-                    // Boost items have no weight themselves
-                    weight = 0.0f;
+                    float boostPerItem = pdc.get(boostKey, PersistentDataType.FLOAT);
+                    ItemLoreUtils.updateBoostItemLore(item, boostPerItem);
                 } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                     weight = customItemsWeight.get(itemMeta.getDisplayName());
-                } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
-                    // Items providing weight boost
-                    weight = 0.0f;
+                    ItemLoreUtils.updateItemLore(item, weight);
+                } else if (boostItemsWeight.containsKey(plainName)) {
+                    float boostPerItem = boostItemsWeight.get(plainName);
+                    ItemLoreUtils.updateBoostItemLore(item, boostPerItem);
                 } else if (globalItemsWeight.get(item.getType()) != null) {
                     weight = globalItemsWeight.get(item.getType());
+                    ItemLoreUtils.updateItemLore(item, weight);
                 }
+                e.getItem().setItemStack(item);
             }
 
             // Notify the player and update their weight/lore after the item has stacked in the inventory.
@@ -282,6 +287,7 @@ public class WeightCalculateListeners implements Listener {
             NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
             NamespacedKey boostKey = new NamespacedKey(getPlugin(), "boost");
             PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+            String plainName = itemMeta.hasDisplayName() ? ChatColor.stripColor(itemMeta.getDisplayName()) : "";
             if (pdc.has(key, PersistentDataType.FLOAT)) {
                 weight = pdc.get(key, PersistentDataType.FLOAT);
                 isCustomItem = true;
@@ -295,8 +301,8 @@ public class WeightCalculateListeners implements Listener {
             } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                 weight = customItemsWeight.get(itemMeta.getDisplayName());
                 isCustomItem = true;
-            } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
-                float boostPerItem = boostItemsWeight.get(itemMeta.getDisplayName());
+            } else if (boostItemsWeight.containsKey(plainName)) {
+                float boostPerItem = boostItemsWeight.get(plainName);
                 float boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
                 boostWeight -= boostPerItem * amount;
                 playerBoostWeight.put(p.getUniqueId(), boostWeight);
@@ -358,6 +364,7 @@ public class WeightCalculateListeners implements Listener {
             NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
             NamespacedKey boostKey = new NamespacedKey(getPlugin(), "boost");
             PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+            String plainName = itemMeta.hasDisplayName() ? ChatColor.stripColor(itemMeta.getDisplayName()) : "";
             if (pdc.has(key, PersistentDataType.FLOAT)) {
                 weight = pdc.get(key, PersistentDataType.FLOAT);
                 isCustomItem = true;
@@ -371,8 +378,8 @@ public class WeightCalculateListeners implements Listener {
             } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                 weight = customItemsWeight.get(itemMeta.getDisplayName());
                 isCustomItem = true;
-            } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
-                float boostPerItem = boostItemsWeight.get(itemMeta.getDisplayName());
+            } else if (boostItemsWeight.containsKey(plainName)) {
+                float boostPerItem = boostItemsWeight.get(plainName);
                 float boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
                 boostWeight -= boostPerItem;
                 playerBoostWeight.put(p.getUniqueId(), boostWeight);

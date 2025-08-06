@@ -138,14 +138,15 @@ public class CalculateWeight {
                 return 0.0f;
             } else {
                 String displayName = itemMeta.getDisplayName();
+                String plainName = ChatColor.stripColor(displayName);
                 // Check if the item has a custom weight based on its display name from config file
                 if (customItemsWeight.containsKey(displayName)) {
                     itemWeight = customItemsWeight.get(displayName);
                 }
 
                 // Check if the item is a boost item weight based on its display name from config file
-                else if (boostItemsWeight.containsKey(displayName)) {
-                    float boostPerItem = boostItemsWeight.get(displayName);
+                else if (boostItemsWeight.containsKey(plainName)) {
+                    float boostPerItem = boostItemsWeight.get(plainName);
                     ItemLoreUtils.updateBoostItemLore(itemStack, boostPerItem);
                     float boostWeight = boostPerItem * itemStack.getAmount();
                     float currentBoostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);

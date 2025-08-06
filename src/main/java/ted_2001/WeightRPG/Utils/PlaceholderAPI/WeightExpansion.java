@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.ChatColor;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.WeightRPG;
 
@@ -122,8 +123,11 @@ public class WeightExpansion extends PlaceholderExpansion {
             return weight;
         }
         // Boost Items don't have weight.
-        if(itemMeta != null && boostItemsWeight.containsKey(itemMeta.getDisplayName())){
-            return weight;
+        if(itemMeta != null){
+            String plainName = ChatColor.stripColor(itemMeta.getDisplayName());
+            if(boostItemsWeight.containsKey(plainName)){
+                return weight;
+            }
         }
         if (globalItemsWeight.get(item.getType()) != null) {
 

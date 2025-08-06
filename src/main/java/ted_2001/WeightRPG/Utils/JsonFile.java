@@ -464,10 +464,10 @@ public class JsonFile {
 
         for (String item : boostItems) {
             String[] item_weight = item.split("=");
-            String itemName = item_weight[0];
-            item = ColorUtils.translateColorCodes(itemName);
-            float weight = getWeight(item_weight[1], item, origin);
-            boostItemsWeight.put(item, weight);
+            String itemName = ColorUtils.translateColorCodes(item_weight[0]);
+            String plainName = ChatColor.stripColor(itemName);
+            float weight = getWeight(item_weight[1], itemName, origin);
+            boostItemsWeight.put(plainName, weight);
 
         }
 
