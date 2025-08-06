@@ -186,10 +186,17 @@ public class WeightCalculateListeners implements Listener {
 
             if (itemMeta != null) {
                 NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
+                NamespacedKey boostKey = new NamespacedKey(getPlugin(), "boost");
                 PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
                 if (pdc.has(key, PersistentDataType.FLOAT)) {
                     weight = pdc.get(key, PersistentDataType.FLOAT);
                     isCustomItem = true;
+                } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
+                    boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                    if (boostWeight != 0)
+                        boostWeight += (pdc.get(boostKey, PersistentDataType.FLOAT) * amount);
+                    playerBoostWeight.put(p.getUniqueId(), boostWeight);
+                    weight = 0.0f;
                 } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                     weight = customItemsWeight.get(itemMeta.getDisplayName());
                     isCustomItem = true;
@@ -292,10 +299,17 @@ public class WeightCalculateListeners implements Listener {
 
         if (itemMeta != null) {
             NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
+            NamespacedKey boostKey = new NamespacedKey(getPlugin(), "boost");
             PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
             if (pdc.has(key, PersistentDataType.FLOAT)) {
                 weight = pdc.get(key, PersistentDataType.FLOAT);
                 isCustomItem = true;
+            } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
+                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                if (boostWeight != 0)
+                    boostWeight -= (pdc.get(boostKey, PersistentDataType.FLOAT) * amount);
+                playerBoostWeight.put(p.getUniqueId(), boostWeight);
+                weight = 0.0f;
             } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                 weight = customItemsWeight.get(itemMeta.getDisplayName());
                 isCustomItem = true;
@@ -360,10 +374,17 @@ public class WeightCalculateListeners implements Listener {
 
         if (itemMeta != null) {
             NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
+            NamespacedKey boostKey = new NamespacedKey(getPlugin(), "boost");
             PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
             if (pdc.has(key, PersistentDataType.FLOAT)) {
                 weight = pdc.get(key, PersistentDataType.FLOAT);
                 isCustomItem = true;
+            } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
+                boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                if (boostWeight != 0)
+                    boostWeight -= pdc.get(boostKey, PersistentDataType.FLOAT);
+                playerBoostWeight.put(p.getUniqueId(), boostWeight);
+                weight = 0.0f;
             } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                 weight = customItemsWeight.get(itemMeta.getDisplayName());
                 isCustomItem = true;

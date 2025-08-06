@@ -123,11 +123,19 @@ public class CalculateWeight {
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         if (itemMeta != null) {
-            // Check for custom weight stored in the item's persistent data container
+            // Check for custom or boost weight stored in the item's persistent data container
             NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
+            NamespacedKey boostKey = new NamespacedKey(getPlugin(), "boost");
             PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
             if (pdc.has(key, PersistentDataType.FLOAT)) {
                 itemWeight = pdc.get(key, PersistentDataType.FLOAT);
+            } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
+                float boostPerItem = pdc.get(boostKey, PersistentDataType.FLOAT);
+                ItemLoreUtils.updateBoostItemLore(itemStack, boostPerItem);
+                float boostWeight = boostPerItem * itemStack.getAmount();
+                float currentBoostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
+                playerBoostWeight.put(p.getUniqueId(), currentBoostWeight + boostWeight);
+                return 0.0f;
             } else {
                 String displayName = itemMeta.getDisplayName();
                 // Check if the item has a custom weight based on its display name from config file

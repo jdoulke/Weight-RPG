@@ -33,6 +33,7 @@ get-command-message: "%pluginprefix% &aYou can see items weight by using the com
 set-command-message: "%pluginprefix% &aYou can set the weight value of an item using the command &e/weight set <item> <value>."
 add-command-message: "%pluginprefix% &a&aYou can add an item on the weight files using the command &e/weight add <item> <value>. &aYou will find the record on the Misc Items Weight file under Additional Items section."
 custom-add-command-message: "%pluginprefix% &aYou can add a custom weight to the item in your hand using the command &e/weight custom add <value>."
+boost-add-command-message: "%pluginprefix% &aYou can add a boost weight to the item in your hand using the command &e/weight boost add <value>."
 
 # These messages are sent to the player when he types a correct (succes message) item or not (fail message).
 # Here you can use %item% for the typed item and %itemweight% (this one only for the success message) for its weight.
@@ -46,6 +47,8 @@ add-item-success-message: "%pluginprefix% &aYou successfully added &e%item% &ato
 add-item-found-message: "%pluginprefix% &cThis item already exists in the weight files and it's weight value is &b%itemweight%&c."
 custom-add-item-success-message: "%pluginprefix% &aYou set the custom weight of this item to &b%itemweight%&a."
 custom-add-item-fail-message: "%pluginprefix% &cYou must hold an item to set a custom weight."
+boost-add-item-success-message: "%pluginprefix% &aYou set the boost weight of this item to &b%boostweight%&a."
+boost-add-item-fail-message: "%pluginprefix% &cYou must hold an item to set a boost weight."
 
 no-permission-message: "%pluginprefix% &cYou don't have permission to use this command."
 unknown-command: "%pluginprefix% &cCouldn't find this command."
@@ -70,5 +73,6 @@ help-command-message:
   - "&a/weight set <item> <weight> &6set the item's weight."
   - "&a/weight add <item> <weight> &6add an item to the weight files."
   - "&a/weight custom add <weight> &6add a custom weight tag to the item in your hand."
+  - "&a/weight boost add <weight> &6add a boost weight tag to the item in your hand."
   - "&a/weight reload &6reload all files and apply changes to server."
   - "&5----------------> &eWeight-RPG Commands&5 <----------------"
