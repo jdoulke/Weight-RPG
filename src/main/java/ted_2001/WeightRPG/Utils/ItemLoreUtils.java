@@ -93,9 +93,10 @@ public final class ItemLoreUtils {
     }
 
     /**
-     * Updates the lore of the provided boost item with the weight it grants to the player. If lore
-     * messages are disabled or the boost value is zero, any previously added lore line by the plugin
-     * will be removed.
+     * Removes any weight lore and updates the provided boost item with the bonus weight it grants
+     * to the player. If lore messages are disabled or the boost value is zero, any previously added
+     * lore line by the plugin will be removed. If the boost lore already exists and is still valid,
+     * the method skips modifying the item.
      *
      * @param item       the {@link ItemStack} to update
      * @param boostWeight the weight bonus of a single item
@@ -103,6 +104,9 @@ public final class ItemLoreUtils {
     public static void updateBoostItemLore(ItemStack item, float boostWeight) {
         if (item == null)
             return;
+
+        // Boosted items should not display their own weight
+        updateItemLore(item, 0f);
 
         ItemMeta meta = item.getItemMeta();
         if (meta == null)
@@ -115,7 +119,11 @@ public final class ItemLoreUtils {
 
         String previousLine = pdc.get(loreKey, PersistentDataType.STRING);
         Byte hadBlank = pdc.get(blankKey, PersistentDataType.BYTE);
+        boolean enabled = getPlugin().getConfig().getBoolean("item-weight-lore.enabled");
         if (previousLine != null) {
+            if (enabled && boostWeight > 0f)
+                return;
+
             int index = lore.indexOf(previousLine);
             if (index != -1) {
                 lore.remove(index);
@@ -126,7 +134,7 @@ public final class ItemLoreUtils {
             pdc.remove(blankKey);
         }
 
-        if (getPlugin().getConfig().getBoolean("item-weight-lore.enabled") && boostWeight > 0f) {
+        if (enabled && boostWeight > 0f) {
             String template = Objects.requireNonNull(getPlugin().getConfig().getString(
                     "item-weight-lore.boost-message", "&7%item% Weight Boost: &e%boost%"));
 
