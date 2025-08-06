@@ -180,7 +180,6 @@ public class WeightCalculateListeners implements Listener {
             }
 
             float weight = 0.0f;
-            boolean isCustomItem = false;
             ItemMeta itemMeta = item.getItemMeta();
 
             if (itemMeta != null) {
@@ -189,47 +188,22 @@ public class WeightCalculateListeners implements Listener {
                 PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
                 if (pdc.has(key, PersistentDataType.FLOAT)) {
                     weight = pdc.get(key, PersistentDataType.FLOAT);
-                    ItemLoreUtils.updateItemLore(item, weight);
-                    ItemLoreUtils.updateBoostItemLore(item, 0f);
-                    isCustomItem = true;
                 } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
-                    float boostPerItem = pdc.get(boostKey, PersistentDataType.FLOAT);
-                    ItemLoreUtils.updateBoostItemLore(item, boostPerItem);
+                    // Boost items have no weight themselves
                     weight = 0.0f;
-                    isCustomItem = true;
                 } else if (customItemsWeight.containsKey(itemMeta.getDisplayName())) {
                     weight = customItemsWeight.get(itemMeta.getDisplayName());
-                    ItemLoreUtils.updateItemLore(item, weight);
-                    ItemLoreUtils.updateBoostItemLore(item, 0f);
-                    isCustomItem = true;
                 } else if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
-                    float boostPerItem = boostItemsWeight.get(itemMeta.getDisplayName());
-                    ItemLoreUtils.updateBoostItemLore(item, boostPerItem);
+                    // Items providing weight boost
                     weight = 0.0f;
-                    isCustomItem = true;
                 } else if (globalItemsWeight.get(item.getType()) != null) {
                     weight = globalItemsWeight.get(item.getType());
-                    ItemLoreUtils.updateItemLore(item, weight);
-                    ItemLoreUtils.updateBoostItemLore(item, 0f);
-                } else {
-                    // Item is not weighted or boosted anymore - remove any leftover lore
-                    ItemLoreUtils.updateBoostItemLore(item, 0f);
-                    ItemLoreUtils.updateItemLore(item, 0f);
                 }
             }
 
-            // Check if the player's weight is not being tracked yet or if the item is a custom/boost item.
-            if (playerWeight.get(p.getUniqueId()) == 0 || playerWeight.get(p.getUniqueId()) == null || isCustomItem) {
-                // Calculate the player's weight and notify them about the received item.
-                weightCalculation.calculateWeight(p);
-                message(p, "receive", item, weight, amount);
-            } else {
-                // The player's weight is already being tracked. Update the weight for the picked item.
-                String s = "pick";
-                putWeightValue(p, item, amount, s);
-                message(p, "receive", item, weight, amount);
-                weightCalculation.applyWeightEffects(p);
-            }
+            // Notify the player and update their weight/lore after the item has stacked in the inventory.
+            message(p, "receive", item, weight, amount);
+            getServer().getScheduler().runTask(getPlugin(), () -> weightCalculation.calculateWeight(p));
         }
     }
 

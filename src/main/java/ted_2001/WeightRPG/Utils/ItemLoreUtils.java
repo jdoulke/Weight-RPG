@@ -55,6 +55,23 @@ public final class ItemLoreUtils {
 
         String previousLine = pdc.get(loreKey, PersistentDataType.STRING);
         Byte hadBlank = pdc.get(blankKey, PersistentDataType.BYTE);
+
+        boolean enabled = getPlugin().getConfig().getBoolean("item-weight-lore.enabled");
+        String line = null;
+        if (enabled && weight > 0f) {
+            String template = Objects.requireNonNull(getPlugin().getConfig().getString(
+                    "item-weight-lore.message", "&7%item% Weight: &e%weight%"));
+
+            String itemName = meta.hasDisplayName() ? meta.getDisplayName() : formatMaterialName(item.getType().name());
+            line = template
+                    .replace("%weight%", String.format("%.2f", weight))
+                    .replace("%item%", itemName);
+
+            line = ChatColor.translateAlternateColorCodes('&', line);
+            if (line.equals(previousLine))
+                return; // Lore already up-to-date
+        }
+
         if (previousLine != null) {
             int index = lore.indexOf(previousLine);
             if (index != -1) {
@@ -66,17 +83,7 @@ public final class ItemLoreUtils {
             pdc.remove(blankKey);
         }
 
-        if (getPlugin().getConfig().getBoolean("item-weight-lore.enabled") && weight > 0f) {
-            String template = Objects.requireNonNull(getPlugin().getConfig().getString(
-                    "item-weight-lore.message", "&7%item% Weight: &e%weight%"));
-
-            String itemName = meta.hasDisplayName() ? meta.getDisplayName() : formatMaterialName(item.getType().name());
-            String line = template
-                    .replace("%weight%", String.format("%.2f", weight))
-                    .replace("%item%", itemName);
-
-            line = ChatColor.translateAlternateColorCodes('&', line);
-
+        if (line != null) {
             boolean hasTrailingBlank = !lore.isEmpty() && lore.get(lore.size() - 1).isEmpty();
             if (!hasTrailingBlank) {
                 lore.add("");
