@@ -79,6 +79,7 @@ public final class ItemLoreUtils {
                     index = i;
                     break;
                 }
+
             }
             pdc.remove(loreKey);
         } else {
@@ -101,6 +102,7 @@ public final class ItemLoreUtils {
                 lore.add("");
             lore.add(line);
             pdc.set(loreKey, PersistentDataType.STRING, plainLine);
+
         }
 
         meta.setLore(lore.isEmpty() ? null : lore);
