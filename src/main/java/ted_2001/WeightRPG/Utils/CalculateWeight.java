@@ -97,12 +97,13 @@ public class CalculateWeight {
         for (ItemStack item : inventory.getStorageContents()) {
             weight += calculateItemWeight(item, shulkerBoxesEnabled, player);
         }
+        for (ItemStack item : inventory.getExtraContents()) {
+            weight += calculateItemWeight(item, shulkerBoxesEnabled, player);
+        }
         for (ItemStack item : inventory.getArmorContents()) {
             weight += calculateItemWeight(item, shulkerBoxesEnabled, player);
         }
-
-        // Count the off-hand explicitly exactly once. getExtraContents() is implementation-defined,
-        // so using it together with getItemInOffHand() can double-count the same slot on Spigot.
+        // Preserve the plugin's established slot calculation behavior.
         weight += calculateItemWeight(inventory.getItemInOffHand(), shulkerBoxesEnabled, player);
         return weight;
     }
