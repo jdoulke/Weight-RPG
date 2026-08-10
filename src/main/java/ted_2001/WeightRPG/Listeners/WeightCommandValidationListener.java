@@ -5,15 +5,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.ColorUtils;
 
 import java.util.Locale;
+import java.util.UUID;
 
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 /**
- * Validates weight-changing commands before the legacy command executor writes values to disk.
- * Valid commands are left completely untouched.
+ * Small safety listener around legacy command/state paths.
  */
 public final class WeightCommandValidationListener implements Listener {
 
@@ -59,5 +61,13 @@ public final class WeightCommandValidationListener implements Listener {
             event.getPlayer().sendMessage(ColorUtils.translateColorCodes(
                     getPlugin().getPluginPrefix() + "&cInvalid number."));
         }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        UUID playerId = event.getPlayer().getUniqueId();
+        CalculateWeight.playerWeight.remove(playerId);
+        CalculateWeight.playerBoostWeight.remove(playerId);
+        CalculateWeight.cooldown.remove(playerId);
     }
 }
