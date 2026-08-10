@@ -2,9 +2,12 @@ package ted_2001.WeightRPG.Utils.PlaceholderAPI;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.WeightRPG;
 
@@ -18,6 +21,8 @@ public class WeightExpansion extends PlaceholderExpansion {
 
     private final WeightRPG plugin = WeightRPG.getPlugin();
     private final CalculateWeight weightCalculator = new CalculateWeight();
+    private final NamespacedKey weightKey = new NamespacedKey(plugin, "weight");
+    private final NamespacedKey boostKey = new NamespacedKey(plugin, "boost");
 
     @Override
     public String getIdentifier() {
@@ -57,8 +62,7 @@ public class WeightExpansion extends PlaceholderExpansion {
             if (!isEnabled(player)) {
                 return "0";
             }
-            Float currentWeight = playerWeight.get(player.getUniqueId());
-            return currentWeight == null ? null : String.format("%.2f", currentWeight);
+            return String.format("%.2f", playerWeight.getOrDefault(player.getUniqueId(), 0f));
         }
 
         if (params.equals("max_weight")) {
@@ -99,7 +103,7 @@ public class WeightExpansion extends PlaceholderExpansion {
         if (params.equals("armor_weight")) {
             float weight = 0f;
             for (ItemStack itemStack : player.getInventory().getArmorContents()) {
-                if (itemStack != null) {
+                if (itemStack != null && !itemStack.getType().isAir()) {
                     weight += Float.parseFloat(itemWeightCalculations(itemStack));
                 }
             }
@@ -112,13 +116,25 @@ public class WeightExpansion extends PlaceholderExpansion {
     private String itemWeightCalculations(ItemStack item) {
         ItemMeta itemMeta = item.getItemMeta();
         if (itemMeta != null) {
-            Float customWeight = customItemsWeight.get(itemMeta.getDisplayName());
+            PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+
+            Float persistentWeight = pdc.get(weightKey, PersistentDataType.FLOAT);
+            if (persistentWeight != null) {
+                return String.valueOf(persistentWeight * item.getAmount());
+            }
+
+            // Persistent boost items, like configured boost items, have no own weight.
+            if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
+                return "0";
+            }
+
+            String displayName = itemMeta.getDisplayName();
+            Float customWeight = customItemsWeight.get(displayName);
             if (customWeight != null) {
                 return String.valueOf(customWeight * item.getAmount());
             }
 
-            // Boost items don't have their own weight.
-            if (boostItemsWeight.containsKey(itemMeta.getDisplayName())) {
+            if (boostItemsWeight.containsKey(displayName)) {
                 return "0";
             }
         }
