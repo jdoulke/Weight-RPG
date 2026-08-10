@@ -15,6 +15,7 @@ import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.JsonFile;
 import ted_2001.WeightRPG.Utils.Messages;
 import ted_2001.WeightRPG.Utils.UpdateChecker;
+import ted_2001.WeightRPG.Utils.WeightDataLoader;
 import ted_2001.WeightRPG.Utils.PlaceholderAPI.WeightExpansion;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder;
 
@@ -51,9 +52,9 @@ public final class WeightRPG extends JavaPlugin {
 
         jsonFile.saveJsonFile();
         Messages.create();
-        jsonFile.readJsonFile();
+        boolean weightsLoaded = new WeightDataLoader().reloadLiveMaps();
 
-        if (jsonFile.successfullyRead) {
+        if (weightsLoaded) {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Reading weight files completed" + ChatColor.GREEN + " SUCCESSFULLY.");
         } else {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "ERROR" + ChatColor.GRAY + " Weight or config files contain errors.");
