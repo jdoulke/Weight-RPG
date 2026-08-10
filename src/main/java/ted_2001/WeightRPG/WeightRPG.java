@@ -7,8 +7,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import ted_2001.WeightRPG.Commands.SafeWeightCommands;
 import ted_2001.WeightRPG.Commands.Tabcompleter;
-import ted_2001.WeightRPG.Commands.WeightCommands;
 import ted_2001.WeightRPG.Listeners.OptimizedWeightCalculateListener;
 import ted_2001.WeightRPG.Listeners.WeightCommandValidationListener;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
@@ -38,7 +38,7 @@ public final class WeightRPG extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WeightCommandValidationListener(), this);
 
         PluginCommand weightCommand = Objects.requireNonNull(getCommand("weight"), "Command 'weight' is missing from plugin.yml");
-        weightCommand.setExecutor(new WeightCommands());
+        weightCommand.setExecutor(new SafeWeightCommands());
         weightCommand.setTabCompleter(new Tabcompleter());
 
         JsonFile jsonFile = new JsonFile();
