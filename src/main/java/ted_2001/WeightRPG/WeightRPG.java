@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitTask;
 import ted_2001.WeightRPG.Commands.Tabcompleter;
 import ted_2001.WeightRPG.Commands.WeightCommands;
 import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
+import ted_2001.WeightRPG.Listeners.WeightCommandValidationListener;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.JsonFile;
 import ted_2001.WeightRPG.Utils.Messages;
@@ -34,6 +35,7 @@ public final class WeightRPG extends JavaPlugin {
         reloadPluginPrefix();
 
         getServer().getPluginManager().registerEvents(new WeightCalculateListeners(), this);
+        getServer().getPluginManager().registerEvents(new WeightCommandValidationListener(), this);
 
         PluginCommand weightCommand = Objects.requireNonNull(getCommand("weight"), "Command 'weight' is missing from plugin.yml");
         weightCommand.setExecutor(new WeightCommands());
@@ -139,6 +141,9 @@ public final class WeightRPG extends JavaPlugin {
         if (task != null && !task.isCancelled()) {
             task.cancel();
         }
+        CalculateWeight.playerWeight.clear();
+        CalculateWeight.playerBoostWeight.clear();
+        CalculateWeight.cooldown.clear();
     }
 
     public static WeightRPG getPlugin() {
