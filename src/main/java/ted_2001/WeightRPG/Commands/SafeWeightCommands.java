@@ -4,6 +4,8 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -13,6 +15,7 @@ import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.ColorUtils;
 import ted_2001.WeightRPG.Utils.JsonFile;
 import ted_2001.WeightRPG.Utils.Messages;
+import ted_2001.WeightRPG.Utils.WeightDataLoader;
 
 import java.io.File;
 import java.io.FileReader;
@@ -22,23 +25,47 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Locale;
 
-import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
 import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 /**
- * Safe front-end for the two commands that edit JSON weight files.
- * Every other command is delegated unchanged to the legacy executor.
+ * Safe front-end for weight-file mutations and reloads.
+ * Every unrelated command is delegated unchanged to the legacy executor.
  */
 public final class SafeWeightCommands implements CommandExecutor {
 
     private final WeightCommands legacy = new WeightCommands();
     private final JsonFile jsonFile = new JsonFile();
+    private final WeightDataLoader dataLoader = new WeightDataLoader();
     private final CalculateWeight weightCalculator = new CalculateWeight();
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, String[] args) {
+        if (args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+            if (sender instanceof Player player) {
+                if (!player.hasPermission("weight.reload")) {
+                    return legacy.onCommand(sender, command, label, args);
+                }
+                boolean success = reloadPluginData();
+                String key = success ? "success-reload-message" : "fail-reload-message";
+                String fallback = success
+                        ? getPlugin().getPluginPrefix() + "&aConfig and weight files reloaded successfully."
+                        : getPlugin().getPluginPrefix() + "&cThere was an error while reloading, check the console.";
+                String message = weightCalculator.formatMessage(Messages.getMessages().getString(key, fallback), player);
+                player.sendMessage(ColorUtils.translateColorCodes(message));
+                return false;
+            }
+
+            if (sender instanceof ConsoleCommandSender || sender instanceof RemoteConsoleCommandSender) {
+                boolean success = reloadPluginData();
+                sender.sendMessage(getPlugin().getPluginPrefix()
+                        + (success ? "Config and weight files reloaded successfully."
+                        : "There was an error while reloading; check the console."));
+                return false;
+            }
+        }
+
         if (!(sender instanceof Player player) || args.length != 3) {
             return legacy.onCommand(sender, command, label, args);
         }
@@ -76,7 +103,10 @@ public final class SafeWeightCommands implements CommandExecutor {
                 }
 
                 writeJson(file, root);
-                reloadWeightMaps();
+                boolean loaded = dataLoader.reloadLiveMaps();
+                if (!loaded) {
+                    getPlugin().getLogger().warning("Weight maps were reloaded with one or more invalid entries after /weight set.");
+                }
                 sendSetSuccess(player, itemName, rawWeight);
                 return false;
             } catch (IOException | RuntimeException exception) {
@@ -121,7 +151,10 @@ public final class SafeWeightCommands implements CommandExecutor {
             additionalItems.put(itemName + "=" + rawWeight);
             root.put("Additional Items", additionalItems);
             writeJson(miscFile, root);
-            reloadWeightMaps();
+            boolean loaded = dataLoader.reloadLiveMaps();
+            if (!loaded) {
+                getPlugin().getLogger().warning("Weight maps were reloaded with one or more invalid entries after /weight add.");
+            }
 
             String message = weightCalculator.formatMessage(Messages.getMessages().getString(
                     "add-item-success-message",
@@ -136,6 +169,46 @@ public final class SafeWeightCommands implements CommandExecutor {
             sendEditFailure(player);
         }
         return false;
+    }
+
+    private boolean reloadPluginData() {
+        File config = new File(getPlugin().getDataFolder(), "config.yml");
+        File messages = new File(getPlugin().getDataFolder(), "messages.yml");
+        File weightsDir = new File(getPlugin().getDataFolder(), "Weights");
+        File blocksWeight = new File(weightsDir, "Blocks Weight.json");
+        File toolsWeight = new File(weightsDir, "Tools And Weapons Weight.json");
+        File miscWeight = new File(weightsDir, "Misc Items Weight.json");
+
+        if (config.exists()) {
+            getPlugin().reloadConfig();
+        } else {
+            getPlugin().getConfig().options().copyDefaults();
+            getPlugin().saveDefaultConfig();
+        }
+
+        if (messages.exists()) {
+            Messages.reloadMessagesConfig();
+        } else {
+            Messages.create();
+        }
+
+        CalculateWeight.refreshThresholdValues();
+
+        if (getPlugin().task != null && !getPlugin().task.isCancelled()) {
+            getPlugin().task.cancel();
+        }
+        getPlugin().scheduler();
+
+        if (!blocksWeight.exists() || !toolsWeight.exists() || !miscWeight.exists()) {
+            jsonFile.saveJsonFile();
+        }
+
+        boolean success = dataLoader.reloadLiveMaps();
+        for (Player onlinePlayer : getPlugin().getServer().getOnlinePlayers()) {
+            weightCalculator.calculateWeight(onlinePlayer);
+        }
+        getPlugin().reloadPluginPrefix();
+        return success;
     }
 
     private JSONObject readJson(File file) throws IOException {
@@ -174,12 +247,6 @@ public final class SafeWeightCommands implements CommandExecutor {
             }
         }
         return false;
-    }
-
-    private void reloadWeightMaps() {
-        globalItemsWeight.clear();
-        customItemsWeight.clear();
-        jsonFile.readJsonFile();
     }
 
     private boolean isValidMaterial(String itemName) {
