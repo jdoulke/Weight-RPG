@@ -7,15 +7,13 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
-import ted_2001.WeightRPG.Commands.SafeWeightCommands;
 import ted_2001.WeightRPG.Commands.Tabcompleter;
-import ted_2001.WeightRPG.Listeners.OptimizedWeightCalculateListener;
-import ted_2001.WeightRPG.Listeners.WeightCommandValidationListener;
+import ted_2001.WeightRPG.Commands.WeightCommands;
+import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
 import ted_2001.WeightRPG.Utils.CalculateWeight;
 import ted_2001.WeightRPG.Utils.JsonFile;
 import ted_2001.WeightRPG.Utils.Messages;
 import ted_2001.WeightRPG.Utils.UpdateChecker;
-import ted_2001.WeightRPG.Utils.WeightDataLoader;
 import ted_2001.WeightRPG.Utils.PlaceholderAPI.WeightExpansion;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder;
 
@@ -35,11 +33,10 @@ public final class WeightRPG extends JavaPlugin {
         saveDefaultConfig();
         reloadPluginPrefix();
 
-        getServer().getPluginManager().registerEvents(new OptimizedWeightCalculateListener(), this);
-        getServer().getPluginManager().registerEvents(new WeightCommandValidationListener(), this);
+        getServer().getPluginManager().registerEvents(new WeightCalculateListeners(), this);
 
         PluginCommand weightCommand = Objects.requireNonNull(getCommand("weight"), "Command 'weight' is missing from plugin.yml");
-        weightCommand.setExecutor(new SafeWeightCommands());
+        weightCommand.setExecutor(new WeightCommands());
         weightCommand.setTabCompleter(new Tabcompleter());
 
         JsonFile jsonFile = new JsonFile();
@@ -52,9 +49,14 @@ public final class WeightRPG extends JavaPlugin {
 
         jsonFile.saveJsonFile();
         Messages.create();
-        boolean weightsLoaded = new WeightDataLoader().reloadLiveMaps();
+        try {
+            jsonFile.readJsonFile();
+        } catch (RuntimeException exception) {
+            jsonFile.successfullyRead = false;
+            getLogger().severe("Unable to read weight files: " + exception.getMessage());
+        }
 
-        if (weightsLoaded) {
+        if (jsonFile.successfullyRead) {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Reading weight files completed" + ChatColor.GREEN + " SUCCESSFULLY.");
         } else {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "ERROR" + ChatColor.GRAY + " Weight or config files contain errors.");
