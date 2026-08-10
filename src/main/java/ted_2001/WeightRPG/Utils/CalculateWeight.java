@@ -18,7 +18,6 @@ import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 
 import static ted_2001.WeightRPG.Utils.JsonFile.boostItemsWeight;
@@ -38,12 +37,21 @@ public class CalculateWeight {
     private static final String DARK_RED_COLOR = "&4&l";
     private static final String[] COLOR_CODES = {"&a&l", "&2&l", "&e&l", "&6&l", "&c&l"};
 
+    private static NamespacedKey cachedWeightKey;
+    private static NamespacedKey cachedBoostKey;
+
     private static NamespacedKey weightKey() {
-        return new NamespacedKey(getPlugin(), "weight");
+        if (cachedWeightKey == null) {
+            cachedWeightKey = new NamespacedKey(getPlugin(), "weight");
+        }
+        return cachedWeightKey;
     }
 
     private static NamespacedKey boostKey() {
-        return new NamespacedKey(getPlugin(), "boost");
+        if (cachedBoostKey == null) {
+            cachedBoostKey = new NamespacedKey(getPlugin(), "boost");
+        }
+        return cachedBoostKey;
     }
 
     public CalculateWeight() {
@@ -92,11 +100,10 @@ public class CalculateWeight {
         for (ItemStack item : inventory.getArmorContents()) {
             weight += calculateItemWeight(item, shulkerBoxesEnabled, player);
         }
-        // PlayerInventory#getExtraContents already contains the extra/off-hand slot.
-        // Do not add getItemInOffHand() again or it is counted twice.
-        for (ItemStack item : inventory.getExtraContents()) {
-            weight += calculateItemWeight(item, shulkerBoxesEnabled, player);
-        }
+
+        // Count the off-hand explicitly exactly once. getExtraContents() is implementation-defined,
+        // so using it together with getItemInOffHand() can double-count the same slot on Spigot.
+        weight += calculateItemWeight(inventory.getItemInOffHand(), shulkerBoxesEnabled, player);
         return weight;
     }
 
@@ -164,9 +171,9 @@ public class CalculateWeight {
             return;
         }
 
-        double level1 = calculateWeightThreshold(player, 1);
-        double level2 = calculateWeightThreshold(player, 2);
-        double level3 = calculateWeightThreshold(player, 3);
+        float level1 = calculateWeightThreshold(player, 1);
+        float level2 = calculateWeightThreshold(player, 2);
+        float level3 = calculateWeightThreshold(player, 3);
 
         float speed1 = (float) getPlugin().getConfig().getDouble("weight-level-1.speed");
         float speed2 = (float) getPlugin().getConfig().getDouble("weight-level-2.speed");
@@ -183,16 +190,17 @@ public class CalculateWeight {
             return;
         }
 
-        if (currentWeight < level2 || !level2Enabled) {
-            setWalkSpeedIfNeeded(player, speed1);
-            if (getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
-                sendMessage(getPlugin().getConfig().getString("weight-level-1.message"), player,
-                        configuredSound("weight-level-1.sound"));
+        // Highest active level wins. Level 2 and Level 3 can be disabled independently.
+        if (level3Enabled && currentWeight >= level3) {
+            setWalkSpeedIfNeeded(player, speed3);
+            if (getPlugin().getConfig().getBoolean("weight-level-3.message-enabled")) {
+                sendMessage(getPlugin().getConfig().getString("weight-level-3.message"), player,
+                        configuredSound("weight-level-3.sound"));
             }
             return;
         }
 
-        if (currentWeight < level3 || !level3Enabled) {
+        if (level2Enabled && currentWeight >= level2) {
             setWalkSpeedIfNeeded(player, speed2);
             if (getPlugin().getConfig().getBoolean("weight-level-2.message-enabled")) {
                 sendMessage(getPlugin().getConfig().getString("weight-level-2.message"), player,
@@ -201,15 +209,15 @@ public class CalculateWeight {
             return;
         }
 
-        setWalkSpeedIfNeeded(player, speed3);
-        if (getPlugin().getConfig().getBoolean("weight-level-3.message-enabled")) {
-            sendMessage(getPlugin().getConfig().getString("weight-level-3.message"), player,
-                    configuredSound("weight-level-3.sound"));
+        setWalkSpeedIfNeeded(player, speed1);
+        if (getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
+            sendMessage(getPlugin().getConfig().getString("weight-level-1.message"), player,
+                    configuredSound("weight-level-1.sound"));
         }
     }
 
     private void setWalkSpeedIfNeeded(Player player, float speed) {
-        float clamped = Math.max(-1f, Math.min(1f, speed));
+        float clamped = Math.max(0f, Math.min(1f, speed));
         if (Float.compare(player.getWalkSpeed(), clamped) != 0) {
             player.setWalkSpeed(clamped);
         }
@@ -223,6 +231,7 @@ public class CalculateWeight {
         try {
             return Sound.valueOf(configured.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ignored) {
+            getPlugin().getLogger().warning("Invalid sound in " + path + ": " + configured);
             return null;
         }
     }
@@ -234,7 +243,8 @@ public class CalculateWeight {
 
         UUID playerId = player.getUniqueId();
         long now = System.currentTimeMillis();
-        long cooldownMillis = (long) (getPlugin().getConfig().getDouble("messages-cooldown") * 1000L);
+        long cooldownMillis = Math.max(0L,
+                (long) (getPlugin().getConfig().getDouble("messages-cooldown") * 1000L));
         Long lastMessage = cooldown.get(playerId);
 
         if (lastMessage == null || now - lastMessage >= cooldownMillis) {
@@ -245,13 +255,21 @@ public class CalculateWeight {
     public static boolean isEnabled(Player player) {
         for (String disabledWorld : getPlugin().getConfig().getStringList("disabled-worlds")) {
             if (disabledWorld.equalsIgnoreCase(player.getWorld().getName())) {
-                player.setWalkSpeed(0.2f);
+                if (Float.compare(player.getWalkSpeed(), 0.2f) != 0) {
+                    player.setWalkSpeed(0.2f);
+                }
                 return false;
             }
         }
 
         GameMode gameMode = player.getGameMode();
-        return gameMode != GameMode.CREATIVE && gameMode != GameMode.SPECTATOR;
+        if (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) {
+            if (Float.compare(player.getWalkSpeed(), 0.2f) != 0) {
+                player.setWalkSpeed(0.2f);
+            }
+            return false;
+        }
+        return true;
     }
 
     private void cooldownMessenger(Player player, Sound sound, String message, long now) {
@@ -260,7 +278,7 @@ public class CalculateWeight {
         }
 
         cooldown.put(player.getUniqueId(), now);
-        String formatted = ChatColor.translateAlternateColorCodes('&', formatMessage(message, player));
+        String formatted = ColorUtils.translateColorCodes(formatMessage(message, player));
         if (getPlugin().getConfig().getBoolean("actionbar-messages")) {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(formatted));
         } else {
@@ -336,24 +354,16 @@ public class CalculateWeight {
             return configuredWeight + boostWeight;
         }
 
-        String prefix = "weight.level" + level + ".";
-        int highest = 0;
-        for (org.bukkit.permissions.PermissionAttachmentInfo permission : player.getEffectivePermissions()) {
-            if (!permission.getValue() || !permission.getPermission().startsWith(prefix)) {
-                continue;
-            }
-            String value = permission.getPermission().substring(prefix.length());
-            try {
-                int parsed = Integer.parseInt(value);
-                if (parsed > highest) {
-                    highest = parsed;
-                }
-            } catch (NumberFormatException ignored) {
-                // Ignore malformed weight permissions.
+        // Preserve the documented permission contract and Bukkit's normal wildcard resolution.
+        // Level 1/2: 100..10000, Level 3: 100..20000, multiples of 100 only.
+        int maxPermissionWeight = level == 3 ? 20000 : 10000;
+        for (int value = maxPermissionWeight; value >= 100; value -= 100) {
+            if (player.hasPermission("weight.level" + level + "." + value)) {
+                return value + boostWeight;
             }
         }
 
-        return (highest > 0 ? highest : configuredWeight) + boostWeight;
+        return configuredWeight + boostWeight;
     }
 
     public static float shulkerBoxWeightCalculations(ShulkerBox shulkerBox, Player player) {
