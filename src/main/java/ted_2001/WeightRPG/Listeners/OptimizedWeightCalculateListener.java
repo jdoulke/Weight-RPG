@@ -14,14 +14,18 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import ted_2001.WeightRPG.Utils.CalculateWeight;
+
+import java.util.UUID;
 
 /**
- * Thin adapter around the legacy listener. It preserves every existing handler and priority,
- * while avoiding the expensive movement path for events that only changed yaw/pitch.
+ * Thin adapter around the legacy listener. It preserves the existing handlers and priorities,
+ * while applying small, isolated fixes that do not require rewriting the large legacy class.
  */
 public final class OptimizedWeightCalculateListener implements Listener {
 
     private final WeightCalculateListeners legacy = new WeightCalculateListeners();
+    private final CalculateWeight weightCalculator = new CalculateWeight();
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent event) {
@@ -40,7 +44,9 @@ public final class OptimizedWeightCalculateListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
-        legacy.onPlayerChangedWorldEvent(event);
+        // The legacy handler has an inverted enable check. CalculateWeight already performs
+        // the disabled-world, game-mode and WorldGuard checks, so use it directly here.
+        weightCalculator.calculateWeight(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -83,5 +89,9 @@ public final class OptimizedWeightCalculateListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         legacy.onPlayerQuit(event);
+
+        UUID playerId = event.getPlayer().getUniqueId();
+        CalculateWeight.playerBoostWeight.remove(playerId);
+        CalculateWeight.cooldown.remove(playerId);
     }
 }
