@@ -3,6 +3,8 @@ package ted_2001.WeightRPG.Utils;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.GameMode;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
@@ -10,426 +12,419 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.Locale;
 import java.util.UUID;
 
-
-import static org.bukkit.Bukkit.getServer;
-import static ted_2001.WeightRPG.Utils.JsonFile.*;
+import static ted_2001.WeightRPG.Utils.JsonFile.boostItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.customItemsWeight;
+import static ted_2001.WeightRPG.Utils.JsonFile.globalItemsWeight;
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
-
 
 public class CalculateWeight {
 
-    public static HashMap<UUID, Float> playerWeight = new HashMap<>();
-    public static HashMap<UUID, Long> cooldown = new HashMap<>();
+    public static final HashMap<UUID, Float> playerWeight = new HashMap<>();
+    public static final HashMap<UUID, Long> cooldown = new HashMap<>();
+    public static final HashMap<UUID, Float> playerBoostWeight = new HashMap<>();
+    public static final float[] weightThresholdValues = new float[]{0f, 0f, 0f};
 
-    public static HashMap<UUID, Float> playerBoostWeight = new HashMap<>();
+    private static final String WHITE_COLOR = "&f&l";
+    private static final String DARK_RED_COLOR = "&4&l";
+    private static final String[] COLOR_CODES = {"&a&l", "&2&l", "&e&l", "&6&l", "&c&l"};
 
-    boolean Weight2 = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
-    boolean Weight3 = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
+    private static NamespacedKey cachedWeightKey;
+    private static NamespacedKey cachedBoostKey;
 
-    boolean isWorldGuardEnabled = getServer().getPluginManager().isPluginEnabled("WorldGuard");
-
-
-    // Array to store weight threshold values for different levels
-    public static float[] weightThresholdValues = new float[]{
-            (float) getPlugin().getConfig().getDouble("weight-level-1.value"),
-            (float) getPlugin().getConfig().getDouble("weight-level-2.value"),
-            (float) getPlugin().getConfig().getDouble("weight-level-3.value")
-    };
-
-    // Color codes for the progress bar
-    private static final String whiteColor = "&f&l";
-    private static final String darkRedColor = "&4&l";
-    private static final String[] colorCodes = {"&a&l", "&2&l", "&e&l", "&6&l", "&c&l"}; // Light Green, Green, Yellow, Orange, Red
-
-    // Method to calculate player's weight and apply effects
-    public void calculateWeight(Player p) {
-
-        if (!isEnabled(p)) // // Check if weight calculation is enabled for the player in his current world and gamemode
-            return;
-
-        if (isWorldGuardEnabled) { // Check if WorldGuard is enabled and if player is in a region
-            WorldGuardRegion worldguard = new WorldGuardRegion();
-            if (worldguard.isInRegion(p))
-                return; // If the player is in a WorldGuard region, do not calculate weight
-        }
-
-        if (p.hasPermission("weight.bypass")) { // Check if player has a bypass permission
-            playerWeight.put(p.getUniqueId(), 0f); // Set player's weight to 0 if they have a bypass permission
-            if (p.getWalkSpeed() < 0.2f)
-                p.setWalkSpeed(0.2f); // Set player's walk speed to a minimum value if they have a bypass permission
-            return;
-        }
-
-        playerBoostWeight.put(p.getUniqueId(), 0f);
-
-        float totalWeight = checkForShulkerBox(p.getInventory(), p);
-
-        // Update player's weight in the HashMap
-        playerWeight.put(p.getUniqueId(), totalWeight);
-        applyWeightEffects(p); // Apply effects based on player's weight
+    public CalculateWeight() {
+        refreshThresholdValues();
     }
 
-    // Method to calculate player's inventory weight
-    private float checkForShulkerBox(PlayerInventory inventory, Player p) {
-        float weight = 0f;
+    public static void refreshThresholdValues() {
+        weightThresholdValues[0] = (float) getPlugin().getConfig().getDouble("weight-level-1.value");
+        weightThresholdValues[1] = (float) getPlugin().getConfig().getDouble("weight-level-2.value");
+        weightThresholdValues[2] = (float) getPlugin().getConfig().getDouble("weight-level-3.value");
+    }
+
+    public void calculateWeight(Player player) {
+        if (!isEnabled(player)) {
+            return;
+        }
+
+        if (getPlugin().getServer().getPluginManager().isPluginEnabled("WorldGuard")
+                && new WorldGuardRegion().isInRegion(player)) {
+            return;
+        }
+
+        UUID playerId = player.getUniqueId();
+        if (player.hasPermission("weight.bypass")) {
+            playerWeight.put(playerId, 0f);
+            playerBoostWeight.put(playerId, 0f);
+            setWalkSpeedIfNeeded(player, 0.2f);
+            return;
+        }
+
+        CalculationResult result = calculateInventoryWeight(player.getInventory(), player);
+        playerWeight.put(playerId, result.weight());
+        playerBoostWeight.put(playerId, result.boost());
+        applyWeightEffects(player);
+    }
+
+    private CalculationResult calculateInventoryWeight(PlayerInventory inventory, Player player) {
         boolean shulkerBoxesEnabled = getPlugin().getConfig().getBoolean("shulker-boxes");
+        MutableCalculation total = new MutableCalculation();
 
-        // Add weight of each item in the inventory
-        for (ItemStack item : inventory.getStorageContents())
-            weight += calculateItemWeight(item, shulkerBoxesEnabled, p);
+        accumulateInventorySection(inventory.getStorageContents(), shulkerBoxesEnabled, player, total);
+        accumulateInventorySection(inventory.getExtraContents(), shulkerBoxesEnabled, player, total);
+        accumulateInventorySection(inventory.getArmorContents(), shulkerBoxesEnabled, player, total);
 
-        // Add weight of each item in the extra slots if they exist
-        for (ItemStack item : inventory.getExtraContents())
-            weight += calculateItemWeight(item, shulkerBoxesEnabled, p);
-
-        // Add weight of each item in the armor slots
-        for (ItemStack item : inventory.getArmorContents())
-            weight += calculateItemWeight(item, shulkerBoxesEnabled, p);
-
-        // Add weight of the item in the off-hand slot
-        weight += calculateItemWeight(inventory.getItemInOffHand(), shulkerBoxesEnabled, p);
-
-        return weight;
+        // Preserve the plugin's established inventory-slot/off-hand behavior exactly.
+        accumulateItem(inventory.getItemInOffHand(), shulkerBoxesEnabled, player, total);
+        return new CalculationResult(total.weight, total.boost);
     }
 
-    private float calculateItemWeight(ItemStack item, boolean shulkerBoxesEnabled, Player p) {
-        if (item == null) return 0f;
-
-        // Check if the item is a shulker box
-        if (shulkerBoxesEnabled && item.getItemMeta() instanceof BlockStateMeta) {
-            BlockStateMeta im = (BlockStateMeta) item.getItemMeta();
-            if (im.getBlockState() instanceof ShulkerBox) {
-                ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-                return shulkerBoxWeightCalculations(shulker, p);
-            }
+    private void accumulateInventorySection(ItemStack[] contents, boolean shulkerBoxesEnabled,
+                                            Player player, MutableCalculation total) {
+        for (ItemStack item : contents) {
+            accumulateItem(item, shulkerBoxesEnabled, player, total);
         }
-        // If the item is not a shulker box, calculate its weight
-        return calculateItemWeight(item, p);
     }
 
-    private static float calculateItemWeight(ItemStack itemStack, Player p) {
-
-        float itemWeight = 0.0f;
-        ItemMeta itemMeta = itemStack.getItemMeta();
-
-        if (itemMeta != null) {
-            // Check for custom or boost weight stored in the item's persistent data container
-            NamespacedKey key = new NamespacedKey(getPlugin(), "weight");
-            NamespacedKey boostKey = new NamespacedKey(getPlugin(), "boost");
-            PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
-            if (pdc.has(key, PersistentDataType.FLOAT)) {
-                itemWeight = pdc.get(key, PersistentDataType.FLOAT);
-            } else if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
-                float boostPerItem = pdc.get(boostKey, PersistentDataType.FLOAT);
-                ItemLoreUtils.updateBoostItemLore(itemStack, boostPerItem);
-                float boostWeight = boostPerItem * itemStack.getAmount();
-                float currentBoostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                playerBoostWeight.put(p.getUniqueId(), currentBoostWeight + boostWeight);
-                return 0.0f;
-            } else {
-                String displayName = itemMeta.getDisplayName();
-                // Check if the item has a custom weight based on its display name from config file
-                if (customItemsWeight.containsKey(displayName)) {
-                    itemWeight = customItemsWeight.get(displayName);
-                }
-
-                // Check if the item is a boost item weight based on its display name from config file
-                else if (boostItemsWeight.containsKey(displayName)) {
-                    float boostPerItem = boostItemsWeight.get(displayName);
-                    ItemLoreUtils.updateBoostItemLore(itemStack, boostPerItem);
-                    float boostWeight = boostPerItem * itemStack.getAmount();
-                    float currentBoostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-                    playerBoostWeight.put(p.getUniqueId(), currentBoostWeight + boostWeight);
-                    return 0.0f;
-                }
-
-                // Check if the item has a global weight based on its material type
-                else if (globalItemsWeight.containsKey(itemStack.getType())) {
-                    itemWeight = globalItemsWeight.get(itemStack.getType());
-                }
-
-                // Ensure outdated boost lore is removed for items that are no longer boost items
-                ItemLoreUtils.updateBoostItemLore(itemStack, 0f);
-            }
-        }
-
-        ItemLoreUtils.updateItemLore(itemStack, itemWeight);
-        return itemWeight * itemStack.getAmount();
-    }
-
-    public void applyWeightEffects(Player p) {
-        UUID id = p.getUniqueId();
-
-        // If the player's weight is not calculated yet, return
-        if (playerWeight.get(id) == null){
-            calculateWeight(p);
+    private void accumulateItem(ItemStack item, boolean shulkerBoxesEnabled,
+                                Player player, MutableCalculation total) {
+        if (item == null || item.getType().isAir()) {
             return;
         }
 
-        float weight = playerWeight.get(id);
+        if (shulkerBoxesEnabled && item.getItemMeta() instanceof BlockStateMeta blockStateMeta
+                && blockStateMeta.getBlockState() instanceof ShulkerBox shulkerBox) {
+            accumulateShulkerBox(shulkerBox, player, total);
+            return;
+        }
 
-        // Calculate weight thresholds for different levels
-        double weight1 = calculateWeightThreshold(p, 1);
-        double weight2 = calculateWeightThreshold(p, 2);
-        double weight3 = calculateWeightThreshold(p, 3);
+        ResolvedItem resolved = resolveItem(item);
+        if (resolved.boostPerItem() != 0f) {
+            total.boost += resolved.boostPerItem() * item.getAmount();
+            ItemLoreUtils.updateBoostItemLore(item, resolved.boostPerItem());
+            return;
+        }
 
-        // Get walk speed values from plugin's configuration for each weight level
-        float walkSpeedLevel1 = (float) getPlugin().getConfig().getDouble("weight-level-1.speed");
-        float walkSpeedLevel2 = (float) getPlugin().getConfig().getDouble("weight-level-2.speed");
-        float walkSpeedLevel3 = (float) getPlugin().getConfig().getDouble("weight-level-3.speed");
+        ItemLoreUtils.updateItemLore(item, resolved.weightPerItem());
+        total.weight += resolved.weightPerItem() * item.getAmount();
+    }
 
-        String message;
+    private static ResolvedItem resolveItem(ItemStack item) {
+        float itemWeight = globalItemsWeight.getOrDefault(item.getType(), 0f);
+        ItemMeta itemMeta = item.getItemMeta();
+        if (itemMeta == null) {
+            return new ResolvedItem(itemWeight, 0f);
+        }
 
-        // Check player's weight level and adjust walk speed and display messages accordingly
-        if (weight < weight1) {
+        PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+        Float persistentWeight = pdc.get(weightKey(), PersistentDataType.FLOAT);
+        if (persistentWeight != null) {
+            return new ResolvedItem(persistentWeight, 0f);
+        }
 
-            // If the player's weight is below to weight level 1 threshold
-            // and their walk speed is not already at the normal speed, set it to normal speed
-            if (p.getWalkSpeed() < 0.2 || p.getWalkSpeed() == walkSpeedLevel2 || p.getWalkSpeed() == walkSpeedLevel3 || p.getWalkSpeed() == walkSpeedLevel1)
-                p.setWalkSpeed(0.2f);
+        Float persistentBoost = pdc.get(boostKey(), PersistentDataType.FLOAT);
+        if (persistentBoost != null) {
+            return new ResolvedItem(0f, persistentBoost);
+        }
 
-            // Display a message if the message before level 1 is enabled in the plugin's configuration
+        String displayName = itemMeta.getDisplayName();
+        Float customWeight = customItemsWeight.get(displayName);
+        if (customWeight != null) {
+            return new ResolvedItem(customWeight, 0f);
+        }
+
+        Float boostWeight = boostItemsWeight.get(displayName);
+        if (boostWeight != null) {
+            return new ResolvedItem(0f, boostWeight);
+        }
+
+        ItemLoreUtils.updateBoostItemLore(item, 0f);
+        return new ResolvedItem(itemWeight, 0f);
+    }
+
+    private static NamespacedKey weightKey() {
+        if (cachedWeightKey == null) {
+            cachedWeightKey = new NamespacedKey(getPlugin(), "weight");
+        }
+        return cachedWeightKey;
+    }
+
+    private static NamespacedKey boostKey() {
+        if (cachedBoostKey == null) {
+            cachedBoostKey = new NamespacedKey(getPlugin(), "boost");
+        }
+        return cachedBoostKey;
+    }
+
+    public void applyWeightEffects(Player player) {
+        UUID playerId = player.getUniqueId();
+        Float currentWeight = playerWeight.get(playerId);
+        if (currentWeight == null) {
+            calculateWeight(player);
+            return;
+        }
+
+        Thresholds thresholds = calculateThresholds(player);
+        boolean level2Enabled = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
+        boolean level3Enabled = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
+
+        if (currentWeight < thresholds.level1()) {
+            setWalkSpeedIfNeeded(player, 0.2f);
             if (getPlugin().getConfig().getBoolean("message-before-level1-enabled")) {
-                message = getPlugin().getConfig().getString("message-before-level1");
-                sendMessage(message, p, null);
+                sendMessage(getPlugin().getConfig().getString("message-before-level1"), player, null);
             }
-        } else if (weight >= weight1 && weight < weight2) {
+            return;
+        }
 
-            // If the player's weight is between weight level 1 and weight level 2 thresholds
-            // and his walk speed is faster than walking speed1 or equals to the others 2 levels, set it to the weight level 1 value
-            if (p.getWalkSpeed() > walkSpeedLevel1 || p.getWalkSpeed() == walkSpeedLevel2 || p.getWalkSpeed() == walkSpeedLevel3)
-                p.setWalkSpeed(walkSpeedLevel1);
+        if (level3Enabled && currentWeight >= thresholds.level3()) {
+            applyLevel(player, 3);
+            return;
+        }
+        if (level2Enabled && currentWeight >= thresholds.level2()) {
+            applyLevel(player, 2);
+            return;
+        }
+        applyLevel(player, 1);
+    }
 
-            // Display a message if the weight level 1 message is enabled in the plugin's configuration
-            if (getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
-                message = getPlugin().getConfig().getString("weight-level-1.message");
-                Sound s = null;
-                if (!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-1.sound")).equalsIgnoreCase("none"))
-                    s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
-                sendMessage(message, p, s);
-            }
-        } else if (weight >= weight2 && weight < weight3 && Weight2) {
+    private Thresholds calculateThresholds(Player player) {
+        if (!getPlugin().getConfig().getBoolean("permission-mode")) {
+            float boost = playerBoostWeight.getOrDefault(player.getUniqueId(), 0f);
+            return new Thresholds(
+                    weightThresholdValues[0] + boost,
+                    weightThresholdValues[1] + boost,
+                    weightThresholdValues[2] + boost
+            );
+        }
+        return new Thresholds(
+                calculateWeightThreshold(player, 1),
+                calculateWeightThreshold(player, 2),
+                calculateWeightThreshold(player, 3)
+        );
+    }
 
-            // If the player's weight is between weight level 2 and weight level 3 thresholds
-            // and the weight level 2 feature is enabled
-            // and his walk speed is faster than walking speed2 or equals to the others 2 levels, set it to the weight level 2 value
-            if (p.getWalkSpeed() > walkSpeedLevel2 || p.getWalkSpeed() == walkSpeedLevel1 || p.getWalkSpeed() == walkSpeedLevel3)
-                p.setWalkSpeed(walkSpeedLevel2);
-
-            // Display a message if the weight level 2 message is enabled in the plugin's configuration
-            if (getPlugin().getConfig().getBoolean("weight-level-2.message-enabled")) {
-                message = getPlugin().getConfig().getString("weight-level-2.message");
-                Sound s = null;
-                if (!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-2.sound")).equalsIgnoreCase("none"))
-                    s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
-                sendMessage(message, p, s);
-            }
-        } else if (weight >= weight3 && Weight3) {
-            // If the player's weight is above or equal to weight level 3 threshold
-            // and the weight level 3 feature is enabled
-            // and his walk speed is faster than walking speed3 or equals to the others 2 levels, set it to the weight level 3 value
-            if (p.getWalkSpeed() > walkSpeedLevel3 || p.getWalkSpeed() == walkSpeedLevel1 || p.getWalkSpeed() == walkSpeedLevel2)
-                p.setWalkSpeed(walkSpeedLevel3);
-
-            // Display a message if the weight level 3 message is enabled in the plugin's configuration
-            if (getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
-                message = getPlugin().getConfig().getString("weight-level-3.message");
-                Sound s = null;
-                if (!Objects.requireNonNull(getPlugin().getConfig().getString("weight-level-3.sound")).equalsIgnoreCase("none"))
-                    s = Sound.valueOf(getPlugin().getConfig().getString("weight-level-3.sound"));
-                sendMessage(message, p, s);
-            }
+    private void applyLevel(Player player, int level) {
+        String path = "weight-level-" + level;
+        float speed = (float) getPlugin().getConfig().getDouble(path + ".speed");
+        setWalkSpeedIfNeeded(player, speed);
+        if (getPlugin().getConfig().getBoolean(path + ".message-enabled")) {
+            sendMessage(getPlugin().getConfig().getString(path + ".message"), player,
+                    configuredSound(path + ".sound"));
         }
     }
 
-    private void sendMessage(String message, Player p, Sound s) {
-        if (!cooldown.containsKey(p.getUniqueId())) {
-            // If the player's cooldown does not exist, send the message and set the cooldown
-            cooldownMessenger(p, s, message);
-        } else {
-            // If the player's cooldown exists, check if enough time has passed since the last message was sent
-            long timeElapsed = System.currentTimeMillis() - cooldown.get(p.getUniqueId());
-        
-            // Convert messages cooldown from seconds to milliseconds
-            double messagesCooldown = getPlugin().getConfig().getDouble("messages-cooldown") * 1000;
-
-            if (timeElapsed >= messagesCooldown) {
-                // If enough time has passed since the last message, send the message and update the cooldown
-                cooldownMessenger(p, s, message);
-            }
+    private void setWalkSpeedIfNeeded(Player player, float speed) {
+        float clamped = Math.max(0f, Math.min(1f, speed));
+        if (Float.compare(player.getWalkSpeed(), clamped) != 0) {
+            player.setWalkSpeed(clamped);
         }
     }
 
+    private Sound configuredSound(String path) {
+        String configured = getPlugin().getConfig().getString(path, "none");
+        if (configured == null || configured.equalsIgnoreCase("none")) {
+            return null;
+        }
+        try {
+            return Sound.valueOf(configured.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            getPlugin().getLogger().warning("Invalid sound in " + path + ": " + configured);
+            return null;
+        }
+    }
 
-    // Check if weight calculation is enabled for the player in their current world and game mode
-    public static boolean isEnabled(Player p) {
-        // Retrieve the list of disabled worlds from the plugin's configuration
-        List<String> disabledWorlds = getPlugin().getConfig().getStringList("disabled-worlds");
+    private void sendMessage(String message, Player player, Sound sound) {
+        if (message == null || message.isEmpty()) {
+            return;
+        }
 
-        // Check if the player's current world is in the list of disabled worlds
-        for (String disabledWorld : disabledWorlds) {
-            if (disabledWorld.equalsIgnoreCase((p.getWorld().getName()))) {
-                // If the player's world is disabled, set their walk speed to a minimum value and return false
-                p.setWalkSpeed(0.2f);
+        UUID playerId = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        long cooldownMillis = Math.max(0L,
+                (long) (getPlugin().getConfig().getDouble("messages-cooldown") * 1000L));
+        Long lastMessage = cooldown.get(playerId);
+        if (lastMessage == null || now - lastMessage >= cooldownMillis) {
+            cooldownMessenger(player, sound, message, now);
+        }
+    }
+
+    public static boolean isEnabled(Player player) {
+        for (String disabledWorld : getPlugin().getConfig().getStringList("disabled-worlds")) {
+            if (disabledWorld.equalsIgnoreCase(player.getWorld().getName())) {
+                if (Float.compare(player.getWalkSpeed(), 0.2f) != 0) {
+                    player.setWalkSpeed(0.2f);
+                }
                 return false;
             }
         }
-    
-        // Check if the player is not in Creative or Spectator game mode, return true otherwise
-        String playerGameMode = p.getGameMode().toString();
-        return !playerGameMode.equalsIgnoreCase("CREATIVE") && !playerGameMode.equalsIgnoreCase("SPECTATOR");
-    }
 
-
-    private void cooldownMessenger(Player p, Sound s, String message) {
-        // Check if the player has the 'weight.bypass' permission to avoid sending messages to players with this permission
-        if (!p.hasPermission("weight.bypass")) {
-            // Set the player's cooldown by updating the last message time in the 'cooldown' HashMap
-            cooldown.put(p.getUniqueId(), System.currentTimeMillis());
-        
-            // Check if action bar messages are enabled in the plugin's configuration
-            if (getPlugin().getConfig().getBoolean("actionbar-messages")) {
-                // Send the formatted message to the player's action bar if action bar messages are enabled
-                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.translateAlternateColorCodes('&', formatMessage(message, p))));
-            } else {
-                // Send the formatted message as a regular chat message if action bar messages are not enabled
-                p.sendMessage(ChatColor.translateAlternateColorCodes('&', formatMessage(message, p)));
+        GameMode gameMode = player.getGameMode();
+        if (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR) {
+            if (Float.compare(player.getWalkSpeed(), 0.2f) != 0) {
+                player.setWalkSpeed(0.2f);
             }
-        
-            // Check if a sound is specified, and if so, play the sound at the player's location
-            if (s != null)
-                p.playSound(p.getLocation(), s, 1, 1);
-        }   
-    }
-
-
-
-    // Formats and replaces placeholders in the given message before sending it to the player.
-    public String formatMessage(String message, Player p){
-
-        message = message.replaceAll("%playername%", p.getName());
-        message = message.replaceAll("%displayname%", p.getDisplayName());
-        message = message.replaceAll("%weight%", String.format("%.2f", playerWeight.getOrDefault(p.getUniqueId(), 0f)));
-        message = message.replaceAll("%world%", p.getWorld().getName());
-        message = message.replaceAll("%level1%", Objects.requireNonNull(String.valueOf(calculateWeightThreshold(p,1))));
-        message = message.replaceAll("%level2%", Objects.requireNonNull(String.valueOf(calculateWeightThreshold(p,2))));
-        message = message.replaceAll("%level3%", Objects.requireNonNull(String.valueOf(calculateWeightThreshold(p,3))));
-
-        // Replace '%percentageweight%' with the player's weight represented as a progress bar
-        message = message.replaceAll("%percentageweight%", generateProgressBar(p));
-
-        // Replace '%percentage%' with the player's weight as a percentage, formatted to two decimal places
-        message = message.replaceAll("%percentage%", String.format("%.2f", getPercentage(p)));
-        message = message.replaceAll("%pluginprefix%", getPlugin().getPluginPrefix());
-
-        // Replace '%maxweight%' with the maximum weight threshold based on the enabled weight levels (level 1, level 2, or level 3)
-        message = message.replaceAll("%maxweight%", String.valueOf(calculateWeightThreshold(p, getEnabledWeightLevel())));
-
-
-        return message;
-    }
-
-    // Calculates and returns the percentage of the player's weight relative to the maximum weight threshold,
-    // based on the enabled weight levels (level 1, level 2, or level 3).
-    public float getPercentage(Player p){
-
-        if(playerWeight.get(p.getUniqueId()) == null)
-            return 0;
-
-        float boostWeight = playerBoostWeight.getOrDefault(p.getUniqueId(), 0f);
-
-        float weight = playerWeight.get(p.getUniqueId());
-        float maxWeight = calculateWeightThreshold(p, getEnabledWeightLevel());
-
-        return weight * 100 / (maxWeight + boostWeight);
-    }
-
-    // Generates a progress bar based on the player's weight relative to the maximum weight threshold
-    // and returns the formatted progress bar as a string.
-    public String generateProgressBar(Player p) {
-
-        if (p == null)
-            return "";
-
-
-        // Calculate the percentage of the player's weight
-        float percentage = getPercentage(p);
-
-        // Initialize the progress bar with 20 bars ('|') and white color
-        StringBuilder message = new StringBuilder(38);
-        message.append("&7&l[||||||||||||||||||||&7&l]");
-
-        // Determine the number of colored bars and the corresponding color index
-        int coloredBars = ((int) percentage >= 100) ? 20 : (((int) percentage) / 5 + 1);
-        int colorIndex = ((int) percentage >= 100) ? 4 : (((int) percentage) / 20);
-
-        if(colorIndex < 0)
-            colorIndex = 0;
-
-        // Insert the appropriate color code at the beginning and end of the colored bars
-        if ((int) percentage >= 95)
-            message.insert(5, darkRedColor);
-        else {
-                message.insert(5, colorCodes[colorIndex]);
+            return false;
         }
-        message.insert(9 + coloredBars, whiteColor);
+        return true;
+    }
 
-        // Return the formatted progress bar with color codes translated
+    private void cooldownMessenger(Player player, Sound sound, String message, long now) {
+        if (player.hasPermission("weight.bypass")) {
+            return;
+        }
+
+        cooldown.put(player.getUniqueId(), now);
+        String formatted = ColorUtils.translateColorCodes(formatMessage(message, player));
+        if (getPlugin().getConfig().getBoolean("actionbar-messages")) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(formatted));
+        } else {
+            player.sendMessage(formatted);
+        }
+        if (sound != null) {
+            player.playSound(player.getLocation(), sound, 1f, 1f);
+        }
+    }
+
+    public String formatMessage(String message, Player player) {
+        if (message == null) {
+            return "";
+        }
+
+        UUID playerId = player.getUniqueId();
+        Thresholds thresholds = calculateThresholds(player);
+        float maxWeight = switch (getEnabledWeightLevel()) {
+            case 3 -> thresholds.level3();
+            case 2 -> thresholds.level2();
+            default -> thresholds.level1();
+        };
+        float currentWeight = playerWeight.getOrDefault(playerId, 0f);
+        float percentage = maxWeight <= 0f ? 0f : currentWeight * 100f / maxWeight;
+
+        return message
+                .replace("%playername%", player.getName())
+                .replace("%displayname%", player.getDisplayName())
+                .replace("%weight%", String.format("%.2f", currentWeight))
+                .replace("%world%", player.getWorld().getName())
+                .replace("%level1%", String.valueOf(thresholds.level1()))
+                .replace("%level2%", String.valueOf(thresholds.level2()))
+                .replace("%level3%", String.valueOf(thresholds.level3()))
+                .replace("%percentageweight%", generateProgressBar(percentage))
+                .replace("%percentage%", String.format("%.2f", percentage))
+                .replace("%pluginprefix%", getPlugin().getPluginPrefix())
+                .replace("%maxweight%", String.valueOf(maxWeight));
+    }
+
+    public float getPercentage(Player player) {
+        float weight = playerWeight.getOrDefault(player.getUniqueId(), 0f);
+        float maxWeight = calculateWeightThreshold(player, getEnabledWeightLevel());
+        if (maxWeight <= 0f) {
+            return 0f;
+        }
+        return weight * 100f / maxWeight;
+    }
+
+    public String generateProgressBar(Player player) {
+        if (player == null) {
+            return "";
+        }
+        return generateProgressBar(Math.max(0f, getPercentage(player)));
+    }
+
+    private String generateProgressBar(float rawPercentage) {
+        float percentage = Math.max(0f, rawPercentage);
+        StringBuilder message = new StringBuilder("&7&l[||||||||||||||||||||&7&l]");
+        int coloredBars = percentage >= 100f ? 20 : Math.min(20, ((int) percentage / 5) + 1);
+        int colorIndex = percentage >= 100f ? 4 : Math.min(4, (int) percentage / 20);
+
+        message.insert(5, percentage >= 95f ? DARK_RED_COLOR : COLOR_CODES[colorIndex]);
+        message.insert(9 + coloredBars, WHITE_COLOR);
         return ChatColor.translateAlternateColorCodes('&', message.toString());
     }
 
-
     public int getEnabledWeightLevel() {
-        if (Weight3) {
+        if (getPlugin().getConfig().getBoolean("weight-level-3.enabled")) {
             return 3;
-        } else if (Weight2) {
-            return 2;
-        } else {
-            return 1;
         }
+        if (getPlugin().getConfig().getBoolean("weight-level-2.enabled")) {
+            return 2;
+        }
+        return 1;
     }
 
     public float calculateWeightThreshold(Player player, int level) {
+        if (level < 1 || level > 3) {
+            throw new IllegalArgumentException("Weight level must be between 1 and 3");
+        }
 
-        float weight = weightThresholdValues[level - 1];
         float boostWeight = playerBoostWeight.getOrDefault(player.getUniqueId(), 0f);
-
+        float configuredWeight = weightThresholdValues[level - 1];
         if (!getPlugin().getConfig().getBoolean("permission-mode")) {
-            // If permission-mode is disabled, return the weight threshold value from the 'config.yml' file
-            return weightThresholdValues[level - 1] + boostWeight;
+            return configuredWeight + boostWeight;
         }
-        for (int i = 10000; i > 0; i -= 100) {
-            if (player.hasPermission("weight.level" + level + "." + i)) {
-                weight = i;
-                break;
+
+        int maxPermissionWeight = level == 3 ? 20000 : 10000;
+        for (int value = maxPermissionWeight; value >= 100; value -= 100) {
+            if (player.hasPermission("weight.level" + level + "." + value)) {
+                return value + boostWeight;
             }
         }
-        return weight + boostWeight;
+        return configuredWeight + boostWeight;
     }
 
-    // Method to calculate item's weight inside a shulkerBox
-    public static float shulkerBoxWeightCalculations(ShulkerBox shulkerBox, Player p) {
-
-        float shulkerBoxInventoryWeight = globalItemsWeight.get(shulkerBox.getType());
-
-
+    public static float shulkerBoxWeightCalculations(ShulkerBox shulkerBox, Player player) {
+        MutableCalculation calculation = new MutableCalculation();
+        calculation.weight = globalItemsWeight.getOrDefault(shulkerBox.getType(), 0f);
         for (ItemStack item : shulkerBox.getInventory().getStorageContents()) {
-            if (item != null) {
-                shulkerBoxInventoryWeight += calculateItemWeight(item, p);
+            if (item == null || item.getType().isAir()) {
+                continue;
+            }
+            ResolvedItem resolved = resolveItem(item);
+            if (resolved.boostPerItem() != 0f) {
+                float boost = resolved.boostPerItem() * item.getAmount();
+                calculation.boost += boost;
+                ItemLoreUtils.updateBoostItemLore(item, resolved.boostPerItem());
+            } else {
+                ItemLoreUtils.updateItemLore(item, resolved.weightPerItem());
+                calculation.weight += resolved.weightPerItem() * item.getAmount();
             }
         }
-        return shulkerBoxInventoryWeight;
 
+        if (calculation.boost != 0f) {
+            playerBoostWeight.merge(player.getUniqueId(), calculation.boost, Float::sum);
+        }
+        return calculation.weight;
     }
 
+    private static void accumulateShulkerBox(ShulkerBox shulkerBox, Player player, MutableCalculation total) {
+        total.weight += globalItemsWeight.getOrDefault(shulkerBox.getType(), 0f);
+        for (ItemStack item : shulkerBox.getInventory().getStorageContents()) {
+            if (item == null || item.getType().isAir()) {
+                continue;
+            }
+            ResolvedItem resolved = resolveItem(item);
+            if (resolved.boostPerItem() != 0f) {
+                total.boost += resolved.boostPerItem() * item.getAmount();
+                ItemLoreUtils.updateBoostItemLore(item, resolved.boostPerItem());
+            } else {
+                ItemLoreUtils.updateItemLore(item, resolved.weightPerItem());
+                total.weight += resolved.weightPerItem() * item.getAmount();
+            }
+        }
+    }
+
+    private record ResolvedItem(float weightPerItem, float boostPerItem) { }
+    private record CalculationResult(float weight, float boost) { }
+    private record Thresholds(float level1, float level2, float level3) { }
+
+    private static final class MutableCalculation {
+        private float weight;
+        private float boost;
+    }
 }

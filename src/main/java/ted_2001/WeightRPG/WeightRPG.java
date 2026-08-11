@@ -1,143 +1,161 @@
 package ted_2001.WeightRPG;
 
-
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import ted_2001.WeightRPG.Commands.Tabcompleter;
 import ted_2001.WeightRPG.Commands.WeightCommands;
 import ted_2001.WeightRPG.Listeners.WeightCalculateListeners;
-import ted_2001.WeightRPG.Utils.*;
+import ted_2001.WeightRPG.Utils.CalculateWeight;
+import ted_2001.WeightRPG.Utils.JsonFile;
+import ted_2001.WeightRPG.Utils.Messages;
+import ted_2001.WeightRPG.Utils.UpdateChecker;
 import ted_2001.WeightRPG.Utils.PlaceholderAPI.WeightExpansion;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegionHolder;
 
 import java.io.File;
-import java.util.List;
 import java.util.Objects;
-
-
 
 public final class WeightRPG extends JavaPlugin {
 
     private static WeightRPG plugin;
-    private final BukkitScheduler scheduler = this.getServer().getScheduler();
     public BukkitTask task;
     private String pluginPrefix;
 
     @Override
     public void onEnable() {
-
         plugin = this;
-        pluginPrefix = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(getConfig().getString("plugin-prefix")));
 
-        // Register listeners and commands
-        getServer().getPluginManager().registerEvents(new WeightCalculateListeners(), this);
-        Objects.requireNonNull(getCommand("weight")).setExecutor(new WeightCommands());
-        TabCompleter tc = new Tabcompleter();
-        Objects.requireNonNull(getPlugin().getCommand("weight")).setTabCompleter(tc);
-
-        // Initialize JSON files and configuration
-        JsonFile js = new JsonFile();
-        getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Preparing config and weight files...");
-        getConfig().options().copyDefaults();
         saveDefaultConfig();
-        String path = this.getDataFolder().getAbsolutePath();
-        File weightsDir = new File(path + File.separator + "Weights");
-        if (!weightsDir.exists()) {
-            weightsDir.mkdir();
+        reloadPluginPrefix();
+
+        getServer().getPluginManager().registerEvents(new WeightCalculateListeners(), this);
+
+        PluginCommand weightCommand = Objects.requireNonNull(getCommand("weight"), "Command 'weight' is missing from plugin.yml");
+        weightCommand.setExecutor(new WeightCommands());
+        weightCommand.setTabCompleter(new Tabcompleter());
+
+        JsonFile jsonFile = new JsonFile();
+        getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Preparing config and weight files...");
+
+        File weightsDir = new File(getDataFolder(), "Weights");
+        if (!weightsDir.exists() && !weightsDir.mkdirs()) {
+            getLogger().warning("Could not create the Weights directory: " + weightsDir.getAbsolutePath());
         }
-        js.saveJsonFile();
+
+        jsonFile.saveJsonFile();
         Messages.create();
-        js.readJsonFile();
-        if (js.successfullyRead) {
+        try {
+            jsonFile.readJsonFile();
+        } catch (RuntimeException exception) {
+            jsonFile.successfullyRead = false;
+            getLogger().severe("Unable to read weight files: " + exception.getMessage());
+        }
+
+        if (jsonFile.successfullyRead) {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Reading weight files completed" + ChatColor.GREEN + " SUCCESSFULLY.");
         } else {
-            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "ERROR" + ChatColor.GRAY + " Weight or Config files have ERROR(s).");
+            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.RED + "ERROR" + ChatColor.GRAY + " Weight or config files contain errors.");
         }
         getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Done.");
 
-        // Check for PlaceholderAPI and register placeholders
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.AQUA + "PlaceholderAPI" + ChatColor.GRAY + " found. Registering placeholders");
             new WeightExpansion().register();
-            getServer().getConsoleSender().sendMessage(pluginPrefix + ChatColor.GRAY + "Done.");
         }
 
-        // Schedule weight calculation task
         scheduler();
-
-        // Check for plugin updates
-        new UpdateChecker(this, 105513).getVersion(version -> {
-            String currentVersion = this.getDescription().getVersion().replace(".", "");
-            version = version.replace(".", "");
-
-            int currentVersionInt = Integer.parseInt(currentVersion);
-            int newVersionInt = Integer.parseInt(version);
-
-            if(newVersionInt > currentVersionInt)
-                getLogger().info("There is a new update available.");
-            else if(newVersionInt == currentVersionInt)
-                getLogger().info("There is not a new update available.");
-            else
-                getLogger().info("You are running a dev version.");
-
-        });
-
-        // Initialize metrics
-        Metrics metrics = new Metrics(this, 16524);
+        checkForUpdates();
+        new Metrics(this, 16524);
     }
 
-    /**
-     * Schedules the weight calculation task to run at a configurable interval.
-     */
     public void scheduler() {
+        int intervalSeconds = Math.max(2, getConfig().getInt("check-weight", 2));
+        long intervalTicks = intervalSeconds * 20L;
+        CalculateWeight weightCalculator = new CalculateWeight();
 
-        int timer = 2;
-
-        if (this.getConfig().getInt("check-weight") > 2)
-            timer = this.getConfig().getInt("check-weight");
-
-        task = scheduler.runTaskTimer(this, () -> {
-            List<Player> players = (List<Player>) getPlugin().getServer().getOnlinePlayers();
-            CalculateWeight weightCalculator = new CalculateWeight();
-            for (Player player : players) {
+        task = getServer().getScheduler().runTaskTimer(this, () -> {
+            for (Player player : getServer().getOnlinePlayers()) {
                 if (!player.hasPermission("weight.bypass")) {
                     weightCalculator.calculateWeight(player);
                 }
             }
-        }, 0, timer * 20L);
+        }, intervalTicks, intervalTicks);
+    }
+
+    private void checkForUpdates() {
+        new UpdateChecker(this, 105513).getVersion(latestVersion -> {
+            int comparison = compareVersions(getDescription().getVersion(), latestVersion);
+            if (comparison < 0) {
+                getLogger().info("There is a new Weight-RPG update available: " + latestVersion);
+            } else if (comparison == 0) {
+                getLogger().info("Weight-RPG is up to date.");
+            } else {
+                getLogger().info("You are running a development version of Weight-RPG.");
+            }
+        });
+    }
+
+    private int compareVersions(String currentVersion, String latestVersion) {
+        String[] currentParts = currentVersion.split("[.-]");
+        String[] latestParts = latestVersion.split("[.-]");
+        int length = Math.max(currentParts.length, latestParts.length);
+
+        for (int i = 0; i < length; i++) {
+            int current = i < currentParts.length ? parseVersionPart(currentParts[i]) : 0;
+            int latest = i < latestParts.length ? parseVersionPart(latestParts[i]) : 0;
+            int comparison = Integer.compare(current, latest);
+            if (comparison != 0) {
+                return comparison;
+            }
+        }
+        return 0;
+    }
+
+    private int parseVersionPart(String part) {
+        String numericPart = part.replaceAll("\\D.*$", "");
+        if (numericPart.isEmpty()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(numericPart);
+        } catch (NumberFormatException ignored) {
+            return 0;
+        }
     }
 
     @Override
     public void onLoad() {
-        // Check for WorldGuard and initialize WorldGuardRegionHolder if found
         if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
             try {
-                WorldGuardRegionHolder holder = new WorldGuardRegionHolder();
-                holder.RegionHolder();
-            } catch (NoClassDefFoundError e) {}
+                new WorldGuardRegionHolder().RegionHolder();
+            } catch (NoClassDefFoundError error) {
+                getLogger().warning("WorldGuard was detected but its API could not be loaded: " + error.getMessage());
+            }
         }
     }
 
     @Override
     public void onDisable() {
-
-        saveDefaultConfig();
-
+        if (task != null && !task.isCancelled()) {
+            task.cancel();
+        }
+        CalculateWeight.playerWeight.clear();
+        CalculateWeight.playerBoostWeight.clear();
+        CalculateWeight.cooldown.clear();
     }
 
     public static WeightRPG getPlugin() {
         return plugin;
     }
 
-
     public void reloadPluginPrefix() {
-        pluginPrefix = ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(getConfig().getString("plugin-prefix")));
+        String configuredPrefix = getConfig().getString("plugin-prefix", "&7[&eWeight-RPG&7] ");
+        pluginPrefix = ChatColor.translateAlternateColorCodes('&', configuredPrefix);
     }
 
     public String getPluginPrefix() {

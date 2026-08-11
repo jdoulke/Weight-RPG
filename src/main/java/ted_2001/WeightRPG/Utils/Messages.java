@@ -1,55 +1,49 @@
 package ted_2001.WeightRPG.Utils;
 
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.IOException;
-
-
 
 import static ted_2001.WeightRPG.WeightRPG.getPlugin;
 
 /**
- * Messages class responsible for handling the messages.yml file.
+ * Handles the messages.yml file.
  */
-public class Messages {
+public final class Messages {
 
     private static File file;
     private static FileConfiguration configuration;
 
-    /**
-     * Create the messages.yml file and load its configuration.
-     * If the file doesn't exist, it will be created from the plugin's resources.
-     */
+    private Messages() {
+    }
+
     public static void create() {
         file = new File(getPlugin().getDataFolder(), "messages.yml");
-        
-        // Create the messages.yml file if it doesn't exist
+
         if (!file.exists()) {
-            file.getParentFile().mkdirs();
+            File parent = file.getParentFile();
+            if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                getPlugin().getLogger().warning("Could not create plugin data directory for messages.yml");
+            }
             getPlugin().saveResource("messages.yml", false);
         }
 
-        // Load the configuration from the messages.yml file
+        // loadConfiguration already loads and parses the file; loading it a second time is redundant I/O.
         configuration = YamlConfiguration.loadConfiguration(file);
-        try {
-            configuration.load(file);
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
     }
 
     public static FileConfiguration getMessages() {
+        if (configuration == null) {
+            create();
+        }
         return configuration;
     }
 
-    /**
-     * Reload the messages.yml configuration from the file.
-     * This method is useful when you want to update the messages without restarting the server.
-     */
     public static void reloadMessagesConfig() {
+        if (file == null) {
+            file = new File(getPlugin().getDataFolder(), "messages.yml");
+        }
         configuration = YamlConfiguration.loadConfiguration(file);
     }
 }

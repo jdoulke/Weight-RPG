@@ -3,16 +3,21 @@ package ted_2001.WeightRPG.Utils;
 import org.bukkit.Bukkit;
 import ted_2001.WeightRPG.WeightRPG;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Scanner;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 
 /**
- * UpdateChecker class responsible for checking plugin updates using Spigot API.
+ * Checks Weight-RPG's current Spigot resource version asynchronously.
  */
 public class UpdateChecker {
+
+    private static final int CONNECT_TIMEOUT_MS = 5000;
+    private static final int READ_TIMEOUT_MS = 5000;
 
     private final WeightRPG plugin;
     private final int resourceId;
@@ -22,24 +27,30 @@ public class UpdateChecker {
         this.resourceId = resourceId;
     }
 
-    /**
-     * Get the latest version of the plugin from the Spigot API asynchronously.
-     * The result will be passed to the provided consumer.
-     *
-     * @param consumer A consumer that accepts the latest version as a String.
-     */
     public void getVersion(final Consumer<String> consumer) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-            try (InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId).openStream();
-                 Scanner scanner = new Scanner(inputStream)) {
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            HttpURLConnection connection = null;
+            try {
+                URI uri = URI.create("https://api.spigotmc.org/legacy/update.php?resource=" + resourceId);
+                connection = (HttpURLConnection) uri.toURL().openConnection();
+                connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
+                connection.setReadTimeout(READ_TIMEOUT_MS);
+                connection.setUseCaches(false);
+                connection.setRequestProperty("User-Agent", "Weight-RPG/" + plugin.getDescription().getVersion());
 
-                // Check if the response from the API contains version information
-                if (scanner.hasNext()) {
-                    consumer.accept(scanner.next());
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        connection.getInputStream(), StandardCharsets.UTF_8))) {
+                    String version = reader.readLine();
+                    if (version != null && !version.isBlank()) {
+                        consumer.accept(version.trim());
+                    }
                 }
-            } catch (IOException exception) {
-                // Log an error if unable to check for updates
+            } catch (IOException | IllegalArgumentException exception) {
                 plugin.getLogger().info("Unable to check for updates: " + exception.getMessage());
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
             }
         });
     }
