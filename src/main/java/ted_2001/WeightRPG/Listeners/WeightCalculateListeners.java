@@ -89,9 +89,7 @@ public class WeightCalculateListeners implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onPlayerChangedWorldEvent(PlayerChangedWorldEvent event) {
-        Player player = event.getPlayer();
-        // calculateWeight performs enabled-world/gamemode and WorldGuard checks itself.
-        weightCalculation.calculateWeight(player);
+        weightCalculation.calculateWeight(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -170,7 +168,6 @@ public class WeightCalculateListeners implements Listener {
             return;
         }
 
-        // Preserve custom name/PDC metadata from the actual consumed item.
         ItemStack block = event.getItemInHand().clone();
         block.setAmount(1);
         if (block.getType() == Material.FIRE) {
@@ -198,7 +195,7 @@ public class WeightCalculateListeners implements Listener {
         if (Double.compare(from.getX(), to.getX()) == 0
                 && Double.compare(from.getY(), to.getY()) == 0
                 && Double.compare(from.getZ(), to.getZ()) == 0) {
-            return; // yaw/pitch-only movement
+            return;
         }
 
         Player player = event.getPlayer();
@@ -212,7 +209,6 @@ public class WeightCalculateListeners implements Listener {
             return;
         }
 
-        // Weight is maintained by inventory events + scheduler. Do not rescan the whole inventory per move packet.
         if (to.getY() <= from.getY()) {
             return;
         }
@@ -330,6 +326,15 @@ public class WeightCalculateListeners implements Listener {
                     subtractBoost(player, pdcBoost * item.getAmount());
                 }
                 return new ResolvedItemWeight(true, 0f, true, pdcBoost);
+            }
+
+            CalculateWeight.ModelDataMatch modelData = CalculateWeight.resolveCustomModelData(item);
+            if (modelData.matched()) {
+                if (modelData.boostPerItem() != 0f && adjustBoost) {
+                    subtractBoost(player, modelData.boostPerItem() * item.getAmount());
+                }
+                return new ResolvedItemWeight(true, modelData.weightPerItem(),
+                        modelData.boostPerItem() != 0f, modelData.boostPerItem());
             }
 
             String displayName = meta.getDisplayName();
