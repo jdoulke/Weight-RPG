@@ -30,7 +30,6 @@ public class CalculateWeight {
     public static final HashMap<UUID, Float> playerWeight = new HashMap<>();
     public static final HashMap<UUID, Long> cooldown = new HashMap<>();
     public static final HashMap<UUID, Float> playerBoostWeight = new HashMap<>();
-
     public static final float[] weightThresholdValues = new float[]{0f, 0f, 0f};
 
     private static final String WHITE_COLOR = "&f&l";
@@ -39,20 +38,6 @@ public class CalculateWeight {
 
     private static NamespacedKey cachedWeightKey;
     private static NamespacedKey cachedBoostKey;
-
-    private static NamespacedKey weightKey() {
-        if (cachedWeightKey == null) {
-            cachedWeightKey = new NamespacedKey(getPlugin(), "weight");
-        }
-        return cachedWeightKey;
-    }
-
-    private static NamespacedKey boostKey() {
-        if (cachedBoostKey == null) {
-            cachedBoostKey = new NamespacedKey(getPlugin(), "boost");
-        }
-        return cachedBoostKey;
-    }
 
     public CalculateWeight() {
         refreshThresholdValues();
@@ -78,90 +63,104 @@ public class CalculateWeight {
         if (player.hasPermission("weight.bypass")) {
             playerWeight.put(playerId, 0f);
             playerBoostWeight.put(playerId, 0f);
-            if (player.getWalkSpeed() < 0.2f) {
-                player.setWalkSpeed(0.2f);
-            }
+            setWalkSpeedIfNeeded(player, 0.2f);
             return;
         }
 
-        playerBoostWeight.put(playerId, 0f);
-        float totalWeight = calculateInventoryWeight(player.getInventory(), player);
-        playerWeight.put(playerId, totalWeight);
+        CalculationResult result = calculateInventoryWeight(player.getInventory(), player);
+        playerWeight.put(playerId, result.weight());
+        playerBoostWeight.put(playerId, result.boost());
         applyWeightEffects(player);
     }
 
-    private float calculateInventoryWeight(PlayerInventory inventory, Player player) {
+    private CalculationResult calculateInventoryWeight(PlayerInventory inventory, Player player) {
         boolean shulkerBoxesEnabled = getPlugin().getConfig().getBoolean("shulker-boxes");
-        float weight = 0f;
+        MutableCalculation total = new MutableCalculation();
 
-        for (ItemStack item : inventory.getStorageContents()) {
-            weight += calculateItemWeight(item, shulkerBoxesEnabled, player);
-        }
-        for (ItemStack item : inventory.getExtraContents()) {
-            weight += calculateItemWeight(item, shulkerBoxesEnabled, player);
-        }
-        for (ItemStack item : inventory.getArmorContents()) {
-            weight += calculateItemWeight(item, shulkerBoxesEnabled, player);
-        }
-        // Preserve the plugin's established slot calculation behavior.
-        weight += calculateItemWeight(inventory.getItemInOffHand(), shulkerBoxesEnabled, player);
-        return weight;
+        accumulateInventorySection(inventory.getStorageContents(), shulkerBoxesEnabled, player, total);
+        accumulateInventorySection(inventory.getExtraContents(), shulkerBoxesEnabled, player, total);
+        accumulateInventorySection(inventory.getArmorContents(), shulkerBoxesEnabled, player, total);
+
+        // Preserve the plugin's established inventory-slot/off-hand behavior exactly.
+        accumulateItem(inventory.getItemInOffHand(), shulkerBoxesEnabled, player, total);
+        return new CalculationResult(total.weight, total.boost);
     }
 
-    private float calculateItemWeight(ItemStack item, boolean shulkerBoxesEnabled, Player player) {
+    private void accumulateInventorySection(ItemStack[] contents, boolean shulkerBoxesEnabled,
+                                            Player player, MutableCalculation total) {
+        for (ItemStack item : contents) {
+            accumulateItem(item, shulkerBoxesEnabled, player, total);
+        }
+    }
+
+    private void accumulateItem(ItemStack item, boolean shulkerBoxesEnabled,
+                                Player player, MutableCalculation total) {
         if (item == null || item.getType().isAir()) {
-            return 0f;
+            return;
         }
 
         if (shulkerBoxesEnabled && item.getItemMeta() instanceof BlockStateMeta blockStateMeta
                 && blockStateMeta.getBlockState() instanceof ShulkerBox shulkerBox) {
-            return shulkerBoxWeightCalculations(shulkerBox, player);
+            accumulateShulkerBox(shulkerBox, player, total);
+            return;
         }
-        return calculateItemWeight(item, player);
+
+        ResolvedItem resolved = resolveItem(item);
+        if (resolved.boostPerItem() != 0f) {
+            total.boost += resolved.boostPerItem() * item.getAmount();
+            ItemLoreUtils.updateBoostItemLore(item, resolved.boostPerItem());
+            return;
+        }
+
+        ItemLoreUtils.updateItemLore(item, resolved.weightPerItem());
+        total.weight += resolved.weightPerItem() * item.getAmount();
     }
 
-    private static float calculateItemWeight(ItemStack itemStack, Player player) {
-        if (itemStack == null || itemStack.getType().isAir()) {
-            return 0f;
+    private static ResolvedItem resolveItem(ItemStack item) {
+        float itemWeight = globalItemsWeight.getOrDefault(item.getType(), 0f);
+        ItemMeta itemMeta = item.getItemMeta();
+        if (itemMeta == null) {
+            return new ResolvedItem(itemWeight, 0f);
         }
 
-        float itemWeight = globalItemsWeight.getOrDefault(itemStack.getType(), 0f);
-        ItemMeta itemMeta = itemStack.getItemMeta();
-
-        if (itemMeta != null) {
-            PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
-            Float persistentWeight = pdc.get(weightKey(), PersistentDataType.FLOAT);
-            Float persistentBoost = pdc.get(boostKey(), PersistentDataType.FLOAT);
-
-            if (persistentWeight != null) {
-                itemWeight = persistentWeight;
-            } else if (persistentBoost != null) {
-                addBoost(player, persistentBoost * itemStack.getAmount());
-                ItemLoreUtils.updateBoostItemLore(itemStack, persistentBoost);
-                return 0f;
-            } else {
-                String displayName = itemMeta.getDisplayName();
-                Float customWeight = customItemsWeight.get(displayName);
-                Float boostWeight = boostItemsWeight.get(displayName);
-
-                if (customWeight != null) {
-                    itemWeight = customWeight;
-                } else if (boostWeight != null) {
-                    addBoost(player, boostWeight * itemStack.getAmount());
-                    ItemLoreUtils.updateBoostItemLore(itemStack, boostWeight);
-                    return 0f;
-                } else {
-                    ItemLoreUtils.updateBoostItemLore(itemStack, 0f);
-                }
-            }
+        PersistentDataContainer pdc = itemMeta.getPersistentDataContainer();
+        Float persistentWeight = pdc.get(weightKey(), PersistentDataType.FLOAT);
+        if (persistentWeight != null) {
+            return new ResolvedItem(persistentWeight, 0f);
         }
 
-        ItemLoreUtils.updateItemLore(itemStack, itemWeight);
-        return itemWeight * itemStack.getAmount();
+        Float persistentBoost = pdc.get(boostKey(), PersistentDataType.FLOAT);
+        if (persistentBoost != null) {
+            return new ResolvedItem(0f, persistentBoost);
+        }
+
+        String displayName = itemMeta.getDisplayName();
+        Float customWeight = customItemsWeight.get(displayName);
+        if (customWeight != null) {
+            return new ResolvedItem(customWeight, 0f);
+        }
+
+        Float boostWeight = boostItemsWeight.get(displayName);
+        if (boostWeight != null) {
+            return new ResolvedItem(0f, boostWeight);
+        }
+
+        ItemLoreUtils.updateBoostItemLore(item, 0f);
+        return new ResolvedItem(itemWeight, 0f);
     }
 
-    private static void addBoost(Player player, float boost) {
-        playerBoostWeight.merge(player.getUniqueId(), boost, Float::sum);
+    private static NamespacedKey weightKey() {
+        if (cachedWeightKey == null) {
+            cachedWeightKey = new NamespacedKey(getPlugin(), "weight");
+        }
+        return cachedWeightKey;
+    }
+
+    private static NamespacedKey boostKey() {
+        if (cachedBoostKey == null) {
+            cachedBoostKey = new NamespacedKey(getPlugin(), "boost");
+        }
+        return cachedBoostKey;
     }
 
     public void applyWeightEffects(Player player) {
@@ -172,18 +171,11 @@ public class CalculateWeight {
             return;
         }
 
-        float level1 = calculateWeightThreshold(player, 1);
-        float level2 = calculateWeightThreshold(player, 2);
-        float level3 = calculateWeightThreshold(player, 3);
-
-        float speed1 = (float) getPlugin().getConfig().getDouble("weight-level-1.speed");
-        float speed2 = (float) getPlugin().getConfig().getDouble("weight-level-2.speed");
-        float speed3 = (float) getPlugin().getConfig().getDouble("weight-level-3.speed");
-
+        Thresholds thresholds = calculateThresholds(player);
         boolean level2Enabled = getPlugin().getConfig().getBoolean("weight-level-2.enabled");
         boolean level3Enabled = getPlugin().getConfig().getBoolean("weight-level-3.enabled");
 
-        if (currentWeight < level1) {
+        if (currentWeight < thresholds.level1()) {
             setWalkSpeedIfNeeded(player, 0.2f);
             if (getPlugin().getConfig().getBoolean("message-before-level1-enabled")) {
                 sendMessage(getPlugin().getConfig().getString("message-before-level1"), player, null);
@@ -191,29 +183,40 @@ public class CalculateWeight {
             return;
         }
 
-        // Highest active level wins. Level 2 and Level 3 can be disabled independently.
-        if (level3Enabled && currentWeight >= level3) {
-            setWalkSpeedIfNeeded(player, speed3);
-            if (getPlugin().getConfig().getBoolean("weight-level-3.message-enabled")) {
-                sendMessage(getPlugin().getConfig().getString("weight-level-3.message"), player,
-                        configuredSound("weight-level-3.sound"));
-            }
+        if (level3Enabled && currentWeight >= thresholds.level3()) {
+            applyLevel(player, 3);
             return;
         }
-
-        if (level2Enabled && currentWeight >= level2) {
-            setWalkSpeedIfNeeded(player, speed2);
-            if (getPlugin().getConfig().getBoolean("weight-level-2.message-enabled")) {
-                sendMessage(getPlugin().getConfig().getString("weight-level-2.message"), player,
-                        configuredSound("weight-level-2.sound"));
-            }
+        if (level2Enabled && currentWeight >= thresholds.level2()) {
+            applyLevel(player, 2);
             return;
         }
+        applyLevel(player, 1);
+    }
 
-        setWalkSpeedIfNeeded(player, speed1);
-        if (getPlugin().getConfig().getBoolean("weight-level-1.message-enabled")) {
-            sendMessage(getPlugin().getConfig().getString("weight-level-1.message"), player,
-                    configuredSound("weight-level-1.sound"));
+    private Thresholds calculateThresholds(Player player) {
+        if (!getPlugin().getConfig().getBoolean("permission-mode")) {
+            float boost = playerBoostWeight.getOrDefault(player.getUniqueId(), 0f);
+            return new Thresholds(
+                    weightThresholdValues[0] + boost,
+                    weightThresholdValues[1] + boost,
+                    weightThresholdValues[2] + boost
+            );
+        }
+        return new Thresholds(
+                calculateWeightThreshold(player, 1),
+                calculateWeightThreshold(player, 2),
+                calculateWeightThreshold(player, 3)
+        );
+    }
+
+    private void applyLevel(Player player, int level) {
+        String path = "weight-level-" + level;
+        float speed = (float) getPlugin().getConfig().getDouble(path + ".speed");
+        setWalkSpeedIfNeeded(player, speed);
+        if (getPlugin().getConfig().getBoolean(path + ".message-enabled")) {
+            sendMessage(getPlugin().getConfig().getString(path + ".message"), player,
+                    configuredSound(path + ".sound"));
         }
     }
 
@@ -247,7 +250,6 @@ public class CalculateWeight {
         long cooldownMillis = Math.max(0L,
                 (long) (getPlugin().getConfig().getDouble("messages-cooldown") * 1000L));
         Long lastMessage = cooldown.get(playerId);
-
         if (lastMessage == null || now - lastMessage >= cooldownMillis) {
             cooldownMessenger(player, sound, message, now);
         }
@@ -285,7 +287,6 @@ public class CalculateWeight {
         } else {
             player.sendMessage(formatted);
         }
-
         if (sound != null) {
             player.playSound(player.getLocation(), sound, 1f, 1f);
         }
@@ -296,18 +297,28 @@ public class CalculateWeight {
             return "";
         }
 
+        UUID playerId = player.getUniqueId();
+        Thresholds thresholds = calculateThresholds(player);
+        float maxWeight = switch (getEnabledWeightLevel()) {
+            case 3 -> thresholds.level3();
+            case 2 -> thresholds.level2();
+            default -> thresholds.level1();
+        };
+        float currentWeight = playerWeight.getOrDefault(playerId, 0f);
+        float percentage = maxWeight <= 0f ? 0f : currentWeight * 100f / maxWeight;
+
         return message
                 .replace("%playername%", player.getName())
                 .replace("%displayname%", player.getDisplayName())
-                .replace("%weight%", String.format("%.2f", playerWeight.getOrDefault(player.getUniqueId(), 0f)))
+                .replace("%weight%", String.format("%.2f", currentWeight))
                 .replace("%world%", player.getWorld().getName())
-                .replace("%level1%", String.valueOf(calculateWeightThreshold(player, 1)))
-                .replace("%level2%", String.valueOf(calculateWeightThreshold(player, 2)))
-                .replace("%level3%", String.valueOf(calculateWeightThreshold(player, 3)))
-                .replace("%percentageweight%", generateProgressBar(player))
-                .replace("%percentage%", String.format("%.2f", getPercentage(player)))
+                .replace("%level1%", String.valueOf(thresholds.level1()))
+                .replace("%level2%", String.valueOf(thresholds.level2()))
+                .replace("%level3%", String.valueOf(thresholds.level3()))
+                .replace("%percentageweight%", generateProgressBar(percentage))
+                .replace("%percentage%", String.format("%.2f", percentage))
                 .replace("%pluginprefix%", getPlugin().getPluginPrefix())
-                .replace("%maxweight%", String.valueOf(calculateWeightThreshold(player, getEnabledWeightLevel())));
+                .replace("%maxweight%", String.valueOf(maxWeight));
     }
 
     public float getPercentage(Player player) {
@@ -323,8 +334,11 @@ public class CalculateWeight {
         if (player == null) {
             return "";
         }
+        return generateProgressBar(Math.max(0f, getPercentage(player)));
+    }
 
-        float percentage = Math.max(0f, getPercentage(player));
+    private String generateProgressBar(float rawPercentage) {
+        float percentage = Math.max(0f, rawPercentage);
         StringBuilder message = new StringBuilder("&7&l[||||||||||||||||||||&7&l]");
         int coloredBars = percentage >= 100f ? 20 : Math.min(20, ((int) percentage / 5) + 1);
         int colorIndex = percentage >= 100f ? 4 : Math.min(4, (int) percentage / 20);
@@ -355,25 +369,62 @@ public class CalculateWeight {
             return configuredWeight + boostWeight;
         }
 
-        // Preserve the documented permission contract and Bukkit's normal wildcard resolution.
-        // Level 1/2: 100..10000, Level 3: 100..20000, multiples of 100 only.
         int maxPermissionWeight = level == 3 ? 20000 : 10000;
         for (int value = maxPermissionWeight; value >= 100; value -= 100) {
             if (player.hasPermission("weight.level" + level + "." + value)) {
                 return value + boostWeight;
             }
         }
-
         return configuredWeight + boostWeight;
     }
 
     public static float shulkerBoxWeightCalculations(ShulkerBox shulkerBox, Player player) {
-        float weight = globalItemsWeight.getOrDefault(shulkerBox.getType(), 0f);
+        MutableCalculation calculation = new MutableCalculation();
+        calculation.weight = globalItemsWeight.getOrDefault(shulkerBox.getType(), 0f);
         for (ItemStack item : shulkerBox.getInventory().getStorageContents()) {
-            if (item != null && !item.getType().isAir()) {
-                weight += calculateItemWeight(item, player);
+            if (item == null || item.getType().isAir()) {
+                continue;
+            }
+            ResolvedItem resolved = resolveItem(item);
+            if (resolved.boostPerItem() != 0f) {
+                float boost = resolved.boostPerItem() * item.getAmount();
+                calculation.boost += boost;
+                ItemLoreUtils.updateBoostItemLore(item, resolved.boostPerItem());
+            } else {
+                ItemLoreUtils.updateItemLore(item, resolved.weightPerItem());
+                calculation.weight += resolved.weightPerItem() * item.getAmount();
             }
         }
-        return weight;
+
+        if (calculation.boost != 0f) {
+            playerBoostWeight.merge(player.getUniqueId(), calculation.boost, Float::sum);
+        }
+        return calculation.weight;
+    }
+
+    private static void accumulateShulkerBox(ShulkerBox shulkerBox, Player player, MutableCalculation total) {
+        total.weight += globalItemsWeight.getOrDefault(shulkerBox.getType(), 0f);
+        for (ItemStack item : shulkerBox.getInventory().getStorageContents()) {
+            if (item == null || item.getType().isAir()) {
+                continue;
+            }
+            ResolvedItem resolved = resolveItem(item);
+            if (resolved.boostPerItem() != 0f) {
+                total.boost += resolved.boostPerItem() * item.getAmount();
+                ItemLoreUtils.updateBoostItemLore(item, resolved.boostPerItem());
+            } else {
+                ItemLoreUtils.updateItemLore(item, resolved.weightPerItem());
+                total.weight += resolved.weightPerItem() * item.getAmount();
+            }
+        }
+    }
+
+    private record ResolvedItem(float weightPerItem, float boostPerItem) { }
+    private record CalculationResult(float weight, float boost) { }
+    private record Thresholds(float level1, float level2, float level3) { }
+
+    private static final class MutableCalculation {
+        private float weight;
+        private float boost;
     }
 }
