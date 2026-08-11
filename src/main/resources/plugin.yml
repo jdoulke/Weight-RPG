@@ -1,7 +1,7 @@
 name: Weight-RPG
 version: '${project.version}'
 main: ted_2001.WeightRPG.WeightRPG
-api-version: '26.2'
+api-version: '26.1'
 author: Ted_2001
 softdepend: [WorldGuard, PlaceholderAPI]
 description: Inventory weight mechanic just like in RPGs.
