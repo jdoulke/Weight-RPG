@@ -123,9 +123,16 @@ public class WeightExpansion extends PlaceholderExpansion {
                 return String.valueOf(persistentWeight * item.getAmount());
             }
 
-            // Persistent boost items, like configured boost items, have no own weight.
             if (pdc.has(boostKey, PersistentDataType.FLOAT)) {
                 return "0";
+            }
+
+            CalculateWeight.ModelDataMatch modelData = CalculateWeight.resolveCustomModelData(item);
+            if (modelData.matched()) {
+                if (modelData.boostPerItem() != 0f) {
+                    return "0";
+                }
+                return String.valueOf(modelData.weightPerItem() * item.getAmount());
             }
 
             String displayName = itemMeta.getDisplayName();

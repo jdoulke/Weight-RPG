@@ -108,6 +108,20 @@ boost-items:
   - "&aSuper Backpack=50"
   - "&#1cebee&lEnhanced Bag=100"
 
+# Custom Model Data support.
+# Format: "MATERIAL;MODEL_DATA=weight"
+# The first float in Minecraft's modern CustomModelDataComponent is used as the model identifier.
+# Old integer Custom Model Data values are represented by Minecraft/Spigot as a single float,
+# so an old model id such as 1001 can be configured simply as 1001 here.
+# These rules are read-only: Weight-RPG does NOT write or change Custom Model Data on the item.
+custom-model-data-weight:
+  # - "DIAMOND_SWORD;1001=25"
+
+# Custom Model Data items that increase carrying capacity and have zero own weight.
+# Boost is multiplied by stack size: two items with a boost of 100 give +200 capacity.
+custom-model-data-boost:
+  # - "PAPER;5001=100"
+
 plugin-prefix: "&7[&eWeight-RPG&7]&f: "
 
 # Add a line in the lore of each item showing its unit weight. (default is false)

@@ -4,6 +4,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.ShulkerBox;
@@ -17,7 +18,9 @@ import org.bukkit.persistence.PersistentDataType;
 import ted_2001.WeightRPG.Utils.WorldGuard.WorldGuardRegion;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 import static ted_2001.WeightRPG.Utils.JsonFile.boostItemsWeight;
@@ -36,6 +39,9 @@ public class CalculateWeight {
     private static final String DARK_RED_COLOR = "&4&l";
     private static final String[] COLOR_CODES = {"&a&l", "&2&l", "&e&l", "&6&l", "&c&l"};
 
+    private static final Map<ModelDataKey, Float> customModelDataWeights = new HashMap<>();
+    private static final Map<ModelDataKey, Float> customModelDataBoosts = new HashMap<>();
+
     private static NamespacedKey cachedWeightKey;
     private static NamespacedKey cachedBoostKey;
 
@@ -47,6 +53,78 @@ public class CalculateWeight {
         weightThresholdValues[0] = (float) getPlugin().getConfig().getDouble("weight-level-1.value");
         weightThresholdValues[1] = (float) getPlugin().getConfig().getDouble("weight-level-2.value");
         weightThresholdValues[2] = (float) getPlugin().getConfig().getDouble("weight-level-3.value");
+        refreshCustomModelDataMappings();
+    }
+
+    private static void refreshCustomModelDataMappings() {
+        customModelDataWeights.clear();
+        customModelDataBoosts.clear();
+        loadCustomModelDataMappings("custom-model-data-weight", customModelDataWeights);
+        loadCustomModelDataMappings("custom-model-data-boost", customModelDataBoosts);
+    }
+
+    private static void loadCustomModelDataMappings(String path, Map<ModelDataKey, Float> target) {
+        for (String entry : getPlugin().getConfig().getStringList(path)) {
+            if (entry == null || entry.isBlank()) {
+                continue;
+            }
+
+            int equals = entry.lastIndexOf('=');
+            int separator = entry.lastIndexOf(';', equals - 1);
+            if (equals <= 0 || separator <= 0 || separator >= equals - 1 || equals == entry.length() - 1) {
+                getPlugin().getLogger().warning("Invalid " + path + " entry '" + entry
+                        + "'. Expected MATERIAL;MODEL_DATA=value");
+                continue;
+            }
+
+            String materialName = entry.substring(0, separator).trim().toUpperCase(Locale.ROOT);
+            String modelValue = entry.substring(separator + 1, equals).trim();
+            String configuredValue = entry.substring(equals + 1).trim();
+            Material material = Material.matchMaterial(materialName);
+            if (material == null) {
+                getPlugin().getLogger().warning("Invalid material in " + path + ": " + materialName);
+                continue;
+            }
+
+            try {
+                float modelData = Float.parseFloat(modelValue);
+                float value = Float.parseFloat(configuredValue);
+                if (!Float.isFinite(modelData) || !Float.isFinite(value)) {
+                    throw new NumberFormatException("non-finite value");
+                }
+                target.put(new ModelDataKey(material, modelData), value);
+            } catch (NumberFormatException exception) {
+                getPlugin().getLogger().warning("Invalid numeric value in " + path + " entry '" + entry + "'.");
+            }
+        }
+    }
+
+    public static ModelDataMatch resolveCustomModelData(ItemStack item) {
+        if (item == null || item.getType().isAir()) {
+            return ModelDataMatch.NONE;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null || !meta.hasCustomModelDataComponent()) {
+            return ModelDataMatch.NONE;
+        }
+
+        List<Float> floats = meta.getCustomModelDataComponent().getFloats();
+        if (floats.isEmpty()) {
+            return ModelDataMatch.NONE;
+        }
+
+        ModelDataKey key = new ModelDataKey(item.getType(), floats.getFirst());
+        Float weight = customModelDataWeights.get(key);
+        if (weight != null) {
+            return new ModelDataMatch(true, weight, 0f);
+        }
+
+        Float boost = customModelDataBoosts.get(key);
+        if (boost != null) {
+            return new ModelDataMatch(true, 0f, boost);
+        }
+        return ModelDataMatch.NONE;
     }
 
     public void calculateWeight(Player player) {
@@ -80,8 +158,6 @@ public class CalculateWeight {
         accumulateInventorySection(inventory.getStorageContents(), shulkerBoxesEnabled, player, total);
         accumulateInventorySection(inventory.getExtraContents(), shulkerBoxesEnabled, player, total);
         accumulateInventorySection(inventory.getArmorContents(), shulkerBoxesEnabled, player, total);
-
-        // Preserve the plugin's established inventory-slot/off-hand behavior exactly.
         accumulateItem(inventory.getItemInOffHand(), shulkerBoxesEnabled, player, total);
         return new CalculationResult(total.weight, total.boost);
     }
@@ -132,6 +208,11 @@ public class CalculateWeight {
         Float persistentBoost = pdc.get(boostKey(), PersistentDataType.FLOAT);
         if (persistentBoost != null) {
             return new ResolvedItem(0f, persistentBoost);
+        }
+
+        ModelDataMatch modelData = resolveCustomModelData(item);
+        if (modelData.matched()) {
+            return new ResolvedItem(modelData.weightPerItem(), modelData.boostPerItem());
         }
 
         String displayName = itemMeta.getDisplayName();
@@ -419,6 +500,11 @@ public class CalculateWeight {
         }
     }
 
+    public record ModelDataMatch(boolean matched, float weightPerItem, float boostPerItem) {
+        private static final ModelDataMatch NONE = new ModelDataMatch(false, 0f, 0f);
+    }
+
+    private record ModelDataKey(Material material, float modelData) { }
     private record ResolvedItem(float weightPerItem, float boostPerItem) { }
     private record CalculationResult(float weight, float boost) { }
     private record Thresholds(float level1, float level2, float level3) { }
