@@ -13,6 +13,11 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        spigot-version:
+          - 26.1-R0.1-SNAPSHOT
+          - 26.2-R0.1-SNAPSHOT
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,4 +30,4 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn --batch-mode --no-transfer-progress clean verify
+        run: mvn --batch-mode --no-transfer-progress clean verify -Dspigot.version=${{ matrix.spigot-version }}
